@@ -6,13 +6,35 @@ You don't run an installer. You give your Agent one short prompt; it reads the i
 
 ## Quick start
 
-Copy this prompt and paste it into your Agent (Cursor, Claude Code, Codex, Copilot, Devin, Windsurf, WorkBuddy, or any compatible Agent):
+SpringBrand has two environments. Pick the one you need and paste the matching prompt into your Agent (Cursor, Claude Code, Codex, Copilot, Devin, Windsurf, WorkBuddy, or any compatible Agent).
+
+### Production
 
 > Follow the official SpringBrand installation guide to complete setup:
 > https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.md
 > Identify the current Agent, install or update the Skill, and configure the SpringBrand MCP server. Preserve existing configuration. Verify when done and tell me whether I need to restart.
 
 Your Agent will read [`INSTALL.md`](./INSTALL.md), identify itself, install the Skill, configure the `springbrand` MCP server, verify, and tell you whether to restart. On the next session it connects to the MCP server and opens a browser for you to authorize SpringBrand.
+
+### Development
+
+> Follow the official SpringBrand development installation guide to complete setup:
+> https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.dev.md
+> Identify the current Agent, install or update the Skill, and configure the SpringBrand dev MCP server. Preserve existing configuration, including any production install. Verify when done and tell me whether I need to restart.
+
+Your Agent will read [`INSTALL.dev.md`](./INSTALL.dev.md), identify itself, install the shared Skill, configure the `springbrand-dev` MCP server, verify, and tell you whether to restart. On the next session it connects to the dev MCP server and opens a browser for you to authorize SpringBrand.
+
+### Production vs Development
+
+| | Production | Development |
+| --- | --- | --- |
+| Install guide | [`INSTALL.md`](./INSTALL.md) | [`INSTALL.dev.md`](./INSTALL.dev.md) |
+| MCP server name | `springbrand` | `springbrand-dev` |
+| MCP server URL | `https://connector.springbrand.ai/mcp` | `https://devconnector.springbrand.ai/mcp` |
+| Purpose | Everyday use | Testing only |
+| Can coexist | Yes — the two environments use different MCP entry names and can be installed side by side | Yes |
+
+Both environments share the same SpringBrand Resource Discovery Skill (`springbrand-resource-discovery`); installing dev does not create a second Skill. Development is for testing only and should not be used as a production configuration.
 
 ## What gets installed
 
@@ -21,12 +43,15 @@ Your Agent will read [`INSTALL.md`](./INSTALL.md), identify itself, install the 
 
 Both are installed at the **user level**, so they apply across all your projects.
 
-## Two entry points
+## Version pinning
+
+Each environment can be installed from `main` (always the latest) or pinned to a tagged release for reproducible installs.
 
 | Use case | URL |
 | --- | --- |
-| Always install the latest version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.md |
-| Pin a stable, reproducible version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.1.0/INSTALL.md |
+| Always install the latest production version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.md |
+| Pin a stable, reproducible production version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.1.0/INSTALL.md |
+| Always install the latest development version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.dev.md |
 
 Use the `main` URL for everyday installs. Use the tagged URL when you need every install to be identical (for example, across a team or an enterprise baseline). The current version is in [`VERSION`](./VERSION).
 
@@ -35,14 +60,15 @@ Use the `main` URL for everyday installs. Use the tagged URL when you need every
 ```
 springbrand-agent-setup/
 ├── README.md                          # this file — for humans
-├── INSTALL.md                         # the installation protocol — for Agents
+├── INSTALL.md                         # the production installation protocol — for Agents
+├── INSTALL.dev.md                     # the development installation protocol — for Agents
 ├── VERSION                            # current release version
 └── skills/
     └── springbrand/
-        └── SKILL.md                   # the SpringBrand Skill source
+        └── SKILL.md                   # the SpringBrand Skill source (shared by both environments)
 ```
 
-`INSTALL.md` is the core product. It is written to be read and executed by an Agent. The Skill source lives in `skills/springbrand/SKILL.md` and is fetched by the Agent during installation.
+`INSTALL.md` and `INSTALL.dev.md` are the core product. They are written to be read and executed by an Agent. The Skill source lives in `skills/springbrand/SKILL.md` and is fetched by the Agent during installation; both environments use this same Skill.
 
 ## Requirements
 
@@ -56,14 +82,14 @@ If either is missing, `INSTALL.md` tells the Agent to stop and report the limita
 ## Safety
 
 - The installer never collects, stores, or prints OAuth tokens. It only writes the Skill file and MCP configuration.
-- The MCP URL is fixed at `https://connector.springbrand.ai/mcp`.
-- Existing MCP configuration is always preserved — the installer merges, it never overwrites.
+- The production MCP URL is fixed at `https://connector.springbrand.ai/mcp`; the development MCP URL is fixed at `https://devconnector.springbrand.ai/mcp`.
+- Existing MCP configuration is always preserved — the installer merges, it never overwrites. A dev install never touches the production `springbrand` entry, and vice versa.
 - The installer does not execute any external third-party scripts.
 - No credentials or tokens are placed in Skill files, Agent configuration, logs, or URLs.
 
 ## Updating
 
-Send the same prompt again. `INSTALL.md` detects an existing install and updates it in place rather than adding duplicates.
+Send the same prompt again. `INSTALL.md` / `INSTALL.dev.md` detects an existing install and updates it in place rather than adding duplicates.
 
 ## Future: deterministic installer
 
