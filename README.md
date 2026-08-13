@@ -8,9 +8,9 @@ You don't run an installer. You give your Agent one short prompt; it reads the i
 
 Copy this prompt and paste it into your Agent (Cursor, Claude Code, Codex, Copilot, Devin, Windsurf, WorkBuddy, or any compatible Agent):
 
-> 请按照 SpringBrand 官方安装说明完成安装：
+> Follow the official SpringBrand installation guide to complete setup:
 > https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.md
-> 识别当前 Agent，安装或更新 Skill，并配置 SpringBrand MCP；保留现有配置，完成后验证并告诉我是否需要重启。
+> Identify the current Agent, install or update the Skill, and configure the SpringBrand MCP server. Preserve existing configuration. Verify when done and tell me whether I need to restart.
 
 Your Agent will read [`INSTALL.md`](./INSTALL.md), identify itself, install the Skill, configure the `springbrand` MCP server, verify, and tell you whether to restart. On the next session it connects to the MCP server and opens a browser for you to authorize SpringBrand.
 
