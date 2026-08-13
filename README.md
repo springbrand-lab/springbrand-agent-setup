@@ -26,7 +26,7 @@ Both are installed at the **user level**, so they apply across all your projects
 | Use case | URL |
 | --- | --- |
 | Always install the latest version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.md |
-| Pin a stable, reproducible version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.0.0/INSTALL.md |
+| Pin a stable, reproducible version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.1.0/INSTALL.md |
 
 Use the `main` URL for everyday installs. Use the tagged URL when you need every install to be identical (for example, across a team or an enterprise baseline). The current version is in [`VERSION`](./VERSION).
 
