@@ -48,7 +48,7 @@ If your Agent does not support user-level Skills compatible with `SKILL.md`, rep
 
 ## Step 3 — Configure the SpringBrand MCP server
 
-1. Locate your Agent's MCP configuration. Determine its format and location (for example: a JSON file, a TOML file, a settings UI, or a CLI-managed registry).
+1. Locate your Agent's MCP configuration. Determine its format and location (for example: a JSON file, a TOML file, a settings UI, or a CLI-managed registry). Use the Agent's documented native representation of Streamable HTTP; it may be selected through a UI or inferred from the remote URL rather than stored in a field named `transport`.
 2. **Read and parse** the existing configuration before modifying it. Never overwrite a config file without first parsing its current contents.
 3. Look for an existing MCP server entry named `springbrand`:
    - **Not present** → add a new entry: name `springbrand`, URL `https://connector.springbrand.ai/mcp`, native Streamable HTTP transport.
