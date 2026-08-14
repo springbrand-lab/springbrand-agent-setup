@@ -11,7 +11,7 @@ Two things, both user-level (not project-level):
 1. **The SpringBrand Skill** — a `SKILL.md` file that teaches you to check SpringBrand Resources before building or recommending a solution.
 2. **The SpringBrand MCP server** — a remote MCP server named `springbrand` at a fixed URL, which exposes SpringBrand capabilities and connected providers.
 
-After installation, the MCP server will connect on your next session and trigger a normal browser OAuth flow. **You do not perform OAuth during installation.** See "What you do NOT do".
+The SpringBrand MCP server requires OAuth authorization before it can be used normally. Follow your Agent's normal MCP setup and connection flow; your Agent decides when to trigger OAuth. If authorization is completed during installation, leave it intact.
 
 ## Inputs
 
@@ -77,7 +77,7 @@ Tell the user, in plain text:
 3. The MCP configuration location you used and whether the `springbrand` entry was added, replaced, or unchanged.
 4. The full list of files you created or modified.
 5. That they must **restart the Agent or open a new session** before SpringBrand is available — the current session will not rediscover the newly installed Skill.
-6. That on the next session, the Agent will connect to the `springbrand` MCP server and open a browser to ask for SpringBrand authorization. The user should complete that authorization in the browser. (You do not perform OAuth; this happens automatically on the next connection.)
+6. That the `springbrand` MCP server requires OAuth before it can be used normally. The user should complete authorization when the Agent prompts for it; the Agent decides when to trigger that flow.
 
 ## Hard constraints
 
@@ -89,5 +89,4 @@ Tell the user, in plain text:
 - **Do not** execute any external third-party script. This document is the only instruction you follow.
 - **Do not** put any credentials, tokens, or secrets into Skill files, Agent configuration, logs, URLs, or error messages.
 - **Do not** declare success unless Step 4 verification passes.
-- **Do not** perform OAuth or open a browser during installation. OAuth happens on the next MCP connection, after restart.
 - If you are uncertain which Agent you are, or where its Skill directory or MCP configuration lives, **stop and ask the user**. Do not guess.
