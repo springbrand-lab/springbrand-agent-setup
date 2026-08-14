@@ -14,7 +14,7 @@ SpringBrand has two environments. Pick the one you need and paste the matching p
 > https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.md
 > Identify the current Agent, install or update the Skill, and configure the SpringBrand MCP server. Preserve existing configuration. Verify when done and tell me whether I need to restart.
 
-Your Agent will read [`INSTALL.md`](./INSTALL.md), identify itself, install the Skill, configure the `springbrand` MCP server, verify, and tell you whether to restart. On the next session it connects to the MCP server and opens a browser for you to authorize SpringBrand.
+Your Agent will read [`INSTALL.md`](./INSTALL.md), identify itself, install the Skill, configure the `springbrand` MCP server, verify, and tell you whether to restart. The MCP server requires OAuth before normal use; complete authorization when your Agent prompts you. The Agent decides when to trigger that flow.
 
 ### Development
 
@@ -22,7 +22,7 @@ Your Agent will read [`INSTALL.md`](./INSTALL.md), identify itself, install the 
 > https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.dev.md
 > Identify the current Agent, install or update the Skill, and configure the SpringBrand dev MCP server. Preserve existing configuration, including any production install. Verify when done and tell me whether I need to restart.
 
-Your Agent will read [`INSTALL.dev.md`](./INSTALL.dev.md), identify itself, install the shared Skill, configure the `springbrand-dev` MCP server, verify, and tell you whether to restart. On the next session it connects to the dev MCP server and opens a browser for you to authorize SpringBrand.
+Your Agent will read [`INSTALL.dev.md`](./INSTALL.dev.md), identify itself, install the shared Skill, configure the `springbrand-dev` MCP server, verify, and tell you whether to restart. The dev MCP server requires OAuth before normal use; complete authorization when your Agent prompts you. The Agent decides when to trigger that flow.
 
 ### Production vs Development
 
