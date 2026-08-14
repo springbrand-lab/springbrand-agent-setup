@@ -15,12 +15,14 @@ The SpringBrand MCP server requires OAuth authorization before it can be used no
 
 ## Inputs
 
-- **Skill source (raw):** `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand/SKILL.md`
+- **Skill source (same Git ref as this guide):** `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/<guide-ref>/skills/springbrand/SKILL.md`
 - **MCP server name:** `springbrand`
 - **MCP server URL (fixed):** `https://connector.springbrand.ai/mcp`
 - **MCP transport:** native Streamable HTTP (remote HTTP transport, **not** a stdio bridge, **not** a local command)
 
 If you were given a different URL, use the one above. The URL is fixed and must not be changed.
+
+Replace `<guide-ref>` with the Git ref in the URL used to open this guide. For example, a guide URL containing `/blob/stable/INSTALL.md` uses `stable`; one containing `/blob/v1.1.0/INSTALL.md` uses `v1.1.0`. The guide and Skill source must use the same ref.
 
 ## Step 1 — Identify your Agent
 
