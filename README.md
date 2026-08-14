@@ -11,7 +11,7 @@ SpringBrand has two environments. Pick the one you need and paste the matching p
 ### Production
 
 > Follow the official SpringBrand installation guide to complete setup:
-> https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.md
+> https://github.com/springbrand-lab/springbrand-agent-setup/blob/stable/INSTALL.md
 > Identify the current Agent, install or update the Skill, and configure the SpringBrand MCP server. Preserve existing configuration. Verify when done and tell me whether I need to restart.
 
 Your Agent will read [`INSTALL.md`](./INSTALL.md), identify itself, install the Skill, configure the `springbrand` MCP server, verify, and tell you whether to restart. The MCP server requires OAuth before normal use; complete authorization when your Agent prompts you. The Agent decides when to trigger that flow.
@@ -45,15 +45,15 @@ Both are installed at the **user level**, so they apply across all your projects
 
 ## Version pinning
 
-Each environment can be installed from `main` (always the latest) or pinned to a tagged release for reproducible installs.
+Production can track the latest stable release or be pinned to a tagged release; development tracks `main`.
 
 | Use case | URL |
 | --- | --- |
-| Always install the latest production version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.md |
+| Always install the latest stable production version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/stable/INSTALL.md |
 | Pin a stable, reproducible production version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.1.0/INSTALL.md |
 | Always install the latest development version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.dev.md |
 
-Use the `main` URL for everyday installs. Use the tagged URL when you need every install to be identical (for example, across a team or an enterprise baseline). The current version is in [`VERSION`](./VERSION).
+Use the `stable` URL for everyday production installs, `main` for the latest development environment, and a tagged URL when every install must be identical (for example, across a team or an enterprise baseline). Each guide fetches the Skill from its own Git ref, so the protocol and Skill always stay on the same version. The current version is in [`VERSION`](./VERSION).
 
 ## Repository layout
 
@@ -63,6 +63,7 @@ springbrand-agent-setup/
 ├── INSTALL.md                         # the production installation protocol — for Agents
 ├── INSTALL.dev.md                     # the development installation protocol — for Agents
 ├── VERSION                            # current release version
+├── .github/workflows/update-stable.yml # advances stable to the latest release tag
 └── skills/
     └── springbrand/
         └── SKILL.md                   # the SpringBrand Skill source (shared by both environments)
