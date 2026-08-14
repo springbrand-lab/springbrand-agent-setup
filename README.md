@@ -50,7 +50,7 @@ Production can track the latest stable release or be pinned to a tagged release;
 | Use case | URL |
 | --- | --- |
 | Always install the latest stable production version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/stable/INSTALL.md |
-| Pin a stable, reproducible production version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.1.0/INSTALL.md |
+| Pin a stable, reproducible production version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.1.1/INSTALL.md |
 | Always install the latest development version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.dev.md |
 
 Use the `stable` URL for everyday production installs, `main` for the latest development environment, and a tagged URL when every install must be identical (for example, across a team or an enterprise baseline). Each guide fetches the Skill from its own Git ref, so the protocol and Skill always stay on the same version. The current version is in [`VERSION`](./VERSION).
