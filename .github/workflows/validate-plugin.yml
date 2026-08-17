@@ -19,6 +19,7 @@ jobs:
         run: |
           python3 tests/validate_plugin.py
           python3 tests/test_validator.py
+          python3 tests/test_repair_cursor_plugin.py
           python3 tests/test_hook.py
 
   native-cli-smoke:

@@ -1,0 +1,17 @@
+{
+  "name": "springbrand",
+  "owner": {
+    "name": "SpringBrand"
+  },
+  "metadata": {
+    "description": "SpringBrand Resource Discovery for Cursor",
+    "version": "1.2.0-beta.2"
+  },
+  "plugins": [
+    {
+      "name": "springbrand",
+      "source": "./plugins/springbrand",
+      "description": "Discover and use SpringBrand Resources through the production connector"
+    }
+  ]
+}
