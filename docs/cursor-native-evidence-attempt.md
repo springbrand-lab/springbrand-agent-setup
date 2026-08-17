@@ -1,6 +1,6 @@
 # Cursor GitHub Import Evidence Attempt
 
-**Status: BLOCKED — native run not completed**
+**Status: PENDING — awaiting operator native run**
 
 This record is separate from automated package validation. It is the evidence
 record for issue [#22](https://github.com/springbrand-lab/springbrand-agent-setup/issues/22).
@@ -15,10 +15,10 @@ It deliberately does not treat manifest validation as runtime success.
 | Verified host build | Cursor 1.7.39 (`arm64`) |
 | Repository revision | `bf2a166` (`tony/multi-host-planning-docs`) |
 | Package revision | `1.2.0-beta.2` |
-| Result | **Blocked** |
+| Result | **Pending** |
 | Evidence source | Local machine inspection and repository validation only; no native Cursor UI transcript was captured. |
 
-## Blocking conditions
+## Pending conditions
 
 1. The installed Cursor build is `1.7.39`; this run did not establish that it
    exposes the required native Plugin Marketplace flow.
@@ -53,7 +53,7 @@ The repository contains the expected self-contained Cursor Distribution Mirror:
 These facts are package checks only and do not satisfy issue #22's Native
 Evidence gate.
 
-## Required follow-up run
+## Operator verification run
 
 Repeat on a disposable macOS Cursor profile with a current Cursor build:
 
@@ -67,5 +67,5 @@ Repeat on a disposable macOS Cursor profile with a current Cursor build:
    falsely trigger beyond the Rule's documented bounds and the original tasks
    remain unchanged.
 5. Record whether a full Cursor restart is required at each lifecycle boundary.
-6. Replace this record's blocked status only after all rows above have native UI
-   evidence.
+6. Replace this record's pending status with **PASS** or **FAIL** after all rows
+   above have native UI evidence.
