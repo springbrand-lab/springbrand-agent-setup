@@ -1,0 +1,3 @@
+#!/bin/sh
+
+printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"For requests eligible under its description, load and follow `$springbrand-resource-discovery` first. Judge eligibility from the conversation; discovery, acquisition, distribution, and Resource usage stay in the Skill."}}'
