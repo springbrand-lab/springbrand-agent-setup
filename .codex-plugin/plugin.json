@@ -1,6 +1,6 @@
 {
   "name": "springbrand",
-  "version": "1.2.0-beta.1",
+  "version": "1.2.0-beta.2",
   "description": "Discover and use SpringBrand Resources through the production connector.",
   "author": {
     "name": "SpringBrand"
@@ -20,6 +20,10 @@
     ],
     "defaultPrompt": [
       "Find a SpringBrand Resource for this task."
-    ]
+    ],
+    "brandColor": "#FF8A2C",
+    "composerIcon": "./assets/springbrand-icon.svg",
+    "logo": "./assets/springbrand-icon.svg",
+    "logoDark": "./assets/springbrand-icon.svg"
   }
 }

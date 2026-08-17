@@ -30,6 +30,12 @@ def main() -> None:
     assert plugin["skills"] == "./skills/"
     assert plugin["mcpServers"] == "./.mcp.json"
     assert plugin["repository"] == "https://github.com/springbrand-lab/springbrand-agent-setup"
+    interface = plugin["interface"]
+    assert interface["brandColor"] == "#FF8A2C"
+    for field in ("composerIcon", "logo", "logoDark"):
+        asset = interface[field]
+        assert asset == "./assets/springbrand-icon.svg"
+        assert (ROOT / asset).is_file()
 
     marketplace = read_json(ROOT / ".agents/plugins/marketplace.json")
     assert marketplace["name"] == "springbrand"
