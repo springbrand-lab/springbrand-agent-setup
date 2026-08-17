@@ -18,6 +18,7 @@ jobs:
       - name: Validate package contract
         run: |
           python3 tests/validate_plugin.py
+          python3 tests/test_validator.py
           python3 tests/test_hook.py
 
   native-cli-smoke:
