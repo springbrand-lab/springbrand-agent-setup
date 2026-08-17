@@ -1,0 +1,13 @@
+{
+  "name": "springbrand",
+  "owner": {
+    "name": "SpringBrand"
+  },
+  "plugins": [
+    {
+      "name": "springbrand",
+      "source": "./plugins/springbrand-workbuddy",
+      "description": "Discover and use SpringBrand Resources through the production connector"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "springbrand": {
+      "type": "http",
+      "url": "https://connector.springbrand.ai/mcp"
+    }
+  }
+}

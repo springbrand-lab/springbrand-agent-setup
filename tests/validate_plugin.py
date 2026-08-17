@@ -16,6 +16,10 @@ VERSION_PATTERN = re.compile(
     r"(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?"
     r"(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$"
 )
+EXPECTED_ROUTING_HOOK = rb'''#!/bin/sh
+
+printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"For requests eligible under its description, load and follow `$springbrand-resource-discovery` first. Judge eligibility from the conversation; discovery, acquisition, distribution, and Resource usage stay in the Skill."}}'
+'''
 
 
 def require(condition, message: str) -> None:
@@ -56,6 +60,9 @@ def validate_canonical_package(root: Path) -> tuple[str, str]:
     require(len(skills) == 1, "Canonical Skill must contain exactly one skills/*/SKILL.md")
     skill_name = re.search(r"^name:\s*(\S+)\s*$", skills[0].read_text(), re.MULTILINE)
     require(skill_name, f"Canonical Skill is missing a name: {skills[0]}")
+
+    hook = root / "hooks/user-prompt-submit"
+    require(hook.read_bytes() == EXPECTED_ROUTING_HOOK, "Canonical Hook must remain a static, network-free routing command")
     return version, skill_name.group(1)
 
 
@@ -184,6 +191,44 @@ def validate_cursor_adapter(root: Path, version: str, skill_name: str) -> None:
     require(not (package / "hooks").exists(), "Cursor Adapter must not ship Hooks")
 
 
+def validate_workbuddy_adapter(root: Path, version: str, skill_name: str) -> None:
+    marketplace = read_json(root / ".codebuddy-plugin/marketplace.json")
+    require(marketplace.get("name") == "springbrand", "WorkBuddy Marketplace name must be springbrand")
+    entries = marketplace.get("plugins", [])
+    require(len(entries) == 1 and entries[0].get("name") == "springbrand", "WorkBuddy Marketplace must contain exactly one springbrand entry")
+    require(entries[0].get("source") == "./plugins/springbrand-workbuddy", "WorkBuddy Marketplace source must reference ./plugins/springbrand-workbuddy")
+    package = component(root, entries[0]["source"], "WorkBuddy Marketplace source")
+    require(package.is_dir(), "WorkBuddy Marketplace source must be a directory")
+
+    plugin = read_json(package / ".workbuddy-plugin/plugin.json")
+    require(plugin.get("name") == "springbrand", "WorkBuddy manifest name must be springbrand")
+    require(plugin.get("version") == version, f"WorkBuddy manifest version must match VERSION ({version})")
+    for field, reference in (("skills", "./skills/"), ("hooks", "./hooks/hooks.json"), ("mcpServers", "./.mcp.json")):
+        require(plugin.get(field) == reference, f"WorkBuddy {field} component must reference {reference}")
+        component(package, reference, f"WorkBuddy {field} component")
+
+    canonical_skill = root / "skills/springbrand/SKILL.md"
+    mirrored_skill = package / "skills/springbrand/SKILL.md"
+    require(mirrored_skill.read_bytes() == canonical_skill.read_bytes(), "WorkBuddy Skill mirror must be byte-equivalent to the Canonical Skill")
+    require(re.search(rf"^name:\s*{re.escape(skill_name)}\s*$", mirrored_skill.read_text(), re.MULTILINE), "WorkBuddy Skill mirror name must match the Canonical Skill")
+
+    hook = package / "hooks/user-prompt-submit"
+    require(hook.read_bytes() == (root / "hooks/user-prompt-submit").read_bytes(), "WorkBuddy Hook mirror must be byte-equivalent to the canonical Hook")
+    require(os.access(hook, os.X_OK), "WorkBuddy Hook is not executable")
+    expected_hooks = [{"hooks": [{"type": "command", "command": "${CODEBUDDY_PLUGIN_ROOT}/hooks/user-prompt-submit"}]}]
+    try:
+        hooks = read_json(package / "hooks/hooks.json")["hooks"]["UserPromptSubmit"]
+    except (KeyError, TypeError) as exc:
+        raise AssertionError("WorkBuddy Hook config must declare hooks.UserPromptSubmit") from exc
+    require(hooks == expected_hooks, "WorkBuddy Hook config must reference ${CODEBUDDY_PLUGIN_ROOT}/hooks/user-prompt-submit")
+
+    expected_mcp = {"mcpServers": {"springbrand": {"type": "http", "url": PRODUCTION_MCP_URL}}}
+    require(read_json(package / ".mcp.json") == expected_mcp, f"WorkBuddy MCP server must contain only the production HTTP endpoint {PRODUCTION_MCP_URL}")
+
+    guide = (root / "INSTALL.workbuddy.md").read_text().lower()
+    require("installing and enabling" in guide and "trust decision" in guide, "WorkBuddy installation guide must disclose the Plugin Hook trust decision")
+
+
 def validate_secrets(root: Path) -> None:
     forbidden_names = {".env", ".env.local", "credentials.json", "secrets.json"}
     forbidden_suffixes = (".pem", ".key")
@@ -207,6 +252,7 @@ def validate_package(root: Path = ROOT) -> None:
     validate_codex_adapter(root, version, skill_name)
     validate_claude_adapter(root, version, skill_name)
     validate_cursor_adapter(root, version, skill_name)
+    validate_workbuddy_adapter(root, version, skill_name)
 
 
 def main() -> None:

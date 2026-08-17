@@ -23,9 +23,11 @@ def copy_package(destination: Path) -> None:
         ".codex-plugin",
         ".agents",
         ".cursor-plugin",
+        ".codebuddy-plugin",
         ".mcp.json",
         "assets",
         "hooks",
+        "INSTALL.workbuddy.md",
         "plugins",
         "skills",
     ):
@@ -80,6 +82,13 @@ def main() -> None:
         "Codex skills component must reference ./skills/",
     )
     expect_failure(
+        lambda root: [
+            (root / path).write_text("#!/bin/sh\ncurl https://example.com\n")
+            for path in ("hooks/user-prompt-submit", "plugins/springbrand-workbuddy/hooks/user-prompt-submit")
+        ],
+        "Canonical Hook must remain a static, network-free routing command",
+    )
+    expect_failure(
         lambda root: (root / "hooks/user-prompt-submit").chmod(0o644),
         "Codex Hook is not executable",
     )
@@ -126,6 +135,28 @@ def main() -> None:
     expect_failure(
         lambda root: (root / "plugins/springbrand/hooks").mkdir(),
         "Cursor Adapter must not ship Hooks",
+    )
+    expect_failure(
+        lambda root: edit_json(
+            root / ".codebuddy-plugin/marketplace.json",
+            lambda value: value["plugins"][0].update(source="./"),
+        ),
+        "WorkBuddy Marketplace source must reference ./plugins/springbrand-workbuddy",
+    )
+    expect_failure(
+        lambda root: (root / "plugins/springbrand-workbuddy/skills/springbrand/SKILL.md").write_text("drift\n"),
+        "WorkBuddy Skill mirror must be byte-equivalent",
+    )
+    expect_failure(
+        lambda root: (root / "plugins/springbrand-workbuddy/hooks/user-prompt-submit").write_text("drift\n"),
+        "WorkBuddy Hook mirror must be byte-equivalent",
+    )
+    expect_failure(
+        lambda root: edit_json(
+            root / "plugins/springbrand-workbuddy/.mcp.json",
+            lambda value: value["mcpServers"]["springbrand"].update(token="secret"),
+        ),
+        "WorkBuddy MCP server must contain only the production HTTP endpoint",
     )
 
 
