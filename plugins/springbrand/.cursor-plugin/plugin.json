@@ -1,0 +1,15 @@
+{
+  "name": "springbrand",
+  "displayName": "SpringBrand",
+  "version": "1.2.0-beta.2",
+  "description": "Discover and use SpringBrand Resources through the production connector.",
+  "author": {
+    "name": "SpringBrand"
+  },
+  "keywords": [
+    "springbrand",
+    "resources",
+    "marketplace"
+  ],
+  "logo": "assets/springbrand-icon.svg"
+}

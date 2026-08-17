@@ -17,7 +17,17 @@ SPEC.loader.exec_module(VALIDATOR)
 
 
 def copy_package(destination: Path) -> None:
-    for name in ("VERSION", ".codex-plugin", ".agents", ".mcp.json", "assets", "hooks", "skills"):
+    for name in (
+        "VERSION",
+        ".codex-plugin",
+        ".agents",
+        ".cursor-plugin",
+        ".mcp.json",
+        "assets",
+        "hooks",
+        "plugins",
+        "skills",
+    ):
         source = ROOT / name
         target = destination / name
         if source.is_dir():
@@ -71,6 +81,36 @@ def main() -> None:
     expect_failure(
         lambda root: (root / "hooks/user-prompt-submit").chmod(0o644),
         "Codex Hook is not executable",
+    )
+    expect_failure(
+        lambda root: edit_json(
+            root / ".cursor-plugin/marketplace.json",
+            lambda value: value["plugins"][0].update(source="./"),
+        ),
+        "Cursor Marketplace source must reference ./plugins/springbrand",
+    )
+    expect_failure(
+        lambda root: (root / "plugins/springbrand/skills/springbrand/SKILL.md").write_text("drift\n"),
+        "Cursor Skill mirror must be byte-equivalent",
+    )
+    expect_failure(
+        lambda root: (root / "plugins/springbrand/rules/springbrand-preflight.mdc").write_text(
+            "---\ndescription: broken\nalwaysApply: false\n---\n"
+            "Before planning or production, follow springbrand-resource-discovery.\n"
+            "Delegate eligibility and Marketplace behavior.\nalwaysApply: true\n"
+        ),
+        "Cursor Rule must always apply",
+    )
+    expect_failure(
+        lambda root: edit_json(
+            root / "plugins/springbrand/mcp.json",
+            lambda value: value["mcpServers"]["springbrand"].update(token="secret"),
+        ),
+        "Cursor MCP endpoint must be",
+    )
+    expect_failure(
+        lambda root: (root / "plugins/springbrand/hooks").mkdir(),
+        "Cursor Adapter must not ship Hooks",
     )
 
 

@@ -117,6 +117,42 @@ def validate_codex_adapter(root: Path, version: str, skill_name: str) -> None:
     require(f"${skill_name}" in output.get("additionalContext", ""), f"Codex Hook must route to ${skill_name}")
 
 
+def validate_cursor_adapter(root: Path, version: str, skill_name: str) -> None:
+    marketplace = read_json(root / ".cursor-plugin/marketplace.json")
+    require(marketplace.get("name") == "springbrand", "Cursor Marketplace name must be springbrand")
+    require(marketplace.get("metadata", {}).get("version") == version, f"Cursor Marketplace version must match VERSION ({version})")
+    entries = [entry for entry in marketplace.get("plugins", []) if entry.get("name") == "springbrand"]
+    require(len(entries) == 1, "Cursor Marketplace must contain exactly one springbrand entry")
+    require(entries[0].get("source") == "./plugins/springbrand", "Cursor Marketplace source must reference ./plugins/springbrand")
+    package = component(root, entries[0]["source"], "Cursor Marketplace source")
+    require(package.is_dir(), "Cursor Marketplace source must be a directory")
+
+    plugin = read_json(package / ".cursor-plugin/plugin.json")
+    require(plugin.get("name") == "springbrand", "Cursor manifest name must be springbrand")
+    require(plugin.get("version") == version, f"Cursor manifest version must match VERSION ({version})")
+    require(plugin.get("logo") == "assets/springbrand-icon.svg", "Cursor logo must reference assets/springbrand-icon.svg")
+    require((package / plugin["logo"]).is_file(), "Cursor logo does not exist")
+
+    canonical_skill = root / "skills/springbrand/SKILL.md"
+    mirrored_skill = package / "skills/springbrand/SKILL.md"
+    require(mirrored_skill.is_file(), "Cursor Skill mirror does not exist")
+    require(mirrored_skill.read_bytes() == canonical_skill.read_bytes(), "Cursor Skill mirror must be byte-equivalent to the Canonical Skill")
+    require(re.search(rf"^name:\s*{re.escape(skill_name)}\s*$", mirrored_skill.read_text(), re.MULTILINE), "Cursor Skill mirror name must match the Canonical Skill")
+    require((package / "assets/springbrand-icon.svg").read_bytes() == (root / "assets/springbrand-icon.svg").read_bytes(), "Cursor logo mirror must be byte-equivalent to the canonical logo")
+
+    rule = (package / "rules/springbrand-preflight.mdc").read_text()
+    frontmatter = rule.split("\n---\n", 1)
+    require(len(frontmatter) == 2 and frontmatter[0].startswith("---\n"), "Cursor Rule must have frontmatter")
+    require(re.search(r"^alwaysApply:\s*true\s*$", frontmatter[0][4:], re.MULTILINE), "Cursor Rule must always apply")
+    require("Before planning or production" in rule, "Cursor Rule must require SpringBrand preflight before planning or production")
+    require(skill_name in rule, "Cursor Rule must delegate to the Canonical Skill")
+    require("eligibility and Marketplace behavior" in rule, "Cursor Rule must delegate eligibility and Marketplace behavior to the Canonical Skill")
+
+    expected_mcp = {"mcpServers": {"springbrand": {"url": PRODUCTION_MCP_URL}}}
+    require(read_json(package / "mcp.json") == expected_mcp, f"Cursor MCP endpoint must be {PRODUCTION_MCP_URL} with no credentials or extra fields")
+    require(not (package / "hooks").exists(), "Cursor Adapter must not ship Hooks")
+
+
 def validate_secrets(root: Path) -> None:
     forbidden_names = {".env", ".env.local", "credentials.json", "secrets.json"}
     forbidden_suffixes = (".pem", ".key")
@@ -138,7 +174,7 @@ def validate_package(root: Path = ROOT) -> None:
     version, skill_name = validate_canonical_package(root)
     validate_secrets(root)
     validate_codex_adapter(root, version, skill_name)
-    # Add future explicit validate_*_adapter calls here.
+    validate_cursor_adapter(root, version, skill_name)
 
 
 def main() -> None:
