@@ -25,7 +25,7 @@ It contains no token, header, client secret, API key, or extra OAuth resource pa
 ```sh
 claude plugin marketplace add springbrand-lab/springbrand-agent-setup --scope user
 claude plugin install springbrand@springbrand --scope user
-claude mcp login springbrand
+claude mcp login plugin:springbrand:springbrand
 ```
 
 Approve the Plugin and MCP server when Claude prompts. Do not run `claude mcp add` for `springbrand`; the Plugin already bundles that MCP entry. Confirm the install with:
