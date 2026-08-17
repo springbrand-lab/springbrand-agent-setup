@@ -1,8 +1,6 @@
 # SpringBrand Agent Setup
 
-Install SpringBrand into any AI coding or productivity Agent that supports user-level Skills and remote Streamable HTTP MCP servers with OAuth.
-
-You don't run an installer. You give your Agent one short prompt; it reads the installation protocol and does the rest.
+Install SpringBrand as a native Codex Plugin on macOS, or use the existing Skill-plus-MCP fallback on unsupported hosts. You give your Agent one short prompt; it reads the installation protocol and uses the host-native lifecycle.
 
 ## Quick start
 
@@ -12,9 +10,9 @@ SpringBrand has two environments. Pick the one you need and paste the matching p
 
 > Follow the official SpringBrand installation guide to complete setup:
 > https://github.com/springbrand-lab/springbrand-agent-setup/blob/stable/INSTALL.md
-> Identify the current Agent, install or update the Skill, and configure the SpringBrand MCP server. Preserve existing configuration. Verify when done and tell me whether I need to restart.
+> If this is Codex CLI 0.147.0+ or Codex desktop 26.810.52044+ on macOS, use the native Marketplace and Plugin flow in the guide. Otherwise, use the documented Skill-plus-MCP fallback. Preserve existing configuration, verify every completion check, and tell me whether I need to restart.
 
-Your Agent will read [`INSTALL.md`](./INSTALL.md), identify itself, install the Skill, configure the `springbrand` MCP server, verify, and tell you whether to restart. The MCP server requires OAuth before normal use; complete authorization when your Agent prompts you. The Agent decides when to trigger that flow.
+For Codex, [`INSTALL.md`](./INSTALL.md) uses native Marketplace, Plugin, OAuth, Hook review, update, uninstall, and confirmed legacy migration flows. Unsupported hosts retain the existing fallback. The production MCP server requires OAuth before normal use; complete authorization when the host prompts you.
 
 ### Development
 
@@ -38,10 +36,10 @@ Both environments share the same SpringBrand Resource Discovery Skill (`springbr
 
 ## What gets installed
 
-- **SpringBrand Skill** (`springbrand-resource-discovery`) — teaches your Agent to check SpringBrand Resources before building or recommending a solution, so it reuses existing plugins, components, templates, and capabilities instead of rebuilding them.
-- **SpringBrand MCP server** — a single remote MCP server at `https://connector.springbrand.ai/mcp` that exposes SpringBrand Resources and connected provider capabilities (GitHub, Gmail, etc.). You authorize once with your SpringBrand account.
+- **Codex Plugin (beta)** — packages the `springbrand-resource-discovery` Skill, production MCP declaration, and static preflight Hook for supported macOS Codex hosts.
+- **Skill-plus-MCP fallback** — the existing user-level Skill and remote MCP setup for unsupported hosts.
 
-Both are installed at the **user level**, so they apply across all your projects.
+The production MCP server is `https://connector.springbrand.ai/mcp` and requires native OAuth before normal use.
 
 ## Version pinning
 

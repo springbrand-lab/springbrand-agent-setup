@@ -1,0 +1,20 @@
+{
+  "name": "springbrand",
+  "interface": {
+    "displayName": "SpringBrand"
+  },
+  "plugins": [
+    {
+      "name": "springbrand",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
