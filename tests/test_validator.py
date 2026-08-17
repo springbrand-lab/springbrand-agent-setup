@@ -17,7 +17,7 @@ SPEC.loader.exec_module(VALIDATOR)
 
 
 def copy_package(destination: Path) -> None:
-    for name in ("VERSION", ".codex-plugin", ".agents", ".mcp.json", "assets", "hooks", "skills"):
+    for name in ("VERSION", ".claude-plugin", ".codex-plugin", ".agents", ".mcp.json", "assets", "hooks", "skills"):
         source = ROOT / name
         target = destination / name
         if source.is_dir():
@@ -71,6 +71,20 @@ def main() -> None:
     expect_failure(
         lambda root: (root / "hooks/user-prompt-submit").chmod(0o644),
         "Codex Hook is not executable",
+    )
+    expect_failure(
+        lambda root: edit_json(
+            root / ".claude-plugin/plugin.json",
+            lambda value: value["mcpServers"]["springbrand"].update(url="https://example.com/mcp"),
+        ),
+        "Claude MCP server must contain only the production HTTP endpoint",
+    )
+    expect_failure(
+        lambda root: edit_json(
+            root / ".claude-plugin/plugin.json",
+            lambda value: value["mcpServers"]["springbrand"].update(headers={"Authorization": "Bearer token"}),
+        ),
+        "Claude MCP server must contain only the production HTTP endpoint",
     )
 
 

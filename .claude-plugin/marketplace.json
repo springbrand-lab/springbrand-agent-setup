@@ -1,0 +1,13 @@
+{
+  "name": "springbrand",
+  "owner": {
+    "name": "SpringBrand"
+  },
+  "plugins": [
+    {
+      "name": "springbrand",
+      "source": "./"
+    }
+  ],
+  "description": "SpringBrand plugins for discovering and using reusable Resources."
+}

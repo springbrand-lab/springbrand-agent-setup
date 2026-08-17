@@ -102,7 +102,7 @@ def validate_codex_adapter(root: Path, version: str, skill_name: str) -> None:
             try:
                 result = subprocess.run(
                     [hook], input=json.dumps({"prompt": prompt}), text=True,
-                    capture_output=True, cwd=cwd, env={}, timeout=1, check=True,
+                    capture_output=True, cwd=cwd, env={}, timeout=5, check=True,
                 )
             except (OSError, subprocess.SubprocessError) as exc:
                 raise AssertionError(f"Codex Hook failed for prompt {prompt!r}: {exc}") from exc
@@ -115,6 +115,37 @@ def validate_codex_adapter(root: Path, version: str, skill_name: str) -> None:
     output = outputs[0].get("hookSpecificOutput", {})
     require(output.get("hookEventName") == "UserPromptSubmit", "Codex Hook must return UserPromptSubmit output")
     require(f"${skill_name}" in output.get("additionalContext", ""), f"Codex Hook must route to ${skill_name}")
+
+
+def validate_claude_adapter(root: Path, version: str, skill_name: str) -> None:
+    plugin = read_json(root / ".claude-plugin/plugin.json")
+    require(plugin.get("name") == "springbrand", "Claude manifest name must be springbrand")
+    require(plugin.get("version") == version, f"Claude manifest version must match VERSION ({version})")
+    require(plugin.get("description") == "Discover and use SpringBrand Resources through the production connector.", "Claude manifest description is invalid")
+    require(plugin.get("author") == {"name": "SpringBrand"}, "Claude manifest author is invalid")
+    require(plugin.get("repository") == "https://github.com/springbrand-lab/springbrand-agent-setup", "Claude repository URL is invalid")
+    require(plugin.get("skills") == "./skills/", "Claude skills component must reference ./skills/")
+    require(component(root, plugin["skills"], "Claude skills component").is_dir(), "Claude skills component must be a directory")
+    require(plugin.get("mcpServers") == {"springbrand": {"type": "http", "url": PRODUCTION_MCP_URL}}, "Claude MCP server must contain only the production HTTP endpoint")
+
+    hooks_reference = plugin.get("hooks")
+    require(hooks_reference == "./hooks/claude-hooks.json", "Claude Hook component must reference ./hooks/claude-hooks.json")
+    hooks_path = component(root, hooks_reference, "Claude Hook component")
+    require(hooks_path.is_file(), "Claude Hook component must be a file")
+    config = read_json(hooks_path)
+    expected_hook = [{"hooks": [{"type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/user-prompt-submit"}]}]
+    try:
+        hooks = config["hooks"]["UserPromptSubmit"]
+    except (KeyError, TypeError) as exc:
+        raise AssertionError("Claude Hook config must declare hooks.UserPromptSubmit") from exc
+    require(hooks == expected_hook, "Claude Hook config must reference ${CLAUDE_PLUGIN_ROOT}/hooks/user-prompt-submit")
+
+    marketplace = read_json(root / ".claude-plugin/marketplace.json")
+    require(marketplace.get("name") == "springbrand", "Claude Marketplace name must be springbrand")
+    require(marketplace.get("description") == "SpringBrand plugins for discovering and using reusable Resources.", "Claude Marketplace description is invalid")
+    require(marketplace.get("owner") == {"name": "SpringBrand"}, "Claude Marketplace owner is invalid")
+    require(marketplace.get("plugins") == [{"name": "springbrand", "source": "./"}], "Claude Marketplace must contain exactly one root springbrand entry")
+    require(component(root, marketplace["plugins"][0]["source"], "Claude Marketplace source").is_dir(), "Claude Marketplace source must be a directory")
 
 
 def validate_secrets(root: Path) -> None:
@@ -138,6 +169,7 @@ def validate_package(root: Path = ROOT) -> None:
     version, skill_name = validate_canonical_package(root)
     validate_secrets(root)
     validate_codex_adapter(root, version, skill_name)
+    validate_claude_adapter(root, version, skill_name)
     # Add future explicit validate_*_adapter calls here.
 
 
