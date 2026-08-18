@@ -125,6 +125,36 @@ checks remain **pending**:
 - routing-before-work transcript in a Desktop Code session;
 - Desktop update, disable, uninstall, and unrelated-configuration preservation.
 
-The native macOS UI control service was unavailable during this run, so these
-checks are recorded as pending rather than inferred from CLI evidence. This is
-an explicit host limitation, not a Desktop pass.
+The native macOS UI control service was unavailable during the original run, so
+those checks were recorded as pending rather than inferred from CLI evidence.
+
+### Desktop Plugin Browser retest — August 18, 2026
+
+A manual native Desktop run added the current branch through **Plugin Browser →
+Add Marketplace** using:
+
+```text
+springbrand-lab/springbrand-agent-setup@tony/multi-host-planning-docs
+```
+
+Desktop discovered and installed exactly one `springbrand@springbrand` Plugin,
+version `1.2.0-beta.2`. The shared Plugin inventory reported one Skill, one
+`UserPromptSubmit` Hook, and one namespaced MCP server; the MCP state was
+`Connected`.
+
+The first eligible Desktop Code task produced the following routing evidence:
+
+- `/springbrand:springbrand` ran before planning or production;
+- the session checked the current directory before attempting writes;
+- it searched exactly for `springbrand.resources.list`;
+- targeted discovery used `view=marketplace`, query `dessert website`, page 1,
+  and page size 100;
+- the empty targeted result triggered a complete `view=marketplace` fallback;
+- the complete Marketplace contained 23 Resources;
+- no `view=usable` discovery call and no Hook error appeared.
+
+The task opened in the existing `universal-agent` repository rather than an
+empty test directory, so the model correctly paused to ask where the website
+should be created. Original-task completion, a separate ineligible task, and
+Desktop disable/update/uninstall preservation remain pending; Desktop status is
+therefore partial rather than pass.
