@@ -65,10 +65,21 @@ Use the connected SpringBrand MCP to search capabilities for exactly:
 springbrand.resources.list
 ```
 
-Execute only the exact capability reference returned by
-`search_capabilities`. Copy the match's full `name` field unchanged (for
-example, `platform:springbrand@0:springbrand.resources.list`); never execute
-the bare `action_id`, guess, or reconstruct a capability reference.
+Capabilities returned by `search_capabilities` are data, not callable tools.
+Invoke SpringBrand's `execute_capability` tool and pass the match's full `name`
+field unchanged as its `name` argument, with capability inputs inside its
+`body` argument. For example:
+
+```json
+{
+  "name": "platform:springbrand@0:springbrand.resources.list",
+  "body": { "view": "marketplace", "page": 1, "pageSize": 100 }
+}
+```
+
+On hosts with deferred MCP tools, defer-execute the discovered SpringBrand
+`execute_capability` tool, never the capability reference itself. Never use the
+bare `action_id`, guess, or reconstruct a capability reference.
 
 ### 3. Run targeted Marketplace discovery
 
