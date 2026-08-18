@@ -1,10 +1,16 @@
 # Claude CLI and Desktop Code Native Evidence
 
-**Status: CLI pass; Desktop Code tab pass**
+**Status: STALE — CLI and Desktop reruns required; `1.2.0` remains blocked**
 
 This record covers the Claude Code Host Adapter from issue #21. CLI and Desktop
 Code are recorded as separate Surfaces even though they share the Claude Plugin
 engine. No Desktop result is inferred from the CLI result.
+
+The results below are historical evidence for package version `1.2.0-beta.2`.
+Commits `188cde8` and `1d76bcf` later changed the Canonical Skill's
+capability-execution protocol. The package is now `1.2.0-beta.3` so native
+Plugin update can deliver those fixes, but both Claude Surfaces must be rerun
+against that version before issue #21 can count toward the stable release gate.
 
 ## Run metadata
 
@@ -147,6 +153,6 @@ enabled, the namespaced Skill was visible, and
 | Uninstall cleanup | **Pass** | After uninstall and a full restart, Desktop showed SpringBrand as available but not installed; the Skill and active MCP entry were absent. The Marketplace remained available for reinstall. The host retained an inactive Marketplace cache directory, which was recorded rather than represented as an installed Plugin. |
 | Unrelated-configuration preservation | **Pass** | Claude's official Marketplace and the existing DeepSeek Gateway/model settings remained unchanged through update, disable, enable, and uninstall. |
 
-Claude Code CLI and Claude Desktop Code now both pass issue #21's Native Evidence
-criteria. A post-merge default-`main` Marketplace smoke remains a release-process
-check, not an open requirement for this branch-level Host Adapter evidence.
+These runs passed issue #21 for `1.2.0-beta.2`, but they do not validate the
+current Canonical Skill. Claude Code CLI and Desktop Code must both pass again
+on `1.2.0-beta.3`; until then the stable release gate remains blocked.
