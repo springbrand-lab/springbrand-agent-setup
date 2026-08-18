@@ -1,6 +1,6 @@
 # Claude CLI and Desktop Code Native Evidence
 
-**Status: CLI partial; Desktop Code tab pending native UI verification**
+**Status: CLI pass; Desktop Code tab pending native UI verification**
 
 This record covers the Claude Code Host Adapter from issue #21. CLI and Desktop
 Code are recorded as separate Surfaces even though they share the Claude Plugin
@@ -81,6 +81,38 @@ and the `1.2.0` release gate remain open.
 
 GitHub's default `main` branch still does not contain the Claude Adapter package,
 so default-main installation cannot pass until this branch is merged.
+
+### Current-branch routing retest — August 18, 2026
+
+The first real interactive run exposed two P1 package defects that strict schema
+validation had not detected:
+
+1. Claude auto-discovered the root Codex `hooks/hooks.json` in addition to the
+   explicit Claude Hook, producing a duplicate failing invocation at
+   `/hooks/user-prompt-submit`. Commit `7a0de2f` moved the Codex Hook to the
+   explicit non-default path `hooks/codex-hooks.json`.
+2. Claude exposes Plugin Skills by namespace (`/springbrand:springbrand`), while
+   the Hook named only the Canonical Skill frontmatter name. The model therefore
+   skipped the Skill and followed the MCP server's shorter guidance. Commit
+   `a735508` makes the Claude Hook invoke `/springbrand:springbrand` while still
+   naming `springbrand-resource-discovery` as the Canonical Skill.
+
+After reinstalling the remote branch, the final run on Claude Code 2.1.234 passed:
+
+- the `UserPromptSubmit` Hook ran once with no Hook error;
+- `/springbrand:springbrand` loaded successfully before planning or production;
+- the model searched exactly for `springbrand.resources.list`;
+- targeted discovery used `view=marketplace` with `query="coffee website"`;
+- the empty targeted result triggered the required complete-catalog fallback;
+- all 23 Marketplace Resources were evaluated, none was forced into the task,
+  and the original website request continued normally;
+- the task produced `index.html`, `css/style.css`, and `js/main.js`, then passed
+  JavaScript syntax, HTML balance, asset-reference, and HTTP 200 checks;
+- a separate `2+2` session returned only `4` and invoked no Skill or MCP tool.
+
+The final package was also uninstalled and reinstalled from the refreshed remote
+Marketplace during the fixes. The namespaced MCP OAuth remained connected, and
+no unrelated Plugin or MCP entry was added or removed.
 
 ## Claude Desktop Code tab
 
