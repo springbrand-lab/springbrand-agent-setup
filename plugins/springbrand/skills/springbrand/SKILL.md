@@ -66,7 +66,9 @@ springbrand.resources.list
 ```
 
 Execute only the exact capability reference returned by
-`search_capabilities`. Never guess or reconstruct a capability reference.
+`search_capabilities`. Copy the match's full `name` field unchanged (for
+example, `platform:springbrand@0:springbrand.resources.list`); never execute
+the bare `action_id`, guess, or reconstruct a capability reference.
 
 ### 3. Run targeted Marketplace discovery
 
@@ -86,6 +88,8 @@ Execute `springbrand.resources.list` with:
 - the canonical query;
 - `page=1`;
 - the largest supported `pageSize` needed for a useful candidate set.
+
+Send `page` and `pageSize` as JSON integers, never quoted strings.
 
 Never use `view=usable` to discover a Resource the user may not have added.
 If this request returns a retryable transport or provider error, perform a
