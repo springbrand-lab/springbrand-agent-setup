@@ -75,6 +75,8 @@ def validate_codex_adapter(root: Path, version: str, skill_name: str) -> None:
     require(component(root, plugin["skills"], "Codex skills component").is_dir(), "Codex skills component must be a directory")
     require(plugin.get("mcpServers") == "./.mcp.json", "Codex MCP component must reference ./.mcp.json")
     require(component(root, plugin["mcpServers"], "Codex MCP component").is_file(), "Codex MCP component must be a file")
+    require(plugin.get("hooks") == "./hooks/codex-hooks.json", "Codex Hook component must reference ./hooks/codex-hooks.json")
+    require(component(root, plugin["hooks"], "Codex Hook component").is_file(), "Codex Hook component must be a file")
 
     interface = plugin.get("interface", {})
     require(interface.get("brandColor") == "#FF8A2C", "Codex brandColor must be #FF8A2C")
@@ -95,7 +97,7 @@ def validate_codex_adapter(root: Path, version: str, skill_name: str) -> None:
     hook = root / "hooks/user-prompt-submit"
     require(hook.is_file(), "Codex Hook does not exist: hooks/user-prompt-submit")
     require(os.access(hook, os.X_OK), "Codex Hook is not executable: hooks/user-prompt-submit")
-    config = read_json(root / "hooks/hooks.json")
+    config = read_json(root / "hooks/codex-hooks.json")
     try:
         hooks = config["hooks"]["UserPromptSubmit"]
     except (KeyError, TypeError) as exc:
@@ -125,6 +127,7 @@ def validate_codex_adapter(root: Path, version: str, skill_name: str) -> None:
 
 
 def validate_claude_adapter(root: Path, version: str, skill_name: str) -> None:
+    require(not (root / "hooks/hooks.json").exists(), "Claude Adapter must not auto-discover the Codex Hook config")
     plugin = read_json(root / ".claude-plugin/plugin.json")
     require(plugin.get("name") == "springbrand", "Claude manifest name must be springbrand")
     require(plugin.get("version") == version, f"Claude manifest version must match VERSION ({version})")

@@ -1,5 +1,7 @@
 # Cursor CLI / 桌面应用原生集成能力核实
 
+> **Decision status:** Historical research input. [ADR-0001](../adr/0001-native-host-plugin-adapters.md) supersedes the distribution and Surface recommendations below; `1.2.0` targets Cursor desktop, not Cursor CLI, and uses native GitHub Marketplace import rather than a public-listing release gate.
+
 - **基准日**：2026-08-17
 - **访问日期**：本文所有在线来源均于 2026-08-17 访问
 - **范围**：Cursor 桌面 IDE、Cursor CLI、Cursor Plugins、Agent Plugins、VS Code 扩展、MCP、OAuth、Rules、Skills、commands、Hooks、权限/信任、安装/启用/更新/卸载、配置边界、仓库 URL 分发

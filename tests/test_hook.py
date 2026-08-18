@@ -10,7 +10,7 @@ HOOK = ROOT / "hooks" / "user-prompt-submit"
 
 
 def main() -> None:
-    config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
+    config = json.loads((ROOT / "hooks" / "codex-hooks.json").read_text())
     handlers = config["hooks"]["UserPromptSubmit"]
     assert len(handlers) == 1
     hook = handlers[0]["hooks"]

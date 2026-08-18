@@ -25,5 +25,6 @@
     "composerIcon": "./assets/springbrand-icon.svg",
     "logo": "./assets/springbrand-icon.svg",
     "logoDark": "./assets/springbrand-icon.svg"
-  }
+  },
+  "hooks": "./hooks/codex-hooks.json"
 }

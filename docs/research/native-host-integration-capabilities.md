@@ -1,5 +1,7 @@
 # SpringBrand native host integration research
 
+> **Decision status:** Historical research input. [ADR-0001](../adr/0001-native-host-plugin-adapters.md) supersedes this document where scope or distribution recommendations differ; `1.2.0` targets Cursor desktop only and uses native GitHub Marketplace import.
+
 - **Verified:** 2026-08-17
 - **Scope:** Claude Code CLI and Claude Desktop Code tab, Cursor desktop and CLI, Tencent WorkBuddy desktop
 - **Evidence policy:** official product documentation, first-party repositories, and first-party release notes only; unsupported or undocumented behavior remains `unknown` until native testing.

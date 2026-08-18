@@ -58,14 +58,15 @@ Evidence gate.
 Repeat on a disposable macOS Cursor profile with a current Cursor build:
 
 1. Record the exact macOS and Cursor builds.
-2. Use **Customize → Browse Marketplace → Add Marketplace → Import from GitHub**
+2. Check for existing global SpringBrand Skills or MCP entries and report duplicates; do not remove them or their OAuth state without explicit user approval.
+3. Use **Customize → Browse Marketplace → Add Marketplace → Import from GitHub**
    with this repository.
-3. Capture the indexed Plugin count, installed components, OAuth browser flow,
+4. Capture the indexed Plugin count, installed components, OAuth browser flow,
    and refresh/update/removal behavior.
-4. For an eligible task, prove preflight occurs before production work and the
+5. For an eligible task, prove preflight occurs before production work and the
    original task still completes. For ineligible tasks, prove preflight does not
    falsely trigger beyond the Rule's documented bounds and the original tasks
    remain unchanged.
-5. Record whether a full Cursor restart is required at each lifecycle boundary.
-6. Replace this record's pending status with **PASS** or **FAIL** after all rows
+6. Record whether a full Cursor restart is required at each lifecycle boundary.
+7. Replace this record's pending status with **PASS** or **FAIL** after all rows
    above have native UI evidence.

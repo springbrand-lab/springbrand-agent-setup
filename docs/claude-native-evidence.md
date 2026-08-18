@@ -1,6 +1,6 @@
 # Claude CLI and Desktop Code Native Evidence
 
-**Status: CLI pass; Desktop Code tab pending native UI verification**
+**Status: CLI partial; Desktop Code tab pending native UI verification**
 
 This record covers the Claude Code Host Adapter from issue #21. CLI and Desktop
 Code are recorded as separate Surfaces even though they share the Claude Plugin
@@ -52,14 +52,35 @@ python3 tests/validate_plugin.py                           PASS
 python3 tests/test_hook.py                                 PASS
 ```
 
-### GitHub Marketplace limitation
+### Current-branch GitHub Marketplace retest — August 18, 2026
 
-`claude plugin marketplace add springbrand-lab/springbrand-agent-setup` was
-also attempted. It failed because GitHub's default `main` branch does not yet
-contain the Claude Adapter package (`.claude-plugin/marketplace.json`). The
-local-directory Marketplace flow above verifies the same native install
-lifecycle without pretending that an unmerged branch is available from the
-repository's default branch.
+A second clean run tested the remote integration branch directly rather than a
+local-directory Marketplace:
+
+| Field | Value |
+| --- | --- |
+| Marketplace source | `springbrand-lab/springbrand-agent-setup@tony/multi-host-planning-docs` |
+| Repository revision | `e368d47c42037216aff1d0a1cff8e339c66d406e` |
+| macOS | 14.1.2 (23B92) |
+| Claude Code CLI | 2.1.228 for installation; the interactive launcher reported 2.1.234 |
+| Claude Desktop | 1.24012.11 |
+| Configuration | Fresh isolated `CLAUDE_CONFIG_DIR`; neutral workspace outside the repository |
+
+The GitHub branch clone, Marketplace validation, Plugin installation, component
+inventory, namespaced MCP registration, and fresh browser OAuth all passed.
+`claude plugin details` reported one Skill, one `UserPromptSubmit` Hook, and one
+MCP server. `claude mcp list` changed from `Needs authentication` to `Connected`
+for `plugin:springbrand:springbrand`; no duplicate SpringBrand MCP entry was
+present.
+
+The interactive routing run did not begin because the fresh Claude configuration
+required a separate Claude account login. Eligible/ineligible model routing,
+original-task preservation, and the Desktop Code checks remain pending. The
+adapter is therefore proven installable from the current branch, but issue #21
+and the `1.2.0` release gate remain open.
+
+GitHub's default `main` branch still does not contain the Claude Adapter package,
+so default-main installation cannot pass until this branch is merged.
 
 ## Claude Desktop Code tab
 

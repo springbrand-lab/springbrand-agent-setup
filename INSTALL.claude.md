@@ -20,6 +20,10 @@ The first command validates Marketplace metadata, the second validates the Plugi
 
 It contains no token, header, client secret, API key, or extra OAuth resource parameter. Authentication is handled by Claude's native MCP OAuth flow.
 
+## Before installing
+
+Check Claude for an existing global `springbrand` MCP entry or SpringBrand Skill and report duplicates before continuing. Do not delete or replace a legacy SpringBrand entry, OAuth state, or unrelated configuration without explicit user approval.
+
 ## Install and authenticate
 
 ```sh

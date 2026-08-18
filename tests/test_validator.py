@@ -93,6 +93,10 @@ def main() -> None:
         "Codex Hook is not executable",
     )
     expect_failure(
+        lambda root: shutil.copy2(root / "hooks/codex-hooks.json", root / "hooks/hooks.json"),
+        "Claude Adapter must not auto-discover the Codex Hook config",
+    )
+    expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
             lambda value: value["mcpServers"]["springbrand"].update(url="https://example.com/mcp"),

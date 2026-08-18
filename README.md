@@ -38,6 +38,7 @@ Both environments share the same SpringBrand Resource Discovery Skill (`springbr
 
 - **Codex Plugin (beta)** — packages the `springbrand-resource-discovery` Skill, production MCP declaration, and static preflight Hook for supported macOS Codex hosts.
 - **Claude Code Plugin (beta)** — packages the same Canonical Skill, native OAuth-backed production MCP, and static preflight Hook for Claude Code CLI and the Claude Desktop Code tab; see [`INSTALL.claude.md`](./INSTALL.claude.md).
+- **Cursor Plugin (beta)** — packages generated, verified Distribution Mirrors with native OAuth-backed production MCP and an always-applied preflight Rule for Cursor desktop; see [`INSTALL.cursor.md`](./INSTALL.cursor.md).
 - **WorkBuddy Plugin (beta)** — packages generated, verified Distribution Mirrors with native OAuth-backed production MCP for WorkBuddy; Native Evidence remains tracked in #23; see [`INSTALL.workbuddy.md`](./INSTALL.workbuddy.md).
 - **Skill-plus-MCP fallback** — the existing user-level Skill and remote MCP setup for unsupported hosts.
 

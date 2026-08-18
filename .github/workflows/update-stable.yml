@@ -32,6 +32,7 @@ jobs:
           done < <(git tag --list 'v*' --sort=-version:refname)
 
           test -n "$latest_tag"
+          test "$latest_tag" = "v$(tr -d '[:space:]' < VERSION)" || { echo "::error::VERSION must match release tag $latest_tag"; exit 1; }
           latest_commit="$(git rev-list -n 1 "$latest_tag")"
           git fetch origin main:refs/remotes/origin/main
           git merge-base --is-ancestor "$latest_commit" origin/main
