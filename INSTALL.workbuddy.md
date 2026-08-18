@@ -1,6 +1,6 @@
 # SpringBrand WorkBuddy Plugin
 
-This guide installs the self-contained SpringBrand Host Adapter through WorkBuddy's native third-party Marketplace flow. Package validation is not Native Evidence; WorkBuddy lifecycle evidence remains tracked in #23.
+This guide installs the self-contained SpringBrand Host Adapter through WorkBuddy's native Plugin URL flow. Package validation is not Native Evidence; the verified runtime record is `docs/workbuddy-native-evidence.md`.
 
 ## Before installing
 
@@ -8,8 +8,8 @@ Check WorkBuddy for an existing global `springbrand` MCP entry or SpringBrand Sk
 
 ## Install
 
-1. In WorkBuddy, open **Plugins** and add the GitHub Marketplace repository `springbrand-lab/springbrand-agent-setup`.
-2. Install the single **SpringBrand** Plugin from that Marketplace and enable it.
+1. In WorkBuddy, open **Plugins**, choose **Plugin URL**, and enter the GitHub archive URL for the release tag or branch being installed. The issue #23 development run used `https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/heads/tony/multi-host-planning-docs.zip`.
+2. Install the single **SpringBrand** Plugin discovered from that source and enable it.
 3. Authenticate the bundled `springbrand` entry instead of registering a second global MCP server. Complete WorkBuddy's native OAuth flow when prompted.
 4. Start a fresh task and confirm a covered request routes through `springbrand-resource-discovery` before planning or production work.
 
