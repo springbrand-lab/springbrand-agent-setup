@@ -1,12 +1,94 @@
 # SpringBrand Agent installation protocol — Development
 
-You are an AI coding or productivity Agent. A user has asked you to install or update the **SpringBrand development** environment by following this document. Execute every step below in order. Do not skip steps. Do not improvise beyond the rules in the "Hard constraints" section.
+You are an AI coding or productivity Agent. A user has asked you to install or update the **SpringBrand development** environment by following this document. Identify the host and use exactly one path below:
 
-This document is the single source of truth for **development** installation. It does not inline the Skill content; the Skill is a separate file in the same repository.
+1. **Native Plugin path** for Codex CLI/Desktop, Claude Code CLI/Desktop Code, Cursor desktop, or WorkBuddy desktop.
+2. **Manual Skill-plus-MCP fallback** for unsupported hosts.
 
-This installs the **development** environment, which is separate from the production environment and may coexist with it. The production installation protocol lives in `INSTALL.md` and is not affected by this document.
+Do not run both paths. This document is the single source of truth for development installation.
 
-## What this installs
+## Native `springbrand-dev` Plugin
+
+The immutable internal-testing release is:
+
+| Field | Value |
+| --- | --- |
+| Plugin / Marketplace ID | `springbrand-dev` |
+| Display name | SpringBrand Dev |
+| Version | `1.2.0-beta.3-dev.1` |
+| Git ref | `v1.2.0-beta.3-dev.1` |
+| MCP server name | `springbrand-dev` |
+| MCP URL | `https://devconnector.springbrand.ai/mcp` |
+| Transport | Native remote HTTP / Streamable HTTP |
+| Authentication | Host-native OAuth |
+
+The Plugin contains the same Canonical Skill and routing behavior as production. **Disable or uninstall the full production `springbrand` Plugin before enabling the full `springbrand-dev` Plugin.** Do not edit Plugin caches, override the bundled URL, add static credentials, or register a second dev MCP server.
+
+### Codex CLI and Desktop
+
+```sh
+codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.0-beta.3-dev.1
+codex plugin add springbrand-dev@springbrand-dev
+codex mcp login springbrand-dev
+```
+
+The Marketplace bootstrap also exposes **SpringBrand Dev** in the Codex desktop Plugins Directory. Install it there if using Desktop, then open a new task.
+
+### Claude Code CLI and Desktop Code
+
+CLI:
+
+```sh
+claude plugin marketplace add springbrand-lab/springbrand-agent-setup@v1.2.0-beta.3-dev.1 --scope user
+claude plugin install springbrand-dev@springbrand-dev --scope user
+claude mcp login plugin:springbrand-dev:springbrand-dev
+```
+
+Desktop Code: open **Plugin Browser → Add Marketplace** and enter:
+
+```text
+springbrand-lab/springbrand-agent-setup@v1.2.0-beta.3-dev.1
+```
+
+Install **SpringBrand Dev**, complete OAuth, and open a new Code task. This does not apply to Claude Chat, Cowork, web sessions, or account-level Connectors.
+
+### Cursor desktop
+
+Open **Customize → Browse Marketplace → Add Marketplace → Import from GitHub** and enter:
+
+```text
+springbrand-lab/springbrand-agent-setup@v1.2.0-beta.3-dev.1
+```
+
+Install **SpringBrand Dev**, complete OAuth for `springbrand-dev`, and open a new task.
+
+### WorkBuddy desktop
+
+Open **Plugins → Plugin URL** and enter:
+
+```text
+https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.3-dev.1.zip
+```
+
+Install **SpringBrand Dev**, complete OAuth for `springbrand-dev`, and open a new task.
+
+### Native Plugin verification and removal
+
+Verify that the installed Plugin shows:
+
+- Plugin ID `springbrand-dev` and version `1.2.0-beta.3-dev.1`;
+- exactly one bundled `springbrand-dev` MCP entry;
+- URL exactly `https://devconnector.springbrand.ai/mcp`;
+- the `springbrand-resource-discovery` Canonical Skill;
+- the host-appropriate routing Hook or Rule.
+
+After testing, uninstall `springbrand-dev` through the host's native Plugin lifecycle and confirm its bundled components disappear while unrelated configuration remains intact. Re-enable production only after the full dev Plugin is removed. If this path succeeds, **stop here and do not run the fallback**.
+
+## Manual Skill-plus-MCP fallback
+
+Use this path only when the host cannot install the native Plugin. Unlike two complete Plugins, this fallback may coexist with production because it shares one Skill file and adds only the separately named `springbrand-dev` MCP entry.
+
+### What this installs
 
 Two things, both user-level (not project-level):
 
@@ -15,7 +97,7 @@ Two things, both user-level (not project-level):
 
 The SpringBrand dev MCP server requires OAuth authorization before it can be used normally. Follow your Agent's normal MCP setup and connection flow; your Agent decides when to trigger OAuth. If authorization is completed during installation, leave it intact.
 
-## Inputs
+### Inputs
 
 - **Skill source (same Git ref as this guide):** `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/<guide-ref>/skills/springbrand/SKILL.md`
 - **MCP server name:** `springbrand-dev`
@@ -26,7 +108,7 @@ If you were given a different URL, use the one above. The dev URL is fixed and m
 
 Replace `<guide-ref>` with the Git ref in the URL used to open this guide. For example, a guide URL containing `/blob/stable/INSTALL.dev.md` uses `stable`; one containing `/blob/v1.1.0/INSTALL.dev.md` uses `v1.1.0`. The guide and Skill source must use the same ref.
 
-## Step 1 — Identify your Agent
+### Fallback Step 1 — Identify your Agent
 
 Determine which Agent product you are running in (for example: Cursor, Claude Code, Codex CLI, GitHub Copilot Chat, Devin, Windsurf, WorkBuddy, or another). You need this to locate your user-level Skill directory and your MCP configuration.
 
@@ -34,7 +116,7 @@ Determine which Agent product you are running in (for example: Cursor, Claude Co
 
 If you cannot identify your Agent, or you do not know where its user-level Skills or MCP configuration are stored, **stop and ask the user**. Do not guess paths. Do not write files until you are certain.
 
-## Step 2 — Install or update the SpringBrand Skill
+### Fallback Step 2 — Install or update the SpringBrand Skill
 
 The development environment uses the **same Skill** as production. Do not create a second Skill, do not rename it, and do not copy its content into a dev-specific file.
 
@@ -52,7 +134,7 @@ If your Agent does not support user-level Skills compatible with `SKILL.md`, rep
 
 **Completion criterion:** the file at the target path exists and its content matches the fetched Skill source byte-for-byte, or you have stopped and reported an unsupported limitation.
 
-## Step 3 — Configure the SpringBrand dev MCP server
+### Fallback Step 3 — Configure the SpringBrand dev MCP server
 
 1. Locate your Agent's MCP configuration. Determine its format and location (for example: a JSON file, a TOML file, a settings UI, or a CLI-managed registry). Use the Agent's documented native representation of Streamable HTTP; it may be selected through a UI or inferred from the remote URL rather than stored in a field named `transport`.
 2. **Read and parse** the existing configuration before modifying it. Never overwrite a config file without first parsing its current contents. Merge your change into the parsed structure; do not replace the whole file.
@@ -68,7 +150,7 @@ If your Agent does not support remote Streamable HTTP MCP servers with OAuth, re
 
 **Completion criterion:** the `springbrand-dev` MCP server is configured with URL exactly `https://devconnector.springbrand.ai/mcp` using native HTTP transport, all other configuration (including any production `springbrand` entry) is intact, or you have stopped and reported an unsupported limitation.
 
-## Step 4 — Verify
+### Fallback Step 4 — Verify
 
 1. **Skill file:** confirm the file at `<Skill dir>/springbrand-resource-discovery/SKILL.md` exists and its content matches the fetched Skill source.
 2. **MCP config:** re-read and parse the configuration. Confirm the `springbrand-dev` entry has URL exactly `https://devconnector.springbrand.ai/mcp` and uses native Streamable HTTP transport (not a stdio bridge, not a local command).
@@ -76,7 +158,7 @@ If your Agent does not support remote Streamable HTTP MCP servers with OAuth, re
 
 **Completion criterion:** both checks pass. If either fails, report exactly what is wrong and stop — do not declare success.
 
-## Step 5 — Report
+### Fallback Step 5 — Report
 
 Tell the user, in plain text:
 
@@ -86,9 +168,9 @@ Tell the user, in plain text:
 4. The full list of files you created or modified.
 5. That they must **restart the Agent or open a new session** before the SpringBrand dev MCP server is available — the current session will not rediscover the newly installed configuration.
 6. That the `springbrand-dev` MCP server requires OAuth before it can be used normally. The user should complete authorization when the Agent prompts for it; the Agent decides when to trigger that flow.
-7. That this installed the **development** environment (`springbrand-dev`), which is for testing only and is separate from any production `springbrand` install. The two can coexist.
+7. That this installed the **development** environment (`springbrand-dev`), which is for testing only and is separate from any production `springbrand` install. The manual fallback and production can coexist.
 
-## Hard constraints
+### Fallback hard constraints
 
 - **Do not** collect, store, print, proxy, or otherwise handle OAuth access or refresh tokens. You only write Skill files and MCP configuration.
 - **Do not** change the MCP URL. It is fixed at `https://devconnector.springbrand.ai/mcp` for the dev environment.
