@@ -66,9 +66,9 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / ".mcp.json",
-            lambda value: value["mcpServers"]["springbrand"].update(url="https://example.com/mcp"),
+            lambda value: value["mcpServers"]["springbrand-dev"].update(url="https://example.com/mcp"),
         ),
-        "production MCP endpoint",
+        "development MCP endpoint",
     )
     expect_failure(
         lambda root: (root / ".env").write_text("SPRINGBRAND_TOKEN=secret\n"),
@@ -99,16 +99,16 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
-            lambda value: value["mcpServers"]["springbrand"].update(url="https://example.com/mcp"),
+            lambda value: value["mcpServers"]["springbrand-dev"].update(url="https://example.com/mcp"),
         ),
-        "Claude MCP server must contain only the production HTTP endpoint",
+        "Claude MCP server must contain only the development HTTP endpoint",
     )
     expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
-            lambda value: value["mcpServers"]["springbrand"].update(headers={"Authorization": "Bearer token"}),
+            lambda value: value["mcpServers"]["springbrand-dev"].update(headers={"Authorization": "Bearer token"}),
         ),
-        "Claude MCP server must contain only the production HTTP endpoint",
+        "Claude MCP server must contain only the development HTTP endpoint",
     )
     expect_failure(
         lambda root: edit_json(
@@ -132,7 +132,7 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand/mcp.json",
-            lambda value: value["mcpServers"]["springbrand"].update(token="secret"),
+            lambda value: value["mcpServers"]["springbrand-dev"].update(token="secret"),
         ),
         "Cursor MCP endpoint must be",
     )
@@ -158,9 +158,9 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand-workbuddy/.mcp.json",
-            lambda value: value["mcpServers"]["springbrand"].update(token="secret"),
+            lambda value: value["mcpServers"]["springbrand-dev"].update(token="secret"),
         ),
-        "WorkBuddy MCP server must contain only the production HTTP endpoint",
+        "WorkBuddy MCP server must contain only the development HTTP endpoint",
     )
 
 

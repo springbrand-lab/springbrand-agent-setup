@@ -1,7 +1,7 @@
 {
-  "name": "springbrand",
-  "version": "1.2.0-beta.3",
-  "description": "Discover and use SpringBrand Resources through the production connector.",
+  "name": "springbrand-dev",
+  "version": "1.2.0-beta.3-dev.1",
+  "description": "Discover and use SpringBrand Resources through the development connector. Internal testing only.",
   "author": {
     "name": "SpringBrand"
   },
@@ -9,9 +9,9 @@
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
-    "displayName": "SpringBrand",
-    "shortDescription": "Discover and use SpringBrand Resources",
-    "longDescription": "Search for reusable SpringBrand Resources and apply them to your work through the production connector.",
+    "displayName": "SpringBrand Dev",
+    "shortDescription": "Test SpringBrand Resources",
+    "longDescription": "Search for reusable SpringBrand Resources and apply them through the development connector. Internal testing only.",
     "developerName": "SpringBrand",
     "category": "Productivity",
     "capabilities": [
@@ -19,7 +19,7 @@
       "Execute"
     ],
     "defaultPrompt": [
-      "Find a SpringBrand Resource for this task."
+      "Find a SpringBrand Resource using the development environment."
     ],
     "brandColor": "#FF8A2C",
     "composerIcon": "./assets/springbrand-icon.svg",
