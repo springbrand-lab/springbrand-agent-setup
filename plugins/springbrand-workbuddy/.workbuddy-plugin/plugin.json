@@ -1,0 +1,12 @@
+{
+  "name": "springbrand",
+  "version": "1.2.0-beta.3",
+  "description": "Discover and use SpringBrand Resources through the production connector.",
+  "author": {
+    "name": "SpringBrand"
+  },
+  "repository": "https://github.com/springbrand-lab/springbrand-agent-setup",
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json"
+}

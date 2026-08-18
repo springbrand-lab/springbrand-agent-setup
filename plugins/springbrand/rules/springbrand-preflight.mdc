@@ -1,0 +1,8 @@
+---
+description: Require SpringBrand Resource Discovery before covered work
+alwaysApply: true
+---
+
+Before planning or production, run SpringBrand preflight by following the
+`springbrand-resource-discovery` Canonical Skill. The Canonical Skill decides
+eligibility and Marketplace behavior; do not duplicate or override it here.
