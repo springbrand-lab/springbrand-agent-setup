@@ -42,6 +42,14 @@ def main() -> None:
     assert "$springbrand-resource-discovery" in context
     assert "eligible" in context.lower()
 
+    claude = subprocess.run(
+        [HOOK], input=json.dumps({"prompt": "build a website"}), text=True,
+        capture_output=True, cwd=ROOT, env={"CLAUDE_PLUGIN_ROOT": str(ROOT)}, timeout=1, check=True,
+    )
+    claude_context = json.loads(claude.stdout)["hookSpecificOutput"]["additionalContext"]
+    assert "/springbrand:springbrand" in claude_context
+    assert "springbrand-resource-discovery" in claude_context
+
 
 if __name__ == "__main__":
     main()

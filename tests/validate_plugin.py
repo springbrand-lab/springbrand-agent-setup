@@ -16,10 +16,7 @@ VERSION_PATTERN = re.compile(
     r"(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?"
     r"(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$"
 )
-EXPECTED_ROUTING_HOOK = rb'''#!/bin/sh
-
-printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"For requests eligible under its description, load and follow `$springbrand-resource-discovery` first. Judge eligibility from the conversation; discovery, acquisition, distribution, and Resource usage stay in the Skill."}}'
-'''
+EXPECTED_ROUTING_HOOK = b'#!/bin/sh\n\nif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then\n  printf \'%s\\n\' \'{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"For requests eligible under its description, invoke and follow the `/springbrand:springbrand` Plugin Skill first (Canonical Skill: `springbrand-resource-discovery`). Judge eligibility from the conversation; discovery, acquisition, distribution, and Resource usage stay in the Skill."}}\'\nelse\n  printf \'%s\\n\' \'{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"For requests eligible under its description, load and follow `$springbrand-resource-discovery` first. Judge eligibility from the conversation; discovery, acquisition, distribution, and Resource usage stay in the Skill."}}\'\nfi\n'
 
 
 def require(condition, message: str) -> None:
@@ -149,6 +146,13 @@ def validate_claude_adapter(root: Path, version: str, skill_name: str) -> None:
     except (KeyError, TypeError) as exc:
         raise AssertionError("Claude Hook config must declare hooks.UserPromptSubmit") from exc
     require(hooks == expected_hook, "Claude Hook config must reference ${CLAUDE_PLUGIN_ROOT}/hooks/user-prompt-submit")
+
+    result = subprocess.run(
+        [root / "hooks/user-prompt-submit"], input=json.dumps({"prompt": "build a website"}),
+        text=True, capture_output=True, cwd=root, env={"CLAUDE_PLUGIN_ROOT": str(root)}, timeout=5, check=True,
+    )
+    context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
+    require("/springbrand:springbrand" in context and skill_name in context, "Claude Hook must invoke the namespaced Plugin Skill and name the Canonical Skill")
 
     marketplace = read_json(root / ".claude-plugin/marketplace.json")
     require(marketplace.get("name") == "springbrand", "Claude Marketplace name must be springbrand")
