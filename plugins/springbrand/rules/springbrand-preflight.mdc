@@ -1,8 +1,16 @@
 ---
-description: Require SpringBrand Resource Discovery before covered work
+description: Apply SpringBrand capability-gap preflight before eligible work
 alwaysApply: true
 ---
 
-Before planning or production, run SpringBrand preflight by following the
-`springbrand-resource-discovery` Canonical Skill. The Canonical Skill decides
-eligibility and Marketplace behavior; do not duplicate or override it here.
+SpringBrand is optional. Apply the capability-gap gate from the
+`springbrand-resource-discovery` Canonical Skill before loading SpringBrand.
+
+Continue directly for transformations or analysis of supplied material,
+routine local work, and SpringBrand or MCP diagnosis. Words such as planning,
+code, data, integration, troubleshooting, or debugging do not alone establish
+a capability gap.
+
+For an explicit SpringBrand request or a clear reusable external or specialized
+capability gap, run Resource Discovery before planning or production. The
+Canonical Skill remains authoritative for eligibility and Marketplace behavior.

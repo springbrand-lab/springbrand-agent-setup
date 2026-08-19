@@ -1,6 +1,8 @@
 # Codex Desktop Beta Security-Flow Evidence
 
-**Status: PASS — beta release check complete**
+**Status: STALE — superseded by the `1.2.0-beta.4` routing contract**
+
+This earlier beta record remains historical security-flow evidence. The `1.2.0-beta.4` capability-gap gate changes automatic routing, so current Codex Desktop acceptance must come from a fresh run of the new package and routing corpus.
 
 This record is intentionally separate from the automated CLI evidence in
 [#11](https://github.com/springbrand-lab/springbrand-agent-setup/issues/11).

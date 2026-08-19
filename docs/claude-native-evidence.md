@@ -1,16 +1,18 @@
 # Claude CLI and Desktop Code Native Evidence
 
-**Status: STALE — CLI and Desktop reruns required; `1.2.0` remains blocked**
+**Status: STALE — `1.2.0-beta.4` CLI and Desktop reruns required; `1.2.0` remains blocked**
+
+The `1.2.0-beta.4` capability-gap gate changes automatic routing and fallback behavior. All results below remain historical; both Claude Surfaces must rerun install/update, eligible, transform-only, diagnosis, boundary, timeout, and removal evidence against the new immutable package.
 
 This record covers the Claude Code Host Adapter from issue #21. CLI and Desktop
 Code are recorded as separate Surfaces even though they share the Claude Plugin
 engine. No Desktop result is inferred from the CLI result.
 
 The results below are historical evidence for package version `1.2.0-beta.2`.
-Commits `188cde8` and `1d76bcf` later changed the Canonical Skill's
-capability-execution protocol. The package is now `1.2.0-beta.3` so native
-Plugin update can deliver those fixes, but both Claude Surfaces must be rerun
-against that version before issue #21 can count toward the stable release gate.
+Commits `188cde8` and `1d76bcf` later changed capability execution, and
+`1.2.0-beta.4` changes the eligibility and fallback contract. Native Plugin
+update can deliver those fixes, but both Claude Surfaces must rerun against
+`1.2.0-beta.4` before issue #21 can count toward the stable release gate.
 
 ## Run metadata
 
