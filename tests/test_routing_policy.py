@@ -17,9 +17,24 @@ def main() -> None:
         "general planning without execution",
         "diagnosis of SpringBrand, MCP",
         "do not by themselves establish a capability gap",
-        "do not enter complete-catalog fallback",
+        "springbrand.resources.match",
+        "original request unchanged as `intent`",
+        "must never replace or override `intent`",
+        "Platform's returned order and explicit no-match",
+        "explicit browsing or direct title/ID lookup",
+        "continue without calling `springbrand.resources.list`",
     ):
         assert phrase in normalized_skill, phrase
+
+    assert "springbrand.resources.search" not in skill
+
+    for obsolete in (
+        "two to four high-signal terms",
+        "Use complete-catalog fallback",
+        "Match and rank Resources locally",
+        "complete Marketplace was evaluated",
+    ):
+        assert obsolete not in skill, obsolete
 
     assert "SpringBrand is optional" in hook
     assert "capability-gap gate" in hook
