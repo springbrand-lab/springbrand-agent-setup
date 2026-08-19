@@ -99,14 +99,14 @@ The SpringBrand dev MCP server requires OAuth authorization before it can be use
 
 ### Inputs
 
-- **Skill source (same Git ref as this guide):** `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/<guide-ref>/skills/springbrand/SKILL.md`
+- **Skill source:** `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.4-dev.1/skills/springbrand/SKILL.md`
 - **MCP server name:** `springbrand-dev`
 - **MCP server URL (fixed):** `https://devconnector.springbrand.ai/mcp`
 - **MCP transport:** native Streamable HTTP (remote HTTP transport, **not** a stdio bridge, **not** a local command)
 
 If you were given a different URL, use the one above. The dev URL is fixed and must not be changed.
 
-Replace `<guide-ref>` with the Git ref in the URL used to open this guide. For example, a guide URL containing `/blob/stable/INSTALL.dev.md` uses `stable`; one containing `/blob/v1.1.0/INSTALL.dev.md` uses `v1.1.0`. The guide and Skill source must use the same ref.
+The development Plugin and fallback Skill are pinned to the same immutable dev tag. Do not use `main`, `stable`, or a production tag for development installation.
 
 ### Fallback Step 1 — Identify your Agent
 

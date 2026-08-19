@@ -1,6 +1,6 @@
 # SpringBrand Agent Setup
 
-Install SpringBrand as a native Codex Plugin on macOS, or use the existing Skill-plus-MCP fallback on unsupported hosts. You give your Agent one short prompt; it reads the installation protocol and uses the host-native lifecycle.
+Install SpringBrand Production from the repository `main` branch through each supported Host's native Plugin lifecycle, or use the documented Skill-plus-MCP fallback on other Agents.
 
 ## Quick start
 
@@ -8,11 +8,9 @@ SpringBrand has two environments. Pick the one you need and paste the matching p
 
 ### Production
 
-> Follow the official SpringBrand installation guide to complete setup:
-> https://github.com/springbrand-lab/springbrand-agent-setup/blob/stable/INSTALL.md
-> If this is Codex CLI 0.147.0+ or Codex desktop 26.810.52044+ on macOS, use the native Marketplace and Plugin flow in the guide. Otherwise, use the documented Skill-plus-MCP fallback. Preserve existing configuration, verify every completion check, and tell me whether I need to restart.
+> Install or update SpringBrand Production from https://github.com/springbrand-lab/springbrand-agent-setup using the latest `main` branch. Identify this Agent, follow the matching Host guide, prefer native Plugin/Marketplace and OAuth, preserve existing configuration, and give me exact instructions for any UI steps you cannot perform.
 
-For Codex, [`INSTALL.md`](./INSTALL.md) uses native Marketplace, Plugin, OAuth, Hook review, update, uninstall, and confirmed legacy migration flows. Unsupported hosts retain the existing fallback. The production MCP server requires OAuth before normal use; complete authorization when the host prompts you.
+[`INSTALL.md`](./INSTALL.md) is the universal production protocol. `main` is the sole rolling production installation channel; production users should not use the legacy `stable` branch or a version tag. The production MCP server requires Host-native OAuth.
 
 ### Development
 
@@ -48,18 +46,16 @@ Both environments share the same SpringBrand Resource Discovery Skill (`springbr
 
 Both MCP environments require native OAuth before normal use. No Plugin contains static credentials or authorization headers.
 
-## Version pinning
+## Distribution channels
 
-Production can track the latest stable release or be pinned to a tag. The full development Plugin is pinned to an immutable prerelease; `main` carries its current installation guide and the manual fallback.
-
-| Use case | URL / ref |
+| Environment | Installation channel |
 | --- | --- |
-| Always install the latest stable production version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/stable/INSTALL.md |
-| Pin a stable, reproducible production version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.1.1/INSTALL.md |
-| Install the native development Plugin | `springbrand-lab/springbrand-agent-setup@v1.2.0-beta.4-dev.1` |
-| Use the development guide or manual fallback | https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.dev.md |
+| Production | `https://github.com/springbrand-lab/springbrand-agent-setup` (`main`) |
+| Development | `springbrand-lab/springbrand-agent-setup@v1.2.0-beta.4-dev.1` |
 
-Use `stable` for everyday production installs and the immutable dev tag for internal Plugin testing. The current production package version remains in [`VERSION`](./VERSION); the dev Plugin reports its own version from its tagged package.
+Production always follows `main`. Immutable production tags remain release and
+evidence records, not the default installation channel. Development Plugins
+are published only as immutable dev tags and are never merged into `main`.
 
 ## Repository layout
 
@@ -69,7 +65,6 @@ springbrand-agent-setup/
 ├── INSTALL.md                         # the production installation protocol — for Agents
 ├── INSTALL.dev.md                     # the development installation protocol — for Agents
 ├── VERSION                            # current release version
-├── .github/workflows/update-stable.yml # advances stable to the latest release tag
 └── skills/
     └── springbrand/
         └── SKILL.md                   # the SpringBrand Skill source (shared by both environments)

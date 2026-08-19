@@ -188,7 +188,7 @@ For Codex, `INSTALL.md` stops asking the Agent to copy a Skill or edit MCP
 configuration. It becomes a host router whose beta path uses native commands:
 
 ```bash
-codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.0-beta.1
+codex plugin marketplace add springbrand-lab/springbrand-agent-setup
 codex plugin add springbrand@springbrand
 ```
 
@@ -259,9 +259,9 @@ CI must perform the minimum release checks:
 - record the desktop install, OAuth, Hook trust, and new-session smoke result as
   a manual beta release check.
 
-The prerelease tag must not advance `stable`. After Phase 3 passes, the existing
-release tag workflow may move `stable` to the corresponding final release.
-Users may then track `stable` or pin a final tag.
+Production installation always tracks repository `main`. Immutable tags record
+release and evidence points but do not become installation channels. Development
+variants remain available only through their immutable dev tags.
 
 Prefer Codex's native Marketplace and Plugin update mechanisms. Do not add a
 network version check to every Skill invocation unless measured update failures
@@ -328,12 +328,12 @@ The native Codex CLI and desktop Plugin UI are the installers for this phase.
 OAuth and Hook trust remain native user interactions. No custom wrapper,
 detection script, or configuration writer is included in v1 beta.
 
-### Phase 3: evaluation and stable release
+### Phase 3: evaluation and final release
 
 - author the evaluation corpora and a real A/B runner;
 - establish the current Skill plus MCP baseline;
 - tune the Hook and Skill using false-positive and ordering evidence;
-- evaluate the beta, then advance `stable` only after release gates pass.
+- evaluate the beta, then publish the final tag while keeping `main` as the production installation channel.
 
 ### Phase 4: second native host Adapter (outside current spec)
 
@@ -351,7 +351,7 @@ not become a generic MCP configuration writer.
 
 ## 10. Gateway dependency
 
-Before the Plugin reaches `stable`, create a separate Gateway change to align
+Before the Plugin reaches final release, create a separate Gateway change to align
 its MCP `initialize.instructions` with the canonical Skill. Current Gateway
 instructions and the canonical Skill disagree about query construction and
 no-match fallback.
