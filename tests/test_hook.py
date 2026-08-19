@@ -49,7 +49,7 @@ def main() -> None:
         capture_output=True, cwd=ROOT, env={"CLAUDE_PLUGIN_ROOT": str(ROOT)}, timeout=1, check=True,
     )
     claude_context = json.loads(claude.stdout)["hookSpecificOutput"]["additionalContext"]
-    assert "/springbrand:springbrand" in claude_context
+    assert "/springbrand-dev:springbrand" in claude_context
     assert "springbrand-resource-discovery" in claude_context
     assert "capability-gap gate" in claude_context
 

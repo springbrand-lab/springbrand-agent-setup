@@ -24,7 +24,7 @@ def main() -> None:
     assert "SpringBrand is optional" in hook
     assert "capability-gap gate" in hook
     assert "continue without calling SpringBrand MCP" in hook
-    assert "/springbrand:springbrand" in hook
+    assert "/springbrand-dev:springbrand" in hook
     assert "$springbrand-resource-discovery" in hook
     assert "For requests eligible under its description" not in hook
 
