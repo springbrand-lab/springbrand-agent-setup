@@ -64,13 +64,15 @@ Install **SpringBrand Dev**, complete OAuth for `springbrand-dev`, and open a ne
 
 ### WorkBuddy desktop
 
-Open **Plugins → Plugin URL** and enter:
+Open **Experts · Skills · Connectors → Add Marketplace** and enter this
+immutable development ZIP source:
 
 ```text
 https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.4-dev.1.zip
 ```
 
-Install **SpringBrand Dev**, complete OAuth for `springbrand-dev`, and open a new task.
+WorkBuddy does not accept the `owner/repo@tag` shorthand. Install **SpringBrand Dev**,
+complete OAuth for `springbrand-dev`, and open a new task.
 
 ### Native Plugin verification and removal
 
