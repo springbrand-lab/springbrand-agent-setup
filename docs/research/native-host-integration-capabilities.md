@@ -14,7 +14,7 @@
 | Claude Desktop **Code tab** | Same Claude Code plugin engine and core local config as CLI | Supported | Supported at engine/config level; GUI-only OAuth remains to test | Same hook model | Configured Marketplace + desktop plugin UI | Treat as a second evidence surface, not a second adapter. |
 | Cursor desktop | Supported | Supported | Supported | `beforeSubmitPrompt` supported | Public or Team Marketplace; local dev plugin | Adapter is feasible. Hook behavior differs from Claude and cannot rewrite the prompt. |
 | Cursor CLI | Plugin manager and Skills supported; full component parity unknown | Supported | Protocol/config supported; interactive OAuth flow unknown | CLI support for `beforeSubmitPrompt` unknown | CLI lifecycle for arbitrary repository installs unknown | Keep as a separate acceptance surface with blockers, not assumed parity. |
-| Tencent WorkBuddy desktop | Supported | Supported | Supported (`type: "http"`) | Plugin Hooks supported; `UserPromptSubmit` is shared-engine evidence and needs desktop validation | WorkBuddy Marketplace; repository address syntax needs testing | Adapter is feasible, with Hook trust and exact marketplace lifecycle as blockers. |
+| Tencent WorkBuddy desktop | Supported | Supported | Supported (`type: "http"`) | Plugin Hooks supported; `UserPromptSubmit` is shared-engine evidence and needs desktop validation | WorkBuddy native Add Marketplace; `owner/repo` and full GitHub URL verified on WorkBuddy 5.3.13 | Adapter is feasible; current production install guidance uses the repository source. |
 
 ## Package-boundary implications
 

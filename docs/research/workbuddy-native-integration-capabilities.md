@@ -214,7 +214,7 @@ SpringBrand 应优先尝试 Plugin-level `UserPromptSubmit`，只注入一条短
 结论：
 
 - **仓库作为 Marketplace 来源：engine-supported，是最可能的 WorkBuddy 原生分发路径。**
-- **WorkBuddy GUI 对 `owner/repo`、完整 Git URL、tag/ref 的精确输入语法：unknown，必须实测。**
+- **实测结果：** WorkBuddy 5.3.13 的 Add Marketplace 接受 `owner/repo` 和完整 GitHub URL；`owner/repo@tag` 不接受。生产使用裸仓库默认 `main`，开发 tag 使用 ZIP Marketplace source。
 - **直接安装裸 Plugin repo：未被 WorkBuddy 文档证明。**
 - 当前 Marketplace 文档要求仓库含 `.codebuddy-plugin/marketplace.json`；Plugin 自身可用 `.workbuddy-plugin/plugin.json`。[W10][W11]
 

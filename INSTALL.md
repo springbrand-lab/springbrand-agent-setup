@@ -43,11 +43,14 @@ springbrand-lab/springbrand-agent-setup
 
 ## WorkBuddy Desktop
 
-Follow [`INSTALL.workbuddy.md`](./INSTALL.workbuddy.md). Use this Plugin URL:
+Follow [`INSTALL.workbuddy.md`](./INSTALL.workbuddy.md). Open **Add Marketplace** and enter:
 
 ```text
-https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/heads/main.zip
+springbrand-lab/springbrand-agent-setup
 ```
+
+WorkBuddy reads the production Plugin from the repository default branch
+`main`. Do not use the Plugin URL flow for production.
 
 ## Other Agents: Skill-plus-MCP fallback
 
