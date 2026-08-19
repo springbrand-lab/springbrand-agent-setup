@@ -2,7 +2,7 @@ name: Validate Codex Plugin
 
 on:
   push:
-    branches: [main, stable]
+    branches: [main]
     tags: ["v*"]
   pull_request:
   workflow_dispatch:
@@ -23,6 +23,7 @@ jobs:
           python3 tests/test_repair_workbuddy_plugin.py
           python3 tests/test_hook.py
           python3 tests/test_routing_policy.py
+          python3 tests/test_install_guidance.py
 
   native-cli-smoke:
     runs-on: macos-14
