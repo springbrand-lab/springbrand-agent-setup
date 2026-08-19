@@ -43,14 +43,19 @@ springbrand-lab/springbrand-agent-setup
 
 ## WorkBuddy Desktop
 
-Follow [`INSTALL.workbuddy.md`](./INSTALL.workbuddy.md). Open **Add Marketplace** and enter:
+Follow [`INSTALL.workbuddy.md`](./INSTALL.workbuddy.md). A WorkBuddy Agent must
+use its bundled `codebuddy`/`cbc` CLI to add or update the repository Marketplace
+and install or update `springbrand@springbrand`. Do not pause for manual UI
+installation when that CLI is available.
+
+The manual **Add Marketplace** fallback uses:
 
 ```text
 springbrand-lab/springbrand-agent-setup
 ```
 
-WorkBuddy reads the production Plugin from the repository default branch
-`main`. Do not use the Plugin URL flow for production.
+WorkBuddy reads the production Plugin from repository `main`. OAuth remains a
+native browser step when WorkBuddy prompts the user.
 
 ## Other Agents: Skill-plus-MCP fallback
 

@@ -38,15 +38,23 @@ def main() -> None:
     assert "springbrand-agent-setup/main/skills/springbrand/SKILL.md" in install
 
     workbuddy = (ROOT / "INSTALL.workbuddy.md").read_text()
+    assert "command -v codebuddy" in workbuddy
+    assert "CODEBUDDY_CONFIG_DIR" in workbuddy
+    assert "plugin marketplace add springbrand-lab/springbrand-agent-setup" in workbuddy
+    assert "plugin install springbrand@springbrand --scope user" in workbuddy
+    assert "plugin marketplace update springbrand" in workbuddy
+    assert "plugin update springbrand@springbrand --scope user" in workbuddy
+    assert "Manual UI fallback" in workbuddy
     assert "Add Marketplace" in workbuddy
     assert "springbrand-lab/springbrand-agent-setup" in workbuddy
     assert "Plugin URL" not in workbuddy
     assert "archive/refs/tags/v1.2.0-beta.4-dev.1.zip" in workbuddy
 
     install = (ROOT / "INSTALL.md").read_text()
+    assert "bundled `codebuddy`/`cbc` CLI" in install
+    assert "Do not pause for manual UI" in install
     assert "Add Marketplace" in install
     assert "springbrand-lab/springbrand-agent-setup" in install
-    assert "Plugin URL flow for production" in install
 
     development = (ROOT / "INSTALL.dev.md").read_text()
     assert "Add Marketplace" in development

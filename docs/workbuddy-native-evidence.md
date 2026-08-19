@@ -4,6 +4,8 @@
 
 **Current distribution note (August 19, 2026):** WorkBuddy 5.3.13 exposes **Add Marketplace** with a Marketplace Source field accepting `owner/repo` and full GitHub URLs. Production guidance now uses `springbrand-lab/springbrand-agent-setup`; the historical Plugin URL run below remains evidence for the old branch and is not current installation guidance.
 
+**CLI verification (August 19, 2026):** the WorkBuddy-bundled `codebuddy` CLI successfully added `springbrand-lab/springbrand-agent-setup` as a GitHub Marketplace and installed `springbrand@springbrand` version `1.2.0-beta.4` from `main` in an isolated `CODEBUDDY_CONFIG_DIR`. Current Agent guidance therefore uses CLI first and keeps Add Marketplace as the manual fallback.
+
 The `1.2.0-beta.4` capability-gap gate changes the Canonical Skill and Plugin-level `UserPromptSubmit` routing contract. The results below remain historical; WorkBuddy must rerun the new routing corpus and native lifecycle before counting toward `1.2.0`.
 
 This record covers the macOS WorkBuddy Native Evidence required by issue
