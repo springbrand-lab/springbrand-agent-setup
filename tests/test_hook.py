@@ -40,9 +40,7 @@ def main() -> None:
     assert output["hookEventName"] == "UserPromptSubmit"
     context = output["additionalContext"]
     assert "$springbrand-plugin-discovery" in context
-    assert "capability-gap gate" in context
-    assert "SpringBrand is optional" in context
-    assert "continue without calling SpringBrand MCP" in context
+    assert "For requests eligible under its description" in context
 
     claude = subprocess.run(
         [HOOK], input=json.dumps({"prompt": "build a website"}), text=True,
@@ -51,7 +49,7 @@ def main() -> None:
     claude_context = json.loads(claude.stdout)["hookSpecificOutput"]["additionalContext"]
     assert "/springbrand:springbrand" in claude_context
     assert "springbrand-plugin-discovery" in claude_context
-    assert "capability-gap gate" in claude_context
+    assert "For requests eligible under its description" in claude_context
 
 
 if __name__ == "__main__":

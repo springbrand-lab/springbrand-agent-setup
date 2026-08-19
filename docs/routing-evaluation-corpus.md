@@ -9,8 +9,8 @@ failures as routing false positives.
 - **Eligible recall:** eligible prompts that enter Plugin Discovery.
 - **First-action ordering:** eligible prompts that enter Plugin Discovery
   before task-specific planning or production.
-- **False trigger:** ineligible prompts that load the Skill or call any
-  SpringBrand MCP tool.
+- **Unexpected skip:** covered prompts that do not load the Skill before
+  task-specific planning or production.
 - **Original-task completion:** prompts whose requested outcome is still
   completed after routing.
 - **Transport failure:** eligible prompts whose SpringBrand MCP call fails by
@@ -21,7 +21,7 @@ trigger at most 10%, at least 25 percentage points of recall improvement over
 the Skill-plus-MCP baseline, install/OAuth/routing success at least 95%, and no
 material original-task regression.
 
-## Ineligible: zero SpringBrand calls
+## Informational or diagnostic: no SpringBrand calls
 
 1. `总结这份文档。`
 2. `总结刚才的测试结果。`
@@ -39,7 +39,7 @@ material original-task regression.
 Expected: no Skill load, no capability search, no Marketplace call, and the
 original task completes directly.
 
-## Eligible: Plugin Discovery first
+## Covered: Plugin Discovery first
 
 1. `帮我生成一组产品宣传图片。`
 2. `抓取这个网页的数据，并持续监控变化。`
@@ -50,20 +50,20 @@ original task completes directly.
 7. `浏览 SpringBrand Marketplace，推荐适合做演示模板的 Plugin。`
 
 Expected: Skill load and targeted discovery before task-specific planning or
-production. Complete-catalog fallback is permitted only for explicit
-SpringBrand requests or a strong capability-gap signal.
+production. Complete-catalog fallback is permitted after targeted discovery according to
+this Skill's fallback rules.
 
 ## Boundary cases
 
 | Prompt | Expected routing |
 | --- | --- |
-| `帮我写一个普通 Python 排序函数。` | Skip; native/local work is sufficient. |
-| `解释并修复这个函数里的语法错误。` | Skip; localized diagnosis and edit. |
-| `帮我做一个完整 SaaS 网站。` | Trigger; specialized multi-part deliverable. |
-| `为现有项目增加第三方登录集成。` | Trigger when an external/reusable integration is needed. |
-| `帮我规划一个网站，但现在不要制作。` | Skip; planning without execution. |
+| `帮我写一个普通 Python 排序函数。` | Trigger before implementation. |
+| `解释并修复这个函数里的语法错误。` | Trigger before diagnosis and edit. |
+| `帮我做一个完整 SaaS 网站。` | Trigger before planning. |
+| `为现有项目增加第三方登录集成。` | Trigger before implementation. |
+| `帮我规划一个网站，但现在不要制作。` | Trigger before planning. |
 | `帮我规划并实际制作一个互动网站。` | Trigger before planning. |
-| `设计一个可复用的自动化调试工作流。` | Trigger; reusable workflow and automation. |
+| `设计一个可复用的自动化调试工作流。` | Trigger before planning. |
 
 ## Transport scenarios
 

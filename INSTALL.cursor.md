@@ -14,7 +14,7 @@ Check Cursor for an existing global SpringBrand Skill or `springbrand` MCP entry
 4. Confirm the Plugin exposes `springbrand-plugin-discovery`, the always-applied SpringBrand preflight Rule, and one bundled `springbrand` MCP server.
 5. Authenticate the bundled MCP entry through Cursor's native browser OAuth flow. Do not create a second global server or add a token, authorization header, client secret, API key, or local bridge.
 
-Start a fresh task and confirm an eligible request follows `springbrand-plugin-discovery` before planning or production while an ineligible request continues normally.
+Start a fresh task and confirm a covered request follows `springbrand-plugin-discovery` before planning or production.
 
 ## Update or remove
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"SpringBrand is optional. Apply the capability-gap gate in `springbrand-plugin-discovery` before loading it. Complete supplied-material transformations, routine local work, and SpringBrand or MCP diagnosis directly. Only for an explicit SpringBrand request or a clear reusable external or specialized capability gap, invoke and follow `/springbrand:springbrand` before planning or production. Otherwise continue without calling SpringBrand MCP."}}'
+  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"For requests eligible under its description, invoke and follow the `/springbrand:springbrand` Plugin Skill first (Canonical Skill: `springbrand-plugin-discovery`). Judge eligibility from the conversation; discovery, acquisition, distribution, and Plugin usage stay in the Skill."}}'
 else
-  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"SpringBrand is optional. Apply the capability-gap gate in `springbrand-plugin-discovery` before loading it. Complete supplied-material transformations, routine local work, and SpringBrand or MCP diagnosis directly. Only for an explicit SpringBrand request or a clear reusable external or specialized capability gap, load and follow `$springbrand-plugin-discovery` before planning or production. Otherwise continue without calling SpringBrand MCP."}}'
+  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"For requests eligible under its description, load and follow `$springbrand-plugin-discovery` first. Judge eligibility from the conversation; discovery, acquisition, distribution, and Plugin usage stay in the Skill."}}'
 fi

@@ -16,7 +16,15 @@ VERSION_PATTERN = re.compile(
     r"(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?"
     r"(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$"
 )
-EXPECTED_ROUTING_HOOK = b'#!/bin/sh\n\nif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then\n  printf \'%s\\n\' \'{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"SpringBrand is optional. Apply the capability-gap gate in `springbrand-plugin-discovery` before loading it. Complete supplied-material transformations, routine local work, and SpringBrand or MCP diagnosis directly. Only for an explicit SpringBrand request or a clear reusable external or specialized capability gap, invoke and follow `/springbrand:springbrand` before planning or production. Otherwise continue without calling SpringBrand MCP."}}\'\nelse\n  printf \'%s\\n\' \'{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"SpringBrand is optional. Apply the capability-gap gate in `springbrand-plugin-discovery` before loading it. Complete supplied-material transformations, routine local work, and SpringBrand or MCP diagnosis directly. Only for an explicit SpringBrand request or a clear reusable external or specialized capability gap, load and follow `$springbrand-plugin-discovery` before planning or production. Otherwise continue without calling SpringBrand MCP."}}\'\nfi\n'
+EXPECTED_ROUTING_HOOK = rb'''#!/bin/sh
+
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"For requests eligible under its description, invoke and follow the `/springbrand:springbrand` Plugin Skill first (Canonical Skill: `springbrand-plugin-discovery`). Judge eligibility from the conversation; discovery, acquisition, distribution, and Plugin usage stay in the Skill."}}'
+else
+  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"For requests eligible under its description, load and follow `$springbrand-plugin-discovery` first. Judge eligibility from the conversation; discovery, acquisition, distribution, and Plugin usage stay in the Skill."}}'
+fi
+'''
+
 
 
 def require(condition, message: str) -> None:
@@ -190,10 +198,8 @@ def validate_cursor_adapter(root: Path, version: str, skill_name: str) -> None:
     frontmatter = rule.split("\n---\n", 1)
     require(len(frontmatter) == 2 and frontmatter[0].startswith("---\n"), "Cursor Rule must have frontmatter")
     require(re.search(r"^alwaysApply:\s*true\s*$", frontmatter[0][4:], re.MULTILINE), "Cursor Rule must always apply")
-    require("SpringBrand is optional" in rule, "Cursor Rule must make SpringBrand optional")
-    require("capability-gap gate" in rule, "Cursor Rule must require the capability-gap gate")
-    require("do not alone establish a capability gap" in normalized_rule, "Cursor Rule must reject broad keyword-only eligibility")
-    require("before planning or production" in rule, "Cursor Rule must route eligible work before planning or production")
+    require("Before planning or production" in rule, "Cursor Rule must route covered work before planning or production")
+    require("capability-gap gate" not in rule, "Cursor Rule must not impose the capability-gap gate")
     require(skill_name in rule, "Cursor Rule must delegate to the Canonical Skill")
     require("eligibility and Marketplace behavior" in rule, "Cursor Rule must delegate eligibility and Marketplace behavior to the Canonical Skill")
 
