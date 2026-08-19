@@ -11,27 +11,21 @@ def main() -> None:
     normalized_skill = " ".join(skill.split())
     normalized_rule = " ".join(rule.split())
 
-    assert "## 0. Capability-gap gate" in skill
+    assert "## Trigger timing" in skill
     for phrase in (
-        "supplied material",
-        "general planning without execution",
-        "diagnosis of SpringBrand, MCP",
-        "do not by themselves establish a capability gap",
-        "do not enter complete-catalog fallback",
+        "A vague request is sufficient",
+        "Run it before",
+        "before",
     ):
         assert phrase in normalized_skill, phrase
 
-    assert "SpringBrand is optional" in hook
-    assert "capability-gap gate" in hook
-    assert "continue without calling SpringBrand MCP" in hook
+    assert "For requests eligible under its description" in hook
+    assert "capability-gap gate" not in hook
     assert "/springbrand:springbrand" in hook
     assert "$springbrand-plugin-discovery" in hook
-    assert "For requests eligible under its description" not in hook
 
-    assert "SpringBrand is optional" in rule
-    assert "capability-gap gate" in rule
-    assert "do not alone establish a capability gap" in normalized_rule
-    assert "For an explicit SpringBrand request or a clear" in normalized_rule
+    assert "Before planning or production" in rule
+    assert "springbrand-plugin-discovery" in rule
     assert "alwaysApply: true" in rule
 
 

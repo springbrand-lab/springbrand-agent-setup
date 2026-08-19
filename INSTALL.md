@@ -105,8 +105,8 @@ Verify before reporting success:
 - the Host-specific Hook or Rule is loaded;
 - exactly one Plugin-managed `springbrand` MCP entry points to
   `https://connector.springbrand.ai/mcp` and is connected through OAuth;
-- a clear external/specialized capability-gap task routes through Plugin
-  Discovery, while summarizing supplied material does not call SpringBrand;
+- a covered concrete task routes through Plugin Discovery before planning or
+  production;
 - unrelated configuration remains unchanged.
 
 Report the Agent and Surface, installation path, Plugin version, MCP status,

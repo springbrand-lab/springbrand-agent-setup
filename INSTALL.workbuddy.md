@@ -126,8 +126,7 @@ After reload or a new task, verify:
 - the bundled `springbrand` MCP points only to
   `https://connector.springbrand.ai/mcp` and is OAuth-connected;
 - the Plugin-level Hook is loaded;
-- a clear capability-gap request triggers discovery, while summarizing supplied
-  material does not call SpringBrand;
+- a covered concrete task triggers discovery before planning or production;
 - unrelated configuration remains unchanged.
 
 Use the CLI `plugin marketplace update`, `plugin update`, `plugin disable`, and
