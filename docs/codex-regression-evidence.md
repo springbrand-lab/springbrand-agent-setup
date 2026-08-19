@@ -1,6 +1,8 @@
 # Codex Regression and Legacy Migration Evidence
 
-**Status: PASS**
+**Status: STALE — `1.2.0-beta.4` routing and lifecycle rerun required**
+
+The `1.2.0-beta.4` capability-gap gate changes the Canonical Skill and `UserPromptSubmit` routing contract. The installation and migration results below remain historical, but issue #24 cannot count for the final gate until Codex CLI and Desktop rerun the new routing corpus and native lifecycle.
 
 This record covers the final-package Codex regression and legacy migration
 checks required by issue

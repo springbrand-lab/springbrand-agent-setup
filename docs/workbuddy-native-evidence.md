@@ -1,6 +1,8 @@
 # WorkBuddy Plugin Native Evidence
 
-**Status: PASS**
+**Status: STALE — `1.2.0-beta.4` routing and lifecycle rerun required**
+
+The `1.2.0-beta.4` capability-gap gate changes the Canonical Skill and Plugin-level `UserPromptSubmit` routing contract. The results below remain historical; WorkBuddy must rerun the new routing corpus and native lifecycle before counting toward `1.2.0`.
 
 This record covers the macOS WorkBuddy Native Evidence required by issue
 [#23](https://github.com/springbrand-lab/springbrand-agent-setup/issues/23).

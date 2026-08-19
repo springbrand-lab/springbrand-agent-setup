@@ -20,7 +20,7 @@ For Codex, [`INSTALL.md`](./INSTALL.md) uses native Marketplace, Plugin, OAuth, 
 > https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.dev.md
 > Use the native `springbrand-dev` Plugin on Codex, Claude Code/Desktop Code, Cursor, or WorkBuddy. Use the documented Skill-plus-MCP fallback only on unsupported hosts. Preserve unrelated configuration, complete native OAuth, verify the installation, and tell me whether I need to restart.
 
-The native development Plugin is the immutable prerelease [`v1.2.0-beta.3-dev.1`](https://github.com/springbrand-lab/springbrand-agent-setup/releases/tag/v1.2.0-beta.3-dev.1). It is identified as `springbrand-dev`, displays as **SpringBrand Dev**, and bundles one `springbrand-dev` MCP server at `https://devconnector.springbrand.ai/mcp`. Authentication is host-native OAuth.
+The native development Plugin is the immutable prerelease [`v1.2.0-beta.4-dev.1`](https://github.com/springbrand-lab/springbrand-agent-setup/releases/tag/v1.2.0-beta.4-dev.1). It is identified as `springbrand-dev`, displays as **SpringBrand Dev**, and bundles one `springbrand-dev` MCP server at `https://devconnector.springbrand.ai/mcp`. Authentication is host-native OAuth.
 
 Disable or uninstall the full production `springbrand` Plugin before enabling the full development Plugin. Both package the same Canonical Skill and routing behavior, so enabling both can duplicate routing and make connector selection ambiguous. The manual fallback remains available for unsupported hosts and may coexist with production because it shares one Skill file and adds only the separately named `springbrand-dev` MCP entry.
 
@@ -56,7 +56,7 @@ Production can track the latest stable release or be pinned to a tag. The full d
 | --- | --- |
 | Always install the latest stable production version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/stable/INSTALL.md |
 | Pin a stable, reproducible production version | https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.1.1/INSTALL.md |
-| Install the native development Plugin | `springbrand-lab/springbrand-agent-setup@v1.2.0-beta.3-dev.1` |
+| Install the native development Plugin | `springbrand-lab/springbrand-agent-setup@v1.2.0-beta.4-dev.1` |
 | Use the development guide or manual fallback | https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.dev.md |
 
 Use `stable` for everyday production installs and the immutable dev tag for internal Plugin testing. The current production package version remains in [`VERSION`](./VERSION); the dev Plugin reports its own version from its tagged package.

@@ -15,8 +15,8 @@ The immutable internal-testing release is:
 | --- | --- |
 | Plugin / Marketplace ID | `springbrand-dev` |
 | Display name | SpringBrand Dev |
-| Version | `1.2.0-beta.3-dev.1` |
-| Git ref | `v1.2.0-beta.3-dev.1` |
+| Version | `1.2.0-beta.4-dev.1` |
+| Git ref | `v1.2.0-beta.4-dev.1` |
 | MCP server name | `springbrand-dev` |
 | MCP URL | `https://devconnector.springbrand.ai/mcp` |
 | Transport | Native remote HTTP / Streamable HTTP |
@@ -27,7 +27,7 @@ The Plugin contains the same Canonical Skill and routing behavior as production.
 ### Codex CLI and Desktop
 
 ```sh
-codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.0-beta.3-dev.1
+codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.0-beta.4-dev.1
 codex plugin add springbrand-dev@springbrand-dev
 codex mcp login springbrand-dev
 ```
@@ -39,7 +39,7 @@ The Marketplace bootstrap also exposes **SpringBrand Dev** in the Codex desktop 
 CLI:
 
 ```sh
-claude plugin marketplace add springbrand-lab/springbrand-agent-setup@v1.2.0-beta.3-dev.1 --scope user
+claude plugin marketplace add springbrand-lab/springbrand-agent-setup@v1.2.0-beta.4-dev.1 --scope user
 claude plugin install springbrand-dev@springbrand-dev --scope user
 claude mcp login plugin:springbrand-dev:springbrand-dev
 ```
@@ -47,7 +47,7 @@ claude mcp login plugin:springbrand-dev:springbrand-dev
 Desktop Code: open **Plugin Browser → Add Marketplace** and enter:
 
 ```text
-springbrand-lab/springbrand-agent-setup@v1.2.0-beta.3-dev.1
+springbrand-lab/springbrand-agent-setup@v1.2.0-beta.4-dev.1
 ```
 
 Install **SpringBrand Dev**, complete OAuth, and open a new Code task. This does not apply to Claude Chat, Cowork, web sessions, or account-level Connectors.
@@ -57,7 +57,7 @@ Install **SpringBrand Dev**, complete OAuth, and open a new Code task. This does
 Open **Customize → Browse Marketplace → Add Marketplace → Import from GitHub** and enter:
 
 ```text
-springbrand-lab/springbrand-agent-setup@v1.2.0-beta.3-dev.1
+springbrand-lab/springbrand-agent-setup@v1.2.0-beta.4-dev.1
 ```
 
 Install **SpringBrand Dev**, complete OAuth for `springbrand-dev`, and open a new task.
@@ -67,7 +67,7 @@ Install **SpringBrand Dev**, complete OAuth for `springbrand-dev`, and open a ne
 Open **Plugins → Plugin URL** and enter:
 
 ```text
-https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.3-dev.1.zip
+https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.4-dev.1.zip
 ```
 
 Install **SpringBrand Dev**, complete OAuth for `springbrand-dev`, and open a new task.
@@ -76,7 +76,7 @@ Install **SpringBrand Dev**, complete OAuth for `springbrand-dev`, and open a ne
 
 Verify that the installed Plugin shows:
 
-- Plugin ID `springbrand-dev` and version `1.2.0-beta.3-dev.1`;
+- Plugin ID `springbrand-dev` and version `1.2.0-beta.4-dev.1`;
 - exactly one bundled `springbrand-dev` MCP entry;
 - URL exactly `https://devconnector.springbrand.ai/mcp`;
 - the `springbrand-resource-discovery` Canonical Skill;

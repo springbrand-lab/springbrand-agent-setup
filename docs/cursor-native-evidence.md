@@ -1,16 +1,18 @@
 # Cursor GitHub Import Native Evidence
 
-**Status: STALE — rerun required; `1.2.0` remains blocked**
+**Status: STALE — `1.2.0-beta.4` rerun required; `1.2.0` remains blocked**
+
+The `1.2.0-beta.4` capability-gap gate and lower-strength always-on Rule change automatic routing and fallback behavior. The results below remain historical; Cursor must rerun eligible, transform-only, diagnosis, boundary, timeout, update, and removal evidence against the new immutable package.
 
 This record covers the Cursor desktop Native Evidence required by issue
 [#22](https://github.com/springbrand-lab/springbrand-agent-setup/issues/22).
 It records native application behavior separately from repository schema checks.
 
 The results below are historical evidence for imported revision `4eaedf6` at
-package version `1.2.0-beta.2`. Commits `188cde8` and `1d76bcf` later changed
-the Canonical Skill's capability-execution protocol. The package is now
-`1.2.0-beta.3` so Cursor can fetch those fixes, but issue #22 must be rerun
-against that version before Cursor can count toward the stable release gate.
+package version `1.2.0-beta.2`. Commits `188cde8` and `1d76bcf` later changed capability execution, and
+`1.2.0-beta.4` changes the eligibility and fallback contract. Cursor can fetch
+those fixes through native update, but issue #22 must rerun against
+`1.2.0-beta.4` before Cursor can count toward the stable release gate.
 
 ## Run metadata
 
