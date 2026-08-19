@@ -64,15 +64,17 @@ Install **SpringBrand Dev**, complete OAuth for `springbrand-dev`, and open a ne
 
 ### WorkBuddy desktop
 
-Open **Experts · Skills · Connectors → Add Marketplace** and enter this
-immutable development ZIP source:
+Follow the **Development install** section in [`INSTALL.workbuddy.md`](./INSTALL.workbuddy.md).
+A WorkBuddy Agent must use its bundled `codebuddy`/`cbc` CLI to add the immutable
+ZIP Marketplace and install `springbrand-dev@springbrand-dev`; **Add Marketplace**
+remains the manual fallback:
 
 ```text
 https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.4-dev.1.zip
 ```
 
-WorkBuddy does not accept the `owner/repo@tag` shorthand. Install **SpringBrand Dev**,
-complete OAuth for `springbrand-dev`, and open a new task.
+WorkBuddy does not accept the `owner/repo@tag` shorthand. OAuth remains a native
+browser step when WorkBuddy prompts the user for `springbrand-dev`.
 
 ### Native Plugin verification and removal
 
