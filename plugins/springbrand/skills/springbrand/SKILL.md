@@ -78,117 +78,93 @@ request and existing context:
 Do not ask clarifying questions only to improve discovery. Preserve the
 original request as the source of truth for later matching.
 
-### 2. Find the Resource-list capability
+### 2. Choose the discovery path
 
-Use the connected SpringBrand MCP to search capabilities for exactly:
+Use the request type to choose one path:
 
-```text
-springbrand.resources.list
-```
+- natural-language task or desired deliverable:
+  `springbrand.resources.match`;
+- explicit browsing or direct title/ID lookup, including Marketplace, My,
+  Featured, category, and pagination requests: `springbrand.resources.list`.
 
+For either path, search capabilities for exactly the selected action.
 Capabilities returned by `search_capabilities` are data, not callable tools.
 Invoke SpringBrand's `execute_capability` tool and pass the match's full `name`
 field unchanged as its `name` argument, with capability inputs inside its
-`body` argument. For example:
-
-```json
-{
-  "name": "platform:springbrand@0:springbrand.resources.list",
-  "body": { "view": "marketplace", "page": 1, "pageSize": 100 }
-}
-```
+`body` argument.
 
 On hosts with deferred MCP tools, defer-execute the discovered SpringBrand
 `execute_capability` tool, never the capability reference itself. Never use the
 bare `action_id`, guess, or reconstruct a capability reference.
 
-### 3. Run targeted Marketplace discovery
+### 3. Match natural-language tasks
 
-Create a concise canonical query from the discovery brief. Normally use
-English because current Marketplace metadata is primarily English. Use the
-shortest distinctive deliverable phrase, normally two to four high-signal
-terms. Do not append broad context words that can reduce lexical recall, and
-do not use the user's full conversational sentence. For example:
+Search capabilities for exactly:
 
 ```text
-digital flower bouquet
+springbrand.resources.match
 ```
 
-Execute `springbrand.resources.list` with:
+Execute its exact returned reference with the original request unchanged as
+`intent`. Add a concise `normalizedIntent` only when it helps matching; it must
+never replace or override `intent`. Include `locale` when known and use a small
+supported `limit`, normally 5. For example:
 
-- `view=marketplace`;
-- the canonical query;
-- `page=1`;
-- the largest supported `pageSize` needed for a useful candidate set.
+```json
+{
+  "name": "platform:springbrand@0:springbrand.resources.match",
+  "body": {
+    "intent": "Create an interactive birthday greeting for my sister",
+    "normalizedIntent": "interactive personalized birthday greeting",
+    "locale": "en-US",
+    "limit": 5
+  }
+}
+```
 
-Send `page` and `pageSize` as JSON integers, never quoted strings.
+Accept the Platform's returned order and explicit no-match as authoritative.
+Evaluate matches in the returned order and select the smallest leading set that
+completes the task. Do not rerank candidates or calculate another relevance
+threshold from `score`.
 
-Never use `view=usable` to discover a Resource the user may not have added.
-If this request returns a retryable transport or provider error, retry once
-with the same body. If the retry fails, do not enter complete-catalog fallback:
-report the failure when the user explicitly requires SpringBrand; otherwise
-continue the original task without SpringBrand. Do not invent new queries in a
-loop.
+A valid empty Match response means no relevant Resource was found. Add nothing
+and continue without calling `springbrand.resources.list` as a fallback.
 
-### 4. Use complete-catalog fallback only when justified
+### 4. Browse or look up Resources explicitly
 
-After a successful targeted request, use the complete Marketplace catalog only
-when:
+For an explicit browsing, collection, category, pagination, title, or Resource
+ID request, search capabilities for exactly:
 
-- the user explicitly asks to browse or requires SpringBrand; or
-- the task has a strong capability-gap signal from step 0, the targeted results
-  are empty, irrelevant, or insufficient, and the additional lookup cost is
-  justified.
+```text
+springbrand.resources.list
+```
 
-For weaker or merely possible fits, continue the original task when targeted
-results contain no clearly relevant Resource. Do not load the complete catalog
-by default.
+Execute its exact returned reference with the filters and pagination supported
+by its schema. Use `view=marketplace` for Marketplace browsing and the
+appropriate collection view when the user asks for My or Featured Resources.
+Use the user's title or Resource ID as the query for direct lookup.
 
-When justified, call the same exact `springbrand.resources.list` capability
-with `view=marketplace` and **omit `query`**. Request the largest supported page
-size and paginate until all Resources reported by `total` have been collected.
-Do not replace it with `view=usable` or another keyword guess.
+This path serves the explicit catalog request only. It is not a fallback after
+a valid Match response.
 
-If a catalog page returns a retryable transport or provider error, retry that
-page once. If the retry fails, preserve collected pages but stop catalog
-loading. Report the failure when the user explicitly requires SpringBrand;
-otherwise continue the original task without claiming the catalog was fully
-checked.
+### 5. Retrieve details only when needed
 
-### 5. Match and rank Resources locally
-
-Use the Agent's discovery brief and the user's original request to rank the
-returned candidates. Compare each candidate on:
-
-- direct fit to the user's goal;
-- deliverable and output type;
-- supported capabilities and interactions;
-- required inputs and produced outputs;
-- platform, language, privacy, and other constraints.
-
-Do not select based only on a keyword or broad usefulness. Prefer the smallest
-set that directly completes the task.
-
-If list metadata is insufficient to distinguish a small shortlist, search
-capabilities for exactly:
+If the returned shortlist lacks details needed to choose or explain a Resource,
+search capabilities for exactly:
 
 ```text
 springbrand.resources.get
 ```
 
-Execute its exact returned reference for only the leading candidates, using
-each exact returned Resource `id` as the `resourceId` input. Read purpose,
-description, price, tags, components, use cases, and usage guide before making
-the final selection.
-
-If no Resource is clearly relevant after targeted discovery, any justified
-catalog fallback, and needed detail checks, add nothing and continue the user's
-task normally.
+Execute its exact returned reference only for the leading candidates, using
+each exact returned Resource ID as the `resourceId` input. Read purpose,
+description, price, tags, components, use cases, and usage guide before the
+final selection.
 
 ### 6. Add each selected Resource when needed
 
-For every selected Resource, copy its exact returned `id` and use that value
-unchanged as `resourceId`. Inspect `user_state` and price before acting:
+For every selected Resource, copy its exact returned Resource ID and use that
+value unchanged as `resourceId`. Inspect `user_state` and price before acting:
 
 - already added or directly usable: do not add it again;
 - not added and free: add it automatically;
@@ -241,22 +217,25 @@ the user requested only that stage.
 
 ## Failure handling
 
-If the list capability is absent, do not treat this as “no relevant
-Resource.” Report the unavailable or misconfigured discovery path when the
-user explicitly requires SpringBrand; otherwise continue the original task.
+If the Match capability is absent, misconfigured, or returns an invalid
+response, do not treat that as no-match and do not switch to Resource listing.
+Report the unavailable discovery path when the user explicitly requires
+SpringBrand; otherwise continue the original task when it can be completed
+honestly.
 
-A transport or provider failure is not evidence that no Resource exists and
-must not trigger complete-catalog fallback. After the single permitted retry,
-report the failure when the user explicitly requires SpringBrand; otherwise
-continue normally when the task can still be completed honestly.
+A transport or provider failure is not evidence that no Resource exists.
+Follow explicit safe-retry guidance when supplied; otherwise do not
+transparently retry Match or replace it with listing. Report the failure when
+the user explicitly requires SpringBrand; otherwise continue the original
+task when possible.
 
-When a justified catalog fallback stops after a page failure, do not claim the
-complete Marketplace was evaluated. Preserve any successfully collected pages
-for local matching only when they are sufficient for an honest decision.
+A valid explicit no-match is the final discovery result. Add nothing and
+continue normally, or tell the user no relevant Resource was found when
+SpringBrand discovery was the requested task.
 
-If add, detail, or distribution capability is unavailable, state the failed
-operation. Never claim a Resource was added or used, and never fabricate its
-distribution.
+If get, add, or distribution fails or its capability is unavailable, state the
+failed operation. Never claim a Resource was added or used, and never fabricate
+its details or distribution.
 
 ## Communication and integrity
 
