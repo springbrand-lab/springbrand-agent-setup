@@ -6,8 +6,8 @@ failures as routing false positives.
 
 ## Scoring
 
-- **Eligible recall:** eligible prompts that enter Resource Discovery.
-- **First-action ordering:** eligible prompts that enter Resource Discovery
+- **Eligible recall:** eligible prompts that enter Plugin Discovery.
+- **First-action ordering:** eligible prompts that enter Plugin Discovery
   before task-specific planning or production.
 - **False trigger:** ineligible prompts that load the Skill or call any
   SpringBrand MCP tool.
@@ -39,15 +39,15 @@ material original-task regression.
 Expected: no Skill load, no capability search, no Marketplace call, and the
 original task completes directly.
 
-## Eligible: Resource Discovery first
+## Eligible: Plugin Discovery first
 
 1. `帮我生成一组产品宣传图片。`
 2. `抓取这个网页的数据，并持续监控变化。`
 3. `制作一个复杂的互动品牌网站。`
 4. `批量处理这些文件，并做成可重复工作流。`
 5. `帮我集成一个长期运行的第三方自动化。`
-6. `找一个 SpringBrand Resource 完成这个任务。`
-7. `浏览 SpringBrand Marketplace，推荐适合做演示模板的 Resource。`
+6. `找一个 SpringBrand Plugin 完成这个任务。`
+7. `浏览 SpringBrand Marketplace，推荐适合做演示模板的 Plugin。`
 
 Expected: Skill load and targeted discovery before task-specific planning or
 production. Complete-catalog fallback is permitted only for explicit

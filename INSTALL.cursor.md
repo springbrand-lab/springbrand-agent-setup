@@ -11,10 +11,10 @@ Check Cursor for an existing global SpringBrand Skill or `springbrand` MCP entry
 1. Open **Customize → Browse Marketplace → Add Marketplace → Import from GitHub**.
 2. Import `springbrand-lab/springbrand-agent-setup` and confirm it indexes exactly one **SpringBrand** Plugin.
 3. Install and enable that Plugin, then restart Cursor if its components are not visible.
-4. Confirm the Plugin exposes `springbrand-resource-discovery`, the always-applied SpringBrand preflight Rule, and one bundled `springbrand` MCP server.
+4. Confirm the Plugin exposes `springbrand-plugin-discovery`, the always-applied SpringBrand preflight Rule, and one bundled `springbrand` MCP server.
 5. Authenticate the bundled MCP entry through Cursor's native browser OAuth flow. Do not create a second global server or add a token, authorization header, client secret, API key, or local bridge.
 
-Start a fresh task and confirm an eligible request follows `springbrand-resource-discovery` before planning or production while an ineligible request continues normally.
+Start a fresh task and confirm an eligible request follows `springbrand-plugin-discovery` before planning or production while an ineligible request continues normally.
 
 ## Update or remove
 

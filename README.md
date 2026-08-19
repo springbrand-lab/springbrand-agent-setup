@@ -33,11 +33,11 @@ Disable or uninstall the full production `springbrand` Plugin before enabling th
 | Full Plugins can coexist | No | No — disable one before enabling the other |
 | Manual Skill-plus-MCP fallback can coexist | Yes | Yes — it shares one Skill and uses a separate MCP name |
 
-Both environments share the same SpringBrand Resource Discovery Skill (`springbrand-resource-discovery`). Development is for testing only and should not be used as a production configuration.
+Both environments share the same SpringBrand Plugin Discovery Skill (`springbrand-plugin-discovery`). Development is for testing only and should not be used as a production configuration.
 
 ## What gets installed
 
-- **Codex Plugin (beta)** — packages the `springbrand-resource-discovery` Skill, production MCP declaration, and static preflight Hook for supported macOS Codex hosts.
+- **Codex Plugin (beta)** — packages the `springbrand-plugin-discovery` Skill, production MCP declaration, and static preflight Hook for supported macOS Codex hosts.
 - **Claude Code Plugin (beta)** — packages the same Canonical Skill, native OAuth-backed production MCP, and static preflight Hook for Claude Code CLI and the Claude Desktop Code tab; see [`INSTALL.claude.md`](./INSTALL.claude.md).
 - **Cursor Plugin (beta)** — packages generated, verified Distribution Mirrors with native OAuth-backed production MCP and an always-applied preflight Rule for Cursor desktop; see [`INSTALL.cursor.md`](./INSTALL.cursor.md).
 - **WorkBuddy Plugin (beta)** — a WorkBuddy Agent installs it through the bundled CLI; **Add Marketplace** remains the manual fallback; see [`INSTALL.workbuddy.md`](./INSTALL.workbuddy.md).

@@ -279,7 +279,7 @@ CLI 还支持 `approvalMode`（allowlist、auto-review、unrestricted）以及 s
 
 官方能力足以承载一个 Cursor Plugin：[S1][S2][S4]
 
-- `skills/springbrand-resource-discovery/SKILL.md`
+- `skills/springbrand-plugin-discovery/SKILL.md`
 - 根 `mcp.json`，远端 URL 为 `https://connector.springbrand.ai/mcp`
 - 如确有必要，`hooks/hooks.json`
 - `.cursor-plugin/plugin.json`

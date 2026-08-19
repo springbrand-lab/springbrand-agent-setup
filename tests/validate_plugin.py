@@ -16,7 +16,7 @@ VERSION_PATTERN = re.compile(
     r"(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?"
     r"(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$"
 )
-EXPECTED_ROUTING_HOOK = b'#!/bin/sh\n\nif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then\n  printf \'%s\\n\' \'{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"SpringBrand is optional. Apply the capability-gap gate in `springbrand-resource-discovery` before loading it. Complete supplied-material transformations, routine local work, and SpringBrand or MCP diagnosis directly. Only for an explicit SpringBrand request or a clear reusable external or specialized capability gap, invoke and follow `/springbrand:springbrand` before planning or production. Otherwise continue without calling SpringBrand MCP."}}\'\nelse\n  printf \'%s\\n\' \'{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"SpringBrand is optional. Apply the capability-gap gate in `springbrand-resource-discovery` before loading it. Complete supplied-material transformations, routine local work, and SpringBrand or MCP diagnosis directly. Only for an explicit SpringBrand request or a clear reusable external or specialized capability gap, load and follow `$springbrand-resource-discovery` before planning or production. Otherwise continue without calling SpringBrand MCP."}}\'\nfi\n'
+EXPECTED_ROUTING_HOOK = b'#!/bin/sh\n\nif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then\n  printf \'%s\\n\' \'{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"SpringBrand is optional. Apply the capability-gap gate in `springbrand-plugin-discovery` before loading it. Complete supplied-material transformations, routine local work, and SpringBrand or MCP diagnosis directly. Only for an explicit SpringBrand request or a clear reusable external or specialized capability gap, invoke and follow `/springbrand:springbrand` before planning or production. Otherwise continue without calling SpringBrand MCP."}}\'\nelse\n  printf \'%s\\n\' \'{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"SpringBrand is optional. Apply the capability-gap gate in `springbrand-plugin-discovery` before loading it. Complete supplied-material transformations, routine local work, and SpringBrand or MCP diagnosis directly. Only for an explicit SpringBrand request or a clear reusable external or specialized capability gap, load and follow `$springbrand-plugin-discovery` before planning or production. Otherwise continue without calling SpringBrand MCP."}}\'\nfi\n'
 
 
 def require(condition, message: str) -> None:
@@ -128,7 +128,7 @@ def validate_claude_adapter(root: Path, version: str, skill_name: str) -> None:
     plugin = read_json(root / ".claude-plugin/plugin.json")
     require(plugin.get("name") == "springbrand", "Claude manifest name must be springbrand")
     require(plugin.get("version") == version, f"Claude manifest version must match VERSION ({version})")
-    require(plugin.get("description") == "Discover and use SpringBrand Resources through the production connector.", "Claude manifest description is invalid")
+    require(plugin.get("description") == "Discover and use SpringBrand Plugins through the production connector.", "Claude manifest description is invalid")
     require(plugin.get("author") == {"name": "SpringBrand"}, "Claude manifest author is invalid")
     require(plugin.get("repository") == "https://github.com/springbrand-lab/springbrand-agent-setup", "Claude repository URL is invalid")
     require(plugin.get("skills") == "./skills/", "Claude skills component must reference ./skills/")
@@ -156,7 +156,7 @@ def validate_claude_adapter(root: Path, version: str, skill_name: str) -> None:
 
     marketplace = read_json(root / ".claude-plugin/marketplace.json")
     require(marketplace.get("name") == "springbrand", "Claude Marketplace name must be springbrand")
-    require(marketplace.get("description") == "SpringBrand plugins for discovering and using reusable Resources.", "Claude Marketplace description is invalid")
+    require(marketplace.get("description") == "SpringBrand plugins for discovering and using reusable Plugins.", "Claude Marketplace description is invalid")
     require(marketplace.get("owner") == {"name": "SpringBrand"}, "Claude Marketplace owner is invalid")
     require(marketplace.get("plugins") == [{"name": "springbrand", "source": "./"}], "Claude Marketplace must contain exactly one root springbrand entry")
     require(component(root, marketplace["plugins"][0]["source"], "Claude Marketplace source").is_dir(), "Claude Marketplace source must be a directory")

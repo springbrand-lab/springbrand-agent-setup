@@ -109,7 +109,7 @@ springbrand-claude-plugin/
 ├── .claude-plugin/plugin.json
 ├── .mcp.json
 ├── hooks/hooks.json
-└── skills/springbrand-resource-discovery/SKILL.md
+└── skills/springbrand-plugin-discovery/SKILL.md
 ```
 
 这只是官方能力允许的最小边界，不是本研究阶段的实现提交。
@@ -234,7 +234,7 @@ Claude Code 对远程 HTTP MCP 原生支持：[A11]
 
 - Claude Code Skill 是带 YAML frontmatter 的 `SKILL.md`；Claude 可根据 description 自动调用，也可由用户 `/skill-name` 显式调用。[A12]
 - Personal Skill：`~/.claude/skills/<name>/SKILL.md`；Project Skill：`.claude/skills/<name>/SKILL.md`；Plugin Skill：`<plugin>/skills/<name>/SKILL.md`。[A12]
-- Plugin Skill 始终带 namespace，例如 `/springbrand:springbrand-resource-discovery`，避免与 personal/project Skill 冲突。[A07][A12]
+- Plugin Skill 始终带 namespace，例如 `/springbrand:springbrand-plugin-discovery`，避免与 personal/project Skill 冲突。[A07][A12]
 - `.claude/commands/*.md` 仍兼容，但官方已把 custom commands 合并到 Skills；若同名，Skill 优先。[A12]
 - Desktop 本地 Code session 可从 prompt 的 Slash commands UI 浏览 built-in commands、custom Skills、project Skills 和 Plugin Skills。[A03]
 - 本地 Code 与 CLI 读取同一 personal/project/plugin Skills。[A03][A12]
@@ -242,7 +242,7 @@ Claude Code 对远程 HTTP MCP 原生支持：[A11]
 
 ### 对 SpringBrand 的直接能力结论
 
-现有 `springbrand-resource-discovery` 可作为 Plugin Skill 复用其指令内容，但需要遵守 Claude Skill frontmatter 和 namespace 规则。为了让 Claude 自动发现，应保留准确 `description`；为了让用户可审计/手动验证，应同时允许显式 `/springbrand:springbrand-resource-discovery` 调用。[A12]
+现有 `springbrand-plugin-discovery` 可作为 Plugin Skill 复用其指令内容，但需要遵守 Claude Skill frontmatter 和 namespace 规则。为了让 Claude 自动发现，应保留准确 `description`；为了让用户可审计/手动验证，应同时允许显式 `/springbrand:springbrand-plugin-discovery` 调用。[A12]
 
 ## 9. Hook
 
@@ -262,7 +262,7 @@ Claude Code 对远程 HTTP MCP 原生支持：[A11]
 - 返回 `decision: "block"` 阻止 prompt
 - 设置 session title
 
-这就是 SpringBrand “eligible task 必须先执行 Resource discovery，再进入规划、追问或产出”的最接近原生 pre-prompt seam。[A13]
+这就是 SpringBrand “eligible task 必须先执行 Plugin discovery，再进入规划、追问或产出”的最接近原生 pre-prompt seam。[A13]
 
 但有一个必须纳入验收的行为：[A13]
 

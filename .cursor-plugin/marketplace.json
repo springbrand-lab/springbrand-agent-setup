@@ -4,14 +4,15 @@
     "name": "SpringBrand"
   },
   "metadata": {
-    "description": "SpringBrand Resource Discovery for Cursor",
-    "version": "1.2.0-beta.4"
+    "description": "SpringBrand Plugin Discovery for Cursor",
+    "version": "1.2.0-beta.5"
   },
   "plugins": [
     {
       "name": "springbrand",
       "source": "./plugins/springbrand",
-      "description": "Discover and use SpringBrand Resources through the production connector"
+      "description": "Discover and use SpringBrand Plugins through the production connector",
+      "version": "1.2.0-beta.5"
     }
   ]
 }

@@ -21,8 +21,8 @@ if command -v codebuddy >/dev/null 2>&1; then
   WORKBUDDY_CLI="$(command -v codebuddy)"
 elif command -v cbc >/dev/null 2>&1; then
   WORKBUDDY_CLI="$(command -v cbc)"
-elif [ -x "/Applications/WorkBuddy AI.app/Contents/Resources/app.asar.unpacked/cli/bin/codebuddy" ]; then
-  WORKBUDDY_CLI="/Applications/WorkBuddy AI.app/Contents/Resources/app.asar.unpacked/cli/bin/codebuddy"
+elif [ -x "/Applications/WorkBuddy AI.app/Contents/Plugins/app.asar.unpacked/cli/bin/codebuddy" ]; then
+  WORKBUDDY_CLI="/Applications/WorkBuddy AI.app/Contents/Plugins/app.asar.unpacked/cli/bin/codebuddy"
 else
   WORKBUDDY_CLI=""
 fi
@@ -122,7 +122,7 @@ After reload or a new task, verify:
 
 - exactly one `springbrand@springbrand` Plugin is installed and enabled;
 - its version matches repository `main`;
-- `springbrand-resource-discovery` is visible;
+- `springbrand-plugin-discovery` is visible;
 - the bundled `springbrand` MCP points only to
   `https://connector.springbrand.ai/mcp` and is OAuth-connected;
 - the Plugin-level Hook is loaded;

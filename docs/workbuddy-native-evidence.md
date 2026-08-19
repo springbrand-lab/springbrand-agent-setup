@@ -41,12 +41,12 @@ Plugin-level executable Hook. No separate per-Hook approval UI appeared.
 | --- | --- | --- |
 | WorkBuddy 5.3.13 or newer | **Pass** | WorkBuddy AI 5.3.13 on macOS 14.1.2. |
 | Exactly one SpringBrand Plugin | **Pass** | The Plugin URL source exposed and installed only `springbrand@springbrand`, version `1.2.0-beta.2`. |
-| Skill, MCP, and Hook installation | **Pass** | Native logs loaded one `springbrand-resource-discovery` Skill, one MCP server, and the SpringBrand Hook configuration. |
+| Skill, MCP, and Hook installation | **Pass** | Native logs loaded one `springbrand-plugin-discovery` Skill, one MCP server, and the SpringBrand Hook configuration. |
 | Native Hook trust boundary | **Pass** | Installing and enabling the Plugin activated its local `UserPromptSubmit` Hook; no additional Hook-specific consent surface was presented. |
 | Fresh production OAuth | **Pass** | Native browser OAuth completed against `https://connector.springbrand.ai/mcp` without API keys or packaged credentials. The server exposed `springbrand_search_capabilities` and `springbrand_execute_capability`. |
 | Full-restart loading | **Pass** | A full application quit and restart reloaded the Plugin, Skill, Hook, and MCP connection. |
-| Eligible routing before work | **Pass** | `UserPromptSubmit` and `springbrand-resource-discovery` ran before website planning or production. WorkBuddy searched `springbrand.resources.list`, executed the full `platform:springbrand@0:springbrand.resources.list` reference through `execute_capability`, used `view=marketplace`, and evaluated all 23 Resources before beginning the requested dessert-brand website. |
-| Original-task preservation | **Pass** | No suitable commercial dessert-brand website Resource existed in the complete catalog. WorkBuddy reported the no-match result and completed the original website task instead of stopping at discovery. |
+| Eligible routing before work | **Pass** | `UserPromptSubmit` and `springbrand-plugin-discovery` ran before website planning or production. WorkBuddy searched `springbrand.plugins.list`, executed the full `platform:springbrand@0:springbrand.plugins.list` reference through `execute_capability`, used `view=marketplace`, and evaluated all 23 Plugins before beginning the requested dessert-brand website. |
+| Original-task preservation | **Pass** | No suitable commercial dessert-brand website Plugin existed in the complete catalog. WorkBuddy reported the no-match result and completed the original website task instead of stopping at discovery. |
 | Ineligible behavior | **Pass** | A fresh `2+2` task returned `4` without loading the SpringBrand Skill or calling the MCP. |
 | Update behavior | **Pass** | Marketplace refresh and Plugin update replaced the installed Distribution Mirror without creating a duplicate; a full restart loaded the updated Skill. |
 | Disable and enable | **Pass** | Disable plus full restart removed the active SpringBrand components; enable plus full restart restored the Skill, Hook, and MCP while preserving authorization and unrelated configuration. |
@@ -67,7 +67,7 @@ The native run exposed two P1 instruction ambiguities:
 
 The Marketplace and installed Plugin were refreshed after both fixes. All
 repository validators passed, and a post-restart direct check returned the
-complete 23-Resource catalog through the corrected execution path.
+complete 23-Plugin catalog through the corrected execution path.
 
 ## Observed host behavior
 
@@ -76,7 +76,7 @@ The Gateway correctly rejected those calls. WorkBuddy recovered by omitting the
 defaulted pagination fields; because the complete catalog contained 23 items,
 the default page contained the entire catalog. It also made unnecessary extra
 keyword queries after the complete-catalog result. These calls were inefficient
-but did not alter routing-before-work, complete-catalog coverage, Resource
+but did not alter routing-before-work, complete-catalog coverage, Plugin
 selection, or original-task completion.
 
 The first OAuth attempt was also blocked by the local VPN TUN/DNS path, which

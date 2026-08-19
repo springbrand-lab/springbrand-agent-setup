@@ -45,7 +45,7 @@ claude plugin uninstall springbrand@springbrand --scope user
 | Required evidence | Result | Record |
 | --- | --- | --- |
 | Clean native Marketplace installation exposes the Plugin | **Pass** | `springbrand@springbrand`, version `1.2.0-beta.2`, installed and enabled in the fresh user scope. |
-| Canonical Skill visibility | **Pass** | `claude plugin details springbrand@springbrand` reported one Skill named `springbrand`; the package contains the unchanged `springbrand-resource-discovery` Canonical Skill. |
+| Canonical Skill visibility | **Pass** | `claude plugin details springbrand@springbrand` reported one Skill named `springbrand`; the package contains the unchanged `springbrand-plugin-discovery` Canonical Skill. |
 | Namespaced SpringBrand MCP entry | **Pass** | `claude mcp list` reported `plugin:springbrand:springbrand` at `https://connector.springbrand.ai/mcp` as HTTP. |
 | Fresh browser OAuth without static credentials or duplicate registration | **Pass** | `claude mcp login plugin:springbrand:springbrand` completed native browser OAuth; `claude mcp list` then reported `✔ Connected`. No token or API key was recorded. The unnamespaced `claude mcp login springbrand` command correctly failed because the Plugin-owned entry is namespaced. |
 | Eligible/ineligible routing before work and original-task preservation | **Pass** | The current-branch retest below records real model execution: eligible work loaded the namespaced Canonical Skill and completed after Marketplace discovery; an ineligible arithmetic task returned only `4` with no Skill or MCP call. |
@@ -103,16 +103,16 @@ validation had not detected:
    the Hook named only the Canonical Skill frontmatter name. The model therefore
    skipped the Skill and followed the MCP server's shorter guidance. Commit
    `a735508` makes the Claude Hook invoke `/springbrand:springbrand` while still
-   naming `springbrand-resource-discovery` as the Canonical Skill.
+   naming `springbrand-plugin-discovery` as the Canonical Skill.
 
 After reinstalling the remote branch, the final run on Claude Code 2.1.234 passed:
 
 - the `UserPromptSubmit` Hook ran once with no Hook error;
 - `/springbrand:springbrand` loaded successfully before planning or production;
-- the model searched exactly for `springbrand.resources.list`;
+- the model searched exactly for `springbrand.plugins.list`;
 - targeted discovery used `view=marketplace` with `query="coffee website"`;
 - the empty targeted result triggered the required complete-catalog fallback;
-- all 23 Marketplace Resources were evaluated, none was forced into the task,
+- all 23 Marketplace Plugins were evaluated, none was forced into the task,
   and the original website request continued normally;
 - the task produced `index.html`, `css/style.css`, and `js/main.js`, then passed
   JavaScript syntax, HTML balance, asset-reference, and HTTP 200 checks;
@@ -147,7 +147,7 @@ enabled, the namespaced Skill was visible, and
 | --- | --- | --- |
 | Plugin and Skill visibility after full restart | **Pass** | Desktop showed one enabled SpringBrand Plugin and `/springbrand:springbrand`; the installed inventory contained one Skill, one `UserPromptSubmit` Hook, and one MCP server. |
 | OAuth state | **Pass** | The bundled namespaced MCP entry was visible and `Connected`; no duplicate SpringBrand MCP entry was present. |
-| Eligible routing before work | **Pass** | `/springbrand:springbrand` ran before planning or production, searched exactly for `springbrand.resources.list`, used targeted `view=marketplace` discovery with `query="dessert website"`, and performed the required complete Marketplace fallback over all 23 Resources. No `view=usable` discovery or Hook error appeared. |
+| Eligible routing before work | **Pass** | `/springbrand:springbrand` ran before planning or production, searched exactly for `springbrand.plugins.list`, used targeted `view=marketplace` discovery with `query="dessert website"`, and performed the required complete Marketplace fallback over all 23 Plugins. No `view=usable` discovery or Hook error appeared. |
 | Original-task preservation | **Pass** | After the model detected that the initial directory was an existing repository and requested a safe destination, the operator supplied one and confirmed that the requested website task completed. |
 | Ineligible routing | **Pass** | A separate `2+2` session returned only `4` and did not invoke the SpringBrand Skill or MCP. |
 | Marketplace refresh and Plugin update | **Pass** | Native Marketplace refresh succeeded; the Plugin reported already latest at `1.2.0-beta.2`. After a full Desktop restart it remained installed, enabled, visible, and connected. |

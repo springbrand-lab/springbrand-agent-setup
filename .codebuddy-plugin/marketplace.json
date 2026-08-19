@@ -7,7 +7,7 @@
     {
       "name": "springbrand",
       "source": "./plugins/springbrand-workbuddy",
-      "description": "Discover and use SpringBrand Resources through the production connector"
+      "description": "Discover and use SpringBrand Plugins through the production connector"
     }
   ]
 }

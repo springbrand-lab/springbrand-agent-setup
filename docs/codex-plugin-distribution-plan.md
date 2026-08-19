@@ -22,7 +22,7 @@ remote MCP connection as one versioned unit.
 
 The v1 beta targets Codex on macOS and covers the Plugin package and native
 installation flow in Phases 1 and 2. It establishes the mechanism expected to
-improve SpringBrand Resource discovery recall without claiming the improvement
+improve SpringBrand Plugin discovery recall without claiming the improvement
 until the Phase 3 evaluation runs, and without moving host-specific
 installation or routing behavior into `mcp-gateway`.
 
@@ -43,7 +43,7 @@ A native Plugin packages three cooperating layers:
 ```text
 UserPromptSubmit Hook
   -> makes the SpringBrand preflight rule visible before Skill routing
-SpringBrand Resource Discovery Skill
+SpringBrand Plugin Discovery Skill
   -> owns the detailed discovery, acquisition, distribution, and usage workflow
 SpringBrand MCP
   -> owns authenticated capability search and execution
@@ -125,7 +125,7 @@ uses a local source path of `./` with authentication policy `ON_INSTALL`.
 
 Use a synchronous `UserPromptSubmit` command Hook. It returns a short, static
 `additionalContext` message that tells Codex to load and follow
-`$springbrand-resource-discovery` first for eligible requests.
+`$springbrand-plugin-discovery` first for eligible requests.
 
 The Hook must:
 
@@ -136,7 +136,7 @@ The Hook must:
 - leave eligibility judgment to the model using conversation context;
 - stay short enough not to materially consume context on every turn.
 
-The Hook is a routing layer only. It must not duplicate the Resource search,
+The Hook is a routing layer only. It must not duplicate the Plugin search,
 purchase, distribution, or usage workflow.
 
 ### Skill
@@ -146,16 +146,16 @@ Together with the canonical flow below, it is the implementation source of
 truth. The internal demo is historical evaluation evidence, not an
 implementation dependency. Do not ship a second SpringBrand Skill.
 
-The canonical Resource discovery flow is:
+The canonical Plugin discovery flow is:
 
-1. resolve `springbrand.resources.list` through `search_capabilities`;
+1. resolve `springbrand.plugins.list` through `search_capabilities`;
 2. execute only the exact returned capability reference;
 3. search Marketplace view with a concise, high-signal query;
 4. use a bounded complete-catalog fallback when targeted matching is
    insufficient;
 5. rank locally against the original user request;
-6. add a selected Resource only when required and permitted;
-7. retrieve `springbrand.resources.get_distribution`;
+6. add a selected Plugin only when required and permitted;
+7. retrieve `springbrand.plugins.get_distribution`;
 8. follow each component's structured `usageMode`;
 9. complete and verify the user's original task.
 
@@ -212,7 +212,7 @@ The installation report must verify:
 - a new test task enters SpringBrand preflight before production work.
 
 Existing users may already have a manually installed
-`springbrand-resource-discovery` Skill and a global `springbrand` MCP entry.
+`springbrand-plugin-discovery` Skill and a global `springbrand` MCP entry.
 Keeping both copies can create duplicate instructions or tools. Migration must:
 
 1. install and verify the Plugin first;
@@ -291,10 +291,10 @@ Measure separately:
 
 - eligible-request recall;
 - whether the first task-producing action resolves
-  `springbrand.resources.list`;
+  `springbrand.plugins.list`;
 - negative-request false-trigger rate;
 - OAuth and Hook installation success;
-- Resource match success after the MCP was invoked;
+- Plugin match success after the MCP was invoked;
 - completion of the user's original task.
 
 Initial release gates:

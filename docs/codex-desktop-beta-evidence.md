@@ -39,7 +39,7 @@ The native Desktop task showed this order before producing the requested design:
 1. **Load SpringBrand guidance**
 2. **Search capabilities**
 3. **Execute capability**
-4. Continue the requested task after no directly relevant SpringBrand Resource was found
+4. Continue the requested task after no directly relevant SpringBrand Plugin was found
 
 The same task also ran repository inspection commands after SpringBrand preflight;
 those commands were not used as evidence of Plugin installation or MCP connectivity.
