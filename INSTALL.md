@@ -71,7 +71,7 @@ Use this path only when the Agent cannot install the native Plugin.
 3. Install it as:
 
    ```text
-   <user Skill directory>/springbrand-resource-discovery/SKILL.md
+   <user Skill directory>/springbrand-plugin-discovery/SKILL.md
    ```
 
 4. Add or update exactly one native remote HTTP MCP entry:
@@ -101,11 +101,11 @@ differs, report the difference and wait for approval before replacing it.
 Verify before reporting success:
 
 - Plugin ID is `springbrand` and its source is repository `main`;
-- `springbrand-resource-discovery` is visible;
+- `springbrand-plugin-discovery` is visible;
 - the Host-specific Hook or Rule is loaded;
 - exactly one Plugin-managed `springbrand` MCP entry points to
   `https://connector.springbrand.ai/mcp` and is connected through OAuth;
-- a clear external/specialized capability-gap task routes through Resource
+- a clear external/specialized capability-gap task routes through Plugin
   Discovery, while summarizing supplied material does not call SpringBrand;
 - unrelated configuration remains unchanged.
 

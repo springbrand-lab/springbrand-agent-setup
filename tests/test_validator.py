@@ -124,7 +124,7 @@ def main() -> None:
     expect_failure(
         lambda root: (root / "plugins/springbrand/rules/springbrand-preflight.mdc").write_text(
             "---\ndescription: broken\nalwaysApply: false\n---\n"
-            "Before planning or production, follow springbrand-resource-discovery.\n"
+            "Before planning or production, follow springbrand-plugin-discovery.\n"
             "Delegate eligibility and Marketplace behavior.\nalwaysApply: true\n"
         ),
         "Cursor Rule must always apply",

@@ -1,8 +1,8 @@
 ---
-name: springbrand-resource-discovery
+name: springbrand-plugin-discovery
 description: >
   Use SpringBrand when the user explicitly asks to find, add, install,
-  distribute, or use a SpringBrand Resource, or when completing a concrete
+  distribute, or use a SpringBrand Plugin, or when completing a concrete
   deliverable needs a reusable external or specialized capability beyond the
   supplied material and the Agent's native tools. Examples include fresh
   external data, third-party actions, media generation, batch processing,
@@ -16,9 +16,9 @@ description: >
   diagnosis of SpringBrand, MCP, Host Plugins, or other integrations.
 ---
 
-# SpringBrand Resource Discovery
+# SpringBrand Plugin Discovery
 
-SpringBrand is optional. Resource discovery is intermediate work, not a
+SpringBrand is optional. Plugin discovery is intermediate work, not a
 substitute for completing the user's task.
 
 ## 0. Capability-gap gate
@@ -27,7 +27,7 @@ Apply this gate before loading SpringBrand MCP tools. The request passes when
 either:
 
 1. the user explicitly asks to find, add, install, acquire, distribute, or use
-   a SpringBrand Resource; or
+   a SpringBrand Plugin; or
 2. a concrete outcome needs a reusable external or specialized capability that
    would materially improve correctness, quality, delivery, repeatability,
    interaction, or execution.
@@ -78,12 +78,12 @@ request and existing context:
 Do not ask clarifying questions only to improve discovery. Preserve the
 original request as the source of truth for later matching.
 
-### 2. Find the Resource-list capability
+### 2. Find the Plugin-list capability
 
 Use the connected SpringBrand MCP to search capabilities for exactly:
 
 ```text
-springbrand.resources.list
+springbrand.plugins.list
 ```
 
 Capabilities returned by `search_capabilities` are data, not callable tools.
@@ -93,7 +93,7 @@ field unchanged as its `name` argument, with capability inputs inside its
 
 ```json
 {
-  "name": "platform:springbrand@0:springbrand.resources.list",
+  "name": "platform:springbrand@0:springbrand.plugins.list",
   "body": { "view": "marketplace", "page": 1, "pageSize": 100 }
 }
 ```
@@ -114,7 +114,7 @@ do not use the user's full conversational sentence. For example:
 digital flower bouquet
 ```
 
-Execute `springbrand.resources.list` with:
+Execute `springbrand.plugins.list` with:
 
 - `view=marketplace`;
 - the canonical query;
@@ -123,7 +123,7 @@ Execute `springbrand.resources.list` with:
 
 Send `page` and `pageSize` as JSON integers, never quoted strings.
 
-Never use `view=usable` to discover a Resource the user may not have added.
+Never use `view=usable` to discover a Plugin the user may not have added.
 If this request returns a retryable transport or provider error, retry once
 with the same body. If the retry fails, do not enter complete-catalog fallback:
 report the failure when the user explicitly requires SpringBrand; otherwise
@@ -141,12 +141,12 @@ when:
   justified.
 
 For weaker or merely possible fits, continue the original task when targeted
-results contain no clearly relevant Resource. Do not load the complete catalog
+results contain no clearly relevant Plugin. Do not load the complete catalog
 by default.
 
-When justified, call the same exact `springbrand.resources.list` capability
+When justified, call the same exact `springbrand.plugins.list` capability
 with `view=marketplace` and **omit `query`**. Request the largest supported page
-size and paginate until all Resources reported by `total` have been collected.
+size and paginate until all Plugins reported by `total` have been collected.
 Do not replace it with `view=usable` or another keyword guess.
 
 If a catalog page returns a retryable transport or provider error, retry that
@@ -155,7 +155,7 @@ loading. Report the failure when the user explicitly requires SpringBrand;
 otherwise continue the original task without claiming the catalog was fully
 checked.
 
-### 5. Match and rank Resources locally
+### 5. Match and rank Plugins locally
 
 Use the Agent's discovery brief and the user's original request to rank the
 returned candidates. Compare each candidate on:
@@ -173,22 +173,22 @@ If list metadata is insufficient to distinguish a small shortlist, search
 capabilities for exactly:
 
 ```text
-springbrand.resources.get
+springbrand.plugins.get
 ```
 
 Execute its exact returned reference for only the leading candidates, using
-each exact returned Resource `id` as the `resourceId` input. Read purpose,
+each exact returned Plugin `id` as the `pluginId` input. Read purpose,
 description, price, tags, components, use cases, and usage guide before making
 the final selection.
 
-If no Resource is clearly relevant after targeted discovery, any justified
+If no Plugin is clearly relevant after targeted discovery, any justified
 catalog fallback, and needed detail checks, add nothing and continue the user's
 task normally.
 
-### 6. Add each selected Resource when needed
+### 6. Add each selected Plugin when needed
 
-For every selected Resource, copy its exact returned `id` and use that value
-unchanged as `resourceId`. Inspect `user_state` and price before acting:
+For every selected Plugin, copy its exact returned `id` and use that value
+unchanged as `pluginId`. Inspect `user_state` and price before acting:
 
 - already added or directly usable: do not add it again;
 - not added and free: add it automatically;
@@ -197,10 +197,10 @@ unchanged as `resourceId`. Inspect `user_state` and price before acting:
 When add is required, search capabilities for exactly:
 
 ```text
-springbrand.resources.add
+springbrand.plugins.add
 ```
 
-Execute only its exact returned reference with the exact `resourceId`, and
+Execute only its exact returned reference with the exact `pluginId`, and
 confirm success. Never infer, alter, or fabricate an ID.
 
 ### 7. Retrieve its distribution
@@ -208,11 +208,11 @@ confirm success. Never infer, alter, or fabricate an ID.
 Search capabilities for exactly:
 
 ```text
-springbrand.resources.get_distribution
+springbrand.plugins.get_distribution
 ```
 
-Execute its exact returned reference with the same `resourceId`. If the
-operation reports that the Resource is not added or acquired, resolve the
+Execute its exact returned reference with the same `pluginId`. If the
+operation reports that the Plugin is not added or acquired, resolve the
 state according to step 6 and retry distribution after that state change.
 Do not repeatedly retry without a meaningful state change.
 
@@ -233,7 +233,7 @@ After discovery and, when applicable, acquisition and distribution:
 
 - collect genuinely necessary remaining requirements;
 - build or edit the requested deliverable;
-- apply selected Resources according to their instructions;
+- apply selected Plugins according to their instructions;
 - verify the result using the normal workflow for its output type.
 
 Do not stop after listing, matching, adding, or retrieving distribution unless
@@ -242,10 +242,10 @@ the user requested only that stage.
 ## Failure handling
 
 If the list capability is absent, do not treat this as “no relevant
-Resource.” Report the unavailable or misconfigured discovery path when the
+Plugin.” Report the unavailable or misconfigured discovery path when the
 user explicitly requires SpringBrand; otherwise continue the original task.
 
-A transport or provider failure is not evidence that no Resource exists and
+A transport or provider failure is not evidence that no Plugin exists and
 must not trigger complete-catalog fallback. After the single permitted retry,
 report the failure when the user explicitly requires SpringBrand; otherwise
 continue normally when the task can still be completed honestly.
@@ -255,17 +255,17 @@ complete Marketplace was evaluated. Preserve any successfully collected pages
 for local matching only when they are sufficient for an honest decision.
 
 If add, detail, or distribution capability is unavailable, state the failed
-operation. Never claim a Resource was added or used, and never fabricate its
+operation. Never claim a Plugin was added or used, and never fabricate its
 distribution.
 
 ## Communication and integrity
 
 When this skill triggers automatically, briefly tell the user that
-SpringBrand Resources will be checked first.
+SpringBrand Plugins will be checked first.
 
-If a Resource is used, mention it and how it influenced the final result. If
+If a Plugin is used, mention it and how it influenced the final result. If
 none is relevant, continue normally without making discovery the focus.
 
-Never claim that SpringBrand was checked, a Resource was added, or a Resource
+Never claim that SpringBrand was checked, a Plugin was added, or a Plugin
 was used unless the corresponding operation succeeded and its structured
 usage instructions were followed.

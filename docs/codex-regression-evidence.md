@@ -44,10 +44,10 @@ control.
 | Plugin-owned MCP without global duplicate | **Pass** | `codex mcp list` exposed `springbrand` only while the Plugin was installed. No `[mcp_servers.springbrand]` entry was added to user `config.toml`; uninstall removed the visible MCP and reinstall restored it. |
 | Fresh native OAuth | **Pass** | `codex mcp login springbrand` completed the browser OAuth flow against the production endpoint. No token or static credential was recorded. |
 | Hook trust | **Pass** | The final package Hook ran without a trust error under the previously reviewed native Desktop Hook trust state. The Hook source and configuration were unchanged by the multi-host work. |
-| Eligible first-action routing | **Pass** | The fresh session loaded the Plugin Skill before production, searched exactly for `springbrand.resources.list`, executed the full `platform:springbrand@0:springbrand.resources.list` reference, and used `view=marketplace`. |
-| Targeted discovery | **Pass** | Query `dessert brand website`, page `1`, page size `100`, returned zero Resources. |
-| Complete-catalog fallback | **Pass** | The same full capability reference was executed without a query and returned all 23 Resources. No `view=usable` discovery occurred. |
-| Original-task preservation | **Pass** | After determining that no Resource fit the commercial dessert-brand website, Codex created and structurally validated `index.html`. |
+| Eligible first-action routing | **Pass** | The fresh session loaded the Plugin Skill before production, searched exactly for `springbrand.plugins.list`, executed the full `platform:springbrand@0:springbrand.plugins.list` reference, and used `view=marketplace`. |
+| Targeted discovery | **Pass** | Query `dessert brand website`, page `1`, page size `100`, returned zero Plugins. |
+| Complete-catalog fallback | **Pass** | The same full capability reference was executed without a query and returned all 23 Plugins. No `view=usable` discovery occurred. |
+| Original-task preservation | **Pass** | After determining that no Plugin fit the commercial dessert-brand website, Codex created and structurally validated `index.html`. |
 | Ineligible routing | **Pass** | A fresh `2+2` session returned only `4`; its JSONL stream contained no SpringBrand event. |
 | Desktop visibility/runtime | **Pass** | The eligible session metadata identified `Codex Desktop` as originator. The Desktop task displayed the running session, and its persisted event stream recorded the Skill, MCP calls, website production, validation, and final response. |
 | Uninstall and reinstall | **Pass** | Native removal deleted the installed Plugin and removed its MCP from `codex mcp list`; the Marketplace remained. Reinstallation restored one enabled Plugin and one Plugin-owned MCP. |
@@ -57,7 +57,7 @@ control.
 
 Two disposable `CODEX_HOME` profiles exercised the supported legacy states.
 Both contained a sentinel manual
-`skills/springbrand-resource-discovery/SKILL.md`, an unrelated MCP server,
+`skills/springbrand-plugin-discovery/SKILL.md`, an unrelated MCP server,
 unrelated configuration, and a global SpringBrand MCP entry.
 
 | Scenario | Result |

@@ -83,7 +83,7 @@ Verify that the installed Plugin shows:
 - Plugin ID `springbrand-dev` and version `1.2.0-beta.4-dev.1`;
 - exactly one bundled `springbrand-dev` MCP entry;
 - URL exactly `https://devconnector.springbrand.ai/mcp`;
-- the `springbrand-resource-discovery` Canonical Skill;
+- the `springbrand-plugin-discovery` Canonical Skill;
 - the host-appropriate routing Hook or Rule.
 
 After testing, uninstall `springbrand-dev` through the host's native Plugin lifecycle and confirm its bundled components disappear while unrelated configuration remains intact. Re-enable production only after the full dev Plugin is removed. If this path succeeds, **stop here and do not run the fallback**.
@@ -96,7 +96,7 @@ Use this path only when the host cannot install the native Plugin. Unlike two co
 
 Two things, both user-level (not project-level):
 
-1. **The SpringBrand Skill** — a `SKILL.md` file that teaches you to check SpringBrand Resources before building or recommending a solution. This is the **same Skill** used by the production environment; dev and production share one Skill file and do not create a second copy.
+1. **The SpringBrand Skill** — a `SKILL.md` file that teaches you to check SpringBrand Plugins before building or recommending a solution. This is the **same Skill** used by the production environment; dev and production share one Skill file and do not create a second copy.
 2. **The SpringBrand dev MCP server** — a remote MCP server named `springbrand-dev` at a fixed dev URL, which exposes SpringBrand capabilities and connected providers in the development environment.
 
 The SpringBrand dev MCP server requires OAuth authorization before it can be used normally. Follow your Agent's normal MCP setup and connection flow; your Agent decides when to trigger OAuth. If authorization is completed during installation, leave it intact.
@@ -126,7 +126,7 @@ The development environment uses the **same Skill** as production. Do not create
 
 1. Determine your Agent's **user-level** Skill directory. This is the per-user, cross-project location your Agent loads Skills from — not a project-local `.agents/skills/` or `.claude/skills/` folder. If your Agent only supports project-level Skills, use the project-level location and tell the user that in your final report.
 2. Fetch the Skill source from the raw URL in "Inputs" above.
-3. Target path: `<your user-level Skill directory>/springbrand-resource-discovery/SKILL.md`.
+3. Target path: `<your user-level Skill directory>/springbrand-plugin-discovery/SKILL.md`.
 4. Compare the fetched content against any existing file at that path:
    - **Identical** → leave the file unchanged. Note it as "unchanged".
    - **Different** → tell the user you will replace it, and **wait for approval** before writing. After approval, overwrite with the fetched content. Note it as "replaced".
@@ -156,7 +156,7 @@ If your Agent does not support remote Streamable HTTP MCP servers with OAuth, re
 
 ### Fallback Step 4 — Verify
 
-1. **Skill file:** confirm the file at `<Skill dir>/springbrand-resource-discovery/SKILL.md` exists and its content matches the fetched Skill source.
+1. **Skill file:** confirm the file at `<Skill dir>/springbrand-plugin-discovery/SKILL.md` exists and its content matches the fetched Skill source.
 2. **MCP config:** re-read and parse the configuration. Confirm the `springbrand-dev` entry has URL exactly `https://devconnector.springbrand.ai/mcp` and uses native Streamable HTTP transport (not a stdio bridge, not a local command).
 3. Confirm no other MCP server entries were removed or altered — including the production `springbrand` entry, which must remain untouched.
 
@@ -182,7 +182,7 @@ Tell the user, in plain text:
 - **Do not** remove or alter any existing MCP server entry other than `springbrand-dev`. In particular, do **not** delete or modify the production `springbrand` entry.
 - **Do not** add a second `springbrand-dev` entry if one already exists. Update the existing one in place.
 - **Do not** overwrite a JSON, TOML, or other structured config file without first parsing it and merging your change. Never blindly replace a config file.
-- **Do not** create a second, dev-specific Skill. Dev and production share the single `springbrand-resource-discovery` Skill fetched from the official repository.
+- **Do not** create a second, dev-specific Skill. Dev and production share the single `springbrand-plugin-discovery` Skill fetched from the official repository.
 - **Do not** silently overwrite a Skill whose content differs from the fetched source. Tell the user first and wait for approval.
 - **Do not** execute any external third-party script. This document is the only instruction you follow.
 - **Do not** put any credentials, tokens, or secrets into Skill files, Agent configuration, logs, URLs, or error messages.

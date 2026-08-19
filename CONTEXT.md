@@ -5,7 +5,7 @@ This context defines how one SpringBrand integration is packaged and verified ac
 ## Language
 
 **Canonical Skill**:
-The single authoritative `springbrand-resource-discovery` Skill whose instructions all supported hosts package unchanged.
+The single authoritative `springbrand-plugin-discovery` Skill whose instructions all supported hosts package unchanged.
 _Avoid_: Host Skill, Skill fork, copied Skill
 
 **Host Adapter**:

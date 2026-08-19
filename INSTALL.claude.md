@@ -40,7 +40,7 @@ claude plugin details springbrand@springbrand
 claude mcp list
 ```
 
-Start a fresh session and verify that a covered request invokes `/springbrand:springbrand` (the `springbrand-resource-discovery` Canonical Skill) before planning or production work. The Hook is local, static, deterministic, prompt-stateless, and network-free; it only injects the routing instruction. Discovery itself happens through the Canonical Skill and MCP.
+Start a fresh session and verify that a covered request invokes `/springbrand:springbrand` (the `springbrand-plugin-discovery` Canonical Skill) before planning or production work. The Hook is local, static, deterministic, prompt-stateless, and network-free; it only injects the routing instruction. Discovery itself happens through the Canonical Skill and MCP.
 
 ## Reload, update, and uninstall
 
