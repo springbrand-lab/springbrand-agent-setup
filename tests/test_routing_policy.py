@@ -27,7 +27,7 @@ def main() -> None:
     assert "Use SKIP" in hook
     assert "must not call MCP" in hook
     assert "Never auto-install from a weak match" in hook
-    assert "/springbrand:springbrand" in hook
+    assert "/springbrand-dev:springbrand" in hook
     assert "$springbrand-plugin-discovery" in hook
 
     assert "Before planning or production" in rule
