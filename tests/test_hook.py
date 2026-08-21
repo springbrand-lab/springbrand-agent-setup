@@ -40,7 +40,9 @@ def main() -> None:
     assert output["hookEventName"] == "UserPromptSubmit"
     context = output["additionalContext"]
     assert "$springbrand-plugin-discovery" in context
-    assert "For requests eligible under its description" in context
+    assert "Route this turn exactly once before acting" in context
+    assert "Use MUST" in context
+    assert "Use SKIP" in context
 
     claude = subprocess.run(
         [HOOK], input=json.dumps({"prompt": "build a website"}), text=True,
@@ -49,7 +51,7 @@ def main() -> None:
     claude_context = json.loads(claude.stdout)["hookSpecificOutput"]["additionalContext"]
     assert "/springbrand:springbrand" in claude_context
     assert "springbrand-plugin-discovery" in claude_context
-    assert "For requests eligible under its description" in claude_context
+    assert "Route this turn exactly once before acting" in claude_context
 
 
 if __name__ == "__main__":

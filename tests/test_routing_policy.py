@@ -11,16 +11,22 @@ def main() -> None:
     normalized_skill = " ".join(skill.split())
     normalized_rule = " ".join(rule.split())
 
-    assert "## Trigger timing" in skill
+    assert "## Routing" in skill
     for phrase in (
-        "A vague request is sufficient",
-        "Run it before",
-        "before",
+        "Use MUST when",
+        "Use CONSIDER when",
+        "Use SKIP for",
+        "Search once per stable task intent",
+        "A keyword match is not proof of relevance",
     ):
         assert phrase in normalized_skill, phrase
 
-    assert "For requests eligible under its description" in hook
-    assert "capability-gap gate" not in hook
+    assert "Route this turn exactly once before acting" in hook
+    assert "Use MUST" in hook
+    assert "Use CONSIDER" in hook
+    assert "Use SKIP" in hook
+    assert "must not call MCP" in hook
+    assert "Never auto-install from a weak match" in hook
     assert "/springbrand:springbrand" in hook
     assert "$springbrand-plugin-discovery" in hook
 
