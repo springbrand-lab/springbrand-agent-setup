@@ -94,7 +94,7 @@ if "$WORKBUDDY_CLI" plugin marketplace list | grep -q '"name": "springbrand-dev"
   "$WORKBUDDY_CLI" plugin marketplace update springbrand-dev
 else
   "$WORKBUDDY_CLI" plugin marketplace add \
-    https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.4-dev.1.zip
+    https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.6-dev.1.zip
 fi
 
 if "$WORKBUDDY_CLI" plugin list --json | grep -q '"id": "springbrand-dev@springbrand-dev"'; then

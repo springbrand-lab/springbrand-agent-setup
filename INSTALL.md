@@ -4,6 +4,25 @@ Install or update SpringBrand Production from the repository default branch
 `main`. `main` is the sole rolling production installation channel. Do not use
 the legacy `stable` branch, a dev tag, or the `springbrand-dev` Plugin.
 
+## Preflight
+
+Before installing, verify the Skill URL and MCP URL are reachable.
+
+```text
+Skill URL: https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand/SKILL.md
+MCP URL:   https://connector.springbrand.ai/mcp
+```
+
+Check each with a five-second timeout. If a request fails:
+
+- read the system proxy once;
+- retry the same request once only when the error is retryable;
+- stop and report after the retry or on a non-retryable error.
+
+Do not start a long clone or unbounded diagnosis.
+
+## Identify the Agent
+
 Identify the current Agent and use exactly one path below. Prefer the native
 Plugin/Marketplace lifecycle when supported; use the fallback only for other
 Agents.
@@ -97,14 +116,25 @@ Use this path only when the Agent cannot install the native Plugin.
 4. Add or update exactly one native remote HTTP MCP entry:
 
    ```text
-   Name: springbrand
-   URL:  https://connector.springbrand.ai/mcp
-   Auth: native OAuth
+   Name:      springbrand
+   URL:       https://connector.springbrand.ai/mcp
+   Transport: native Streamable HTTP (never stdio or a local command)
+   Auth:      native OAuth
    ```
 
 Read and merge structured configuration instead of overwriting it. Preserve
 all unrelated configuration. If an existing SpringBrand Skill or MCP entry
 differs, report the difference and wait for approval before replacing it.
+
+## OAuth
+
+Use the Agent's native OAuth flow. Pause only when the user must complete a
+browser, UI, or authorization action.
+
+Never collect, store, print, proxy, or write access tokens, refresh tokens,
+authorization codes, secrets, or credentials.
+
+OAuth completion does not prove that a Plugin was used.
 
 ## Safety and verification
 
@@ -120,14 +150,14 @@ differs, report the difference and wait for approval before replacing it.
 
 Verify before reporting success:
 
-- Plugin ID is `springbrand` and its source is repository `main`;
-- `springbrand-plugin-discovery` is visible;
-- the Host-specific Hook or Rule is loaded;
-- exactly one Plugin-managed `springbrand` MCP entry points to
-  `https://connector.springbrand.ai/mcp` and is connected through OAuth;
-- a covered concrete task routes through Plugin Discovery before planning or
-  production;
-- unrelated configuration remains unchanged.
+- the Skill exists and matches the fixed source;
+- the MCP name is `springbrand`;
+- the URL is exactly `https://connector.springbrand.ai/mcp`;
+- the transport is native Streamable HTTP;
+- no duplicate `springbrand` entry exists;
+- all unrelated configuration is intact.
+
+If any check fails, report the exact failure and do not declare success.
 
 Report the Agent and Surface, installation path, Plugin version, MCP status,
 OAuth status, conflicts found, changes made, and whether restart or a new

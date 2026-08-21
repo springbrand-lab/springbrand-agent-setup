@@ -7,6 +7,23 @@ You are an AI coding or productivity Agent. A user has asked you to install or u
 
 Do not run both paths. This document is the single source of truth for development installation.
 
+## Preflight
+
+Before installing, verify the Skill URL and MCP URL are reachable.
+
+```text
+Skill URL: https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.6-dev.1/skills/springbrand/SKILL.md
+MCP URL:   https://devconnector.springbrand.ai/mcp
+```
+
+Check each with a five-second timeout. If a request fails:
+
+- read the system proxy once;
+- retry the same request once only when the error is retryable;
+- stop and report after the retry or on a non-retryable error.
+
+Do not start a long clone or unbounded diagnosis.
+
 ## Native `springbrand-dev` Plugin
 
 The immutable internal-testing release is:
@@ -15,8 +32,8 @@ The immutable internal-testing release is:
 | --- | --- |
 | Plugin / Marketplace ID | `springbrand-dev` |
 | Display name | SpringBrand Dev |
-| Version | `1.2.0-beta.4-dev.1` |
-| Git ref | `v1.2.0-beta.4-dev.1` |
+| Version | `1.2.0-beta.6-dev.1` |
+| Git ref | `v1.2.0-beta.6-dev.1` |
 | MCP server name | `springbrand-dev` |
 | MCP URL | `https://devconnector.springbrand.ai/mcp` |
 | Transport | Native remote HTTP / Streamable HTTP |
@@ -27,7 +44,7 @@ The Plugin contains the same Canonical Skill and routing behavior as production.
 ### Codex CLI and Desktop
 
 ```sh
-codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.0-beta.4-dev.1
+codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.0-beta.6-dev.1
 codex plugin add springbrand-dev@springbrand-dev
 codex mcp login springbrand-dev
 ```
@@ -39,7 +56,7 @@ The Marketplace bootstrap also exposes **SpringBrand Dev** in the Codex desktop 
 CLI:
 
 ```sh
-claude plugin marketplace add springbrand-lab/springbrand-agent-setup@v1.2.0-beta.4-dev.1 --scope user
+claude plugin marketplace add springbrand-lab/springbrand-agent-setup@v1.2.0-beta.6-dev.1 --scope user
 claude plugin install springbrand-dev@springbrand-dev --scope user
 claude mcp login plugin:springbrand-dev:springbrand-dev
 ```
@@ -47,7 +64,7 @@ claude mcp login plugin:springbrand-dev:springbrand-dev
 Desktop Code: open **Plugin Browser → Add Marketplace** and enter:
 
 ```text
-springbrand-lab/springbrand-agent-setup@v1.2.0-beta.4-dev.1
+springbrand-lab/springbrand-agent-setup@v1.2.0-beta.6-dev.1
 ```
 
 Install **SpringBrand Dev**, complete OAuth, and open a new Code task. This does not apply to Claude Chat, Cowork, web sessions, or account-level Connectors.
@@ -57,7 +74,7 @@ Install **SpringBrand Dev**, complete OAuth, and open a new Code task. This does
 Open **Customize → Browse Marketplace → Add Marketplace → Import from GitHub** and enter:
 
 ```text
-springbrand-lab/springbrand-agent-setup@v1.2.0-beta.4-dev.1
+springbrand-lab/springbrand-agent-setup@v1.2.0-beta.6-dev.1
 ```
 
 Install **SpringBrand Dev**, complete OAuth for `springbrand-dev`, and open a new task.
@@ -70,7 +87,7 @@ ZIP Marketplace and install `springbrand-dev@springbrand-dev`; **Add Marketplace
 remains the manual fallback:
 
 ```text
-https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.4-dev.1.zip
+https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.6-dev.1.zip
 ```
 
 WorkBuddy does not accept the `owner/repo@tag` shorthand. OAuth remains a native
@@ -80,13 +97,26 @@ browser step when WorkBuddy prompts the user for `springbrand-dev`.
 
 Verify that the installed Plugin shows:
 
-- Plugin ID `springbrand-dev` and version `1.2.0-beta.4-dev.1`;
+- Plugin ID `springbrand-dev` and version `1.2.0-beta.6-dev.1`;
 - exactly one bundled `springbrand-dev` MCP entry;
 - URL exactly `https://devconnector.springbrand.ai/mcp`;
+- the transport is native Streamable HTTP;
+- no duplicate `springbrand-dev` entry exists;
 - the `springbrand-plugin-discovery` Canonical Skill;
-- the host-appropriate routing Hook or Rule.
+- the host-appropriate routing Hook or Rule;
+- all unrelated configuration is intact.
 
 After testing, uninstall `springbrand-dev` through the host's native Plugin lifecycle and confirm its bundled components disappear while unrelated configuration remains intact. Re-enable production only after the full dev Plugin is removed. If this path succeeds, **stop here and do not run the fallback**.
+
+## OAuth
+
+Use the Agent's native OAuth flow. Pause only when the user must complete a
+browser, UI, or authorization action.
+
+Never collect, store, print, proxy, or write access tokens, refresh tokens,
+authorization codes, secrets, or credentials.
+
+OAuth completion does not prove that a Plugin was used.
 
 ## Manual Skill-plus-MCP fallback
 
@@ -103,7 +133,7 @@ The SpringBrand dev MCP server requires OAuth authorization before it can be use
 
 ### Inputs
 
-- **Skill source:** `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.4-dev.1/skills/springbrand/SKILL.md`
+- **Skill source:** `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.6-dev.1/skills/springbrand/SKILL.md`
 - **MCP server name:** `springbrand-dev`
 - **MCP server URL (fixed):** `https://devconnector.springbrand.ai/mcp`
 - **MCP transport:** native Streamable HTTP (remote HTTP transport, **not** a stdio bridge, **not** a local command)
@@ -158,9 +188,10 @@ If your Agent does not support remote Streamable HTTP MCP servers with OAuth, re
 
 1. **Skill file:** confirm the file at `<Skill dir>/springbrand-plugin-discovery/SKILL.md` exists and its content matches the fetched Skill source.
 2. **MCP config:** re-read and parse the configuration. Confirm the `springbrand-dev` entry has URL exactly `https://devconnector.springbrand.ai/mcp` and uses native Streamable HTTP transport (not a stdio bridge, not a local command).
-3. Confirm no other MCP server entries were removed or altered — including the production `springbrand` entry, which must remain untouched.
+3. Confirm no duplicate `springbrand-dev` entry exists.
+4. Confirm no other MCP server entries were removed or altered — including the production `springbrand` entry, which must remain untouched.
 
-**Completion criterion:** both checks pass. If either fails, report exactly what is wrong and stop — do not declare success.
+**Completion criterion:** all checks pass. If any fails, report exactly what is wrong and stop — do not declare success.
 
 ### Fallback Step 5 — Report
 
