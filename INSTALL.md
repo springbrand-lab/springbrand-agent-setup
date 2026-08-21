@@ -12,11 +12,31 @@ Agents.
 
 Supported on Codex CLI `0.147.0+` and Codex Desktop `26.810.52044+` on macOS.
 
+For a first install, run:
+
 ```sh
 codex plugin marketplace add springbrand-lab/springbrand-agent-setup
 codex plugin add springbrand@springbrand
 codex mcp login springbrand
 ```
+
+For an existing install, do **not** assume that repeating the install prompt
+automatically fetches the latest `main`. Refresh the configured Marketplace,
+then reinstall the same Plugin from the refreshed snapshot:
+
+```sh
+codex plugin marketplace upgrade springbrand
+codex plugin add springbrand@springbrand
+codex mcp login springbrand
+```
+
+`codex` has no separate `plugin update` command in the supported CLI. The
+Marketplace `upgrade` refreshes the repository snapshot; `plugin add` then
+updates the installed Plugin in place rather than creating a second
+`springbrand@springbrand` entry. Run `codex plugin marketplace list` and
+`codex plugin list --json` first if you need to distinguish first install from
+update. If the Marketplace is not configured yet, use the first-install
+commands.
 
 The Marketplace bootstrap also exposes **SpringBrand** in the Desktop Plugins
 Directory. Review and trust the exact `UserPromptSubmit` Hook, then open a new

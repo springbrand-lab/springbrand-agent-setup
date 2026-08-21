@@ -36,6 +36,9 @@ def main() -> None:
     assert "codex plugin marketplace add springbrand-lab/springbrand-agent-setup" in install
     assert "--ref" not in install
     assert "springbrand-agent-setup/main/skills/springbrand/SKILL.md" in install
+    assert "codex plugin marketplace upgrade springbrand" in install
+    assert "`codex` has no separate `plugin update` command" in install
+    assert "updates the installed Plugin in place" in install
 
     workbuddy = (ROOT / "INSTALL.workbuddy.md").read_text()
     assert "command -v codebuddy" in workbuddy

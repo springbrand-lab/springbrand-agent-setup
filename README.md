@@ -8,7 +8,7 @@ SpringBrand has two environments. Pick the one you need and paste the matching p
 
 ### Production
 
-> Install or update SpringBrand Production from https://github.com/springbrand-lab/springbrand-agent-setup using the latest `main` branch. Identify this Agent, follow the matching Host guide, prefer native Plugin/Marketplace and OAuth, preserve existing configuration, and give me exact instructions for any UI steps you cannot perform.
+> Install or update SpringBrand Production by following https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.md. Identify this Agent, use the matching Host guide, detect whether SpringBrand is already installed, refresh the existing Marketplace/Plugin in place when updating, prefer native OAuth, preserve existing configuration, and pause only for UI or OAuth steps I must complete.
 
 [`INSTALL.md`](./INSTALL.md) is the universal production protocol. `main` is the sole rolling production installation channel; production users should not use the legacy `stable` branch or a version tag. The production MCP server requires Host-native OAuth.
 
