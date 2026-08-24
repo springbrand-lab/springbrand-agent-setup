@@ -69,6 +69,40 @@ Discovery is read-only. Installation is a separate, higher-confidence action.
 8. Continue and verify the user's original task. Discovery, add, distribution,
    and invocation are not task completion.
 
+## Gateway Actions
+
+After distribution succeeds, apply this protocol only to Components with
+`kind: action` and `usageMode: gateway_action`:
+
+1. Copy the exact Action `id` from the Distribution and call
+   `search_capabilities` with that exact Action id.
+2. Select only the exact `action:springbrand@0:<actionId>` reference actually
+   returned by that search. Never synthesize a Capability Reference or execute
+   the Distribution Component itself.
+3. `complete: false` or any `source_errors` means Action discovery is
+   incomplete, not that no Action matches. Report the incomplete source rather
+   than falling back or claiming that no Action exists.
+4. Read the returned `risk`, `input_schema`, and `output_schema`. Build the
+   `execute_capability` `body` to satisfy `input_schema` and use the exact
+   returned reference as `name`.
+5. Execute only `risk: none`. For `risk: high`, stop and report
+   `approval_required`; never bypass MCP by calling the Platform HTTP API.
+6. Preserve the returned `idempotency_key`. A limited retry that is explicitly
+   safe for the same intended invocation must reuse the same reference, body,
+   and idempotency key.
+7. Interpret execution status exactly:
+   - `succeeded`: handle the normalized `json`, `text`, or HTTPS `file` result;
+     only this status permits claiming completion. Treat JSON as structured
+     data, text as text, and a file URL as the returned HTTPS file reference.
+   - `running`: pass the returned `execution_id` as `executionId` to
+     `get_execution` and wait for a terminal status before claiming completion.
+   - `failed`: retry only when `retryable: true`, with a finite limit and the
+     original reference, body, and idempotency key.
+   - `outcome_unknown`: never retry automatically; require external
+     verification or recovery using the same idempotency identity.
+8. A `get_execution` Tool Error is a lookup failure, not an execution status.
+   Do not invent or infer a terminal state from it.
+
 ## Failure handling
 
 If springbrand.plugins.list is unavailable, report that discovery is

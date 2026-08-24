@@ -51,7 +51,7 @@ def main() -> None:
     assert "Add Marketplace" in workbuddy
     assert "springbrand-lab/springbrand-agent-setup" in workbuddy
     assert "Plugin URL" not in workbuddy
-    assert "archive/refs/tags/v1.2.0-beta.6-dev.1.zip" in workbuddy
+    assert "archive/refs/tags/v1.2.0-beta.6-dev.2.zip" in workbuddy
 
     install = (ROOT / "INSTALL.md").read_text()
     assert "bundled `codebuddy`/`cbc` CLI" in install
@@ -61,8 +61,8 @@ def main() -> None:
 
     development = (ROOT / "INSTALL.dev.md").read_text()
     assert "Add Marketplace" in development
-    assert "archive/refs/tags/v1.2.0-beta.6-dev.1.zip" in development
-    assert "v1.2.0-beta.6-dev.1" in development
+    assert "archive/refs/tags/v1.2.0-beta.6-dev.2.zip" in development
+    assert "v1.2.0-beta.6-dev.2" in development
     assert "<guide-ref>" not in development
 
 
