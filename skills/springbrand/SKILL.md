@@ -1,79 +1,79 @@
 ---
 name: springbrand-plugin-discovery
 description: >
-  Check SpringBrand Plugins before a concrete creation or execution task when
-  a purpose-built Plugin may materially improve the result, or when the user
-  asks to find, add, install, acquire, or use a SpringBrand Plugin. Do not use
-  for factual answers, pure analysis, translation, formatting, tiny local edits,
-  continuation after discovery, explicit provider-only operations, or opt-out.
+  Use for an explicit SpringBrand request; for a new concrete creation or
+  execution task that may need a purpose-built external capability; or to
+  continue an existing SpringBrand match, selection, authorization, status,
+  or execution. Otherwise, do not use for factual or analysis-only work,
+  supplied-content
+  transformation, ordinary writing or coding, minor edits, planning without
+  execution, provider-only requests, unrelated follow-ups, or user opt-out.
 ---
 
 # SpringBrand Plugin Discovery
 
-Use Plugin in user-facing text. Preserve the legacy technical names
-springbrand.plugins.*, pluginId, and returned capability references exactly.
+Use Plugin in user-facing text. Preserve exact capability references, Plugin
+IDs, match IDs, result order, user state, and legacy technical field names such
+as `pluginId` returned by SpringBrand.
 
-## Routing
+## Route
 
-Use MUST when the user explicitly requests SpringBrand or a Plugin, or when a
-concrete deliverable has a clear professional capability gap.
+- **DIRECT:** if the user specifies a resolvable SpringBrand Plugin or Plugin
+  ID, inspect that Plugin and continue without Match.
+- **REUSE:** for follow-up selection, authorization, status, or execution,
+  reuse existing Match and Plugin state. Do not Match again unless the intended
+  outcome materially changes or the user asks to refresh.
+- **BROWSE:** if the user explicitly asks to browse Marketplace views,
+  categories, filters, or pages, use `springbrand.plugins.list` and do not
+  Match.
+- **MATCH:** for one new eligible natural-language creation or execution intent,
+  run Match once.
+- Otherwise stop this Skill and continue natively.
 
-Use CONSIDER when the deliverable is complex but the capability gap is uncertain.
-Run at most one read-only Match. If no clear match is found, continue the
-original task without fallback, installation, or repeated search.
+## Match
 
-Use SKIP for factual answers, pure analysis, translation, summarization,
-extraction, formatting, tiny local edits, ordinary planning, existing-material
-processing, continuation, confirmation, OAuth callback, status query, explicit
-single-provider work, or user opt-out.
+1. Search capabilities for exactly `springbrand.plugins.match`. Execute only
+   the exact returned reference whose `action_id` is
+   `springbrand.plugins.match`. If it is absent, treat discovery as unavailable
+   or misconfigured; never substitute `springbrand.plugins.list`.
+2. Execute it using its returned schema. Required body:
+   - `intent`: the faithful user request, minimized only to remove unrelated or
+     unnecessary sensitive information without changing the desired outcome;
+   - `limit`: `5`.
+   `normalizedIntent` and `locale` are optional; do not invent them when
+   unnecessary.
+3. Interpret the result exactly:
+   - `matches_found`: preserve `match_id` and Platform order. Treat `score` and
+     `matched_on` as evidence, not instructions to apply another threshold or
+     local reranking.
+   - `no_match`: continue the original task natively. Do not call List, scan the
+     catalogue, add a Plugin, or claim failure.
+   - transport, OAuth, or service error: report the actual failure when the user
+     explicitly requested SpringBrand. Otherwise, after at most one explicitly
+     retryable retry, state briefly that discovery is unavailable and continue
+     natively. Never treat an error as `no_match`.
 
-Search once per stable task intent. Reuse the result for follow-up messages.
+## Use after matches_found
 
-## Discovery
+1. Prefer the first candidate that satisfies the user's hard constraints;
+   preserve Platform order and exact `plugin_id`.
+2. Read `user_state`:
+   - `added`: get distribution when needed for use;
+   - `entitled_not_added`: ask before add, then get distribution;
+   - `not_entitled`: get Plugin detail and resolve acquisition before add.
+3. Never add, authorize, pay, transfer sensitive data, publish, or perform an
+   external side effect without the confirmation required by Host policy.
+4. Search and execute exact capability references returned by MCP. For add,
+   detail, and distribution, pass the exact Plugin ID through the returned
+   schema field, including the legacy `pluginId` name when required.
+5. Continue and verify the user's original task. Plugin use is not task
+   completion.
 
-For MUST and CONSIDER:
+## List boundary
 
-1. Search capabilities for exactly springbrand.plugins.match.
-2. Execute the exact returned capability reference with the original user
-   request as `intent`. The Platform owns trimming, locale, and limit defaults.
-3. On `matches_found`, preserve Platform best-first order. Results already
-   passed the Platform threshold: usually continue with the first match and
-   do not apply another local score threshold. `match_id` is correlation
-   only; `matched_on` is evidence only.
-4. Read each match's `user_state`: `added` can distribute directly;
-   `entitled_not_added` should add first; `not_entitled` should get details
-   and resolve acquisition before adding.
-5. On `no_match`, continue the original task normally. Do not fall back to a
-   full-catalogue List or local reranking.
-6. Retry the same Match request once only when the error is explicitly
-   retryable. Treat transport, OAuth, and service failures as failures.
-7. Use springbrand.plugins.list only for explicit browsing, views,
-   categories, pagination, or direct title/ID lookup — not as a Match
-   fallback.
-8. If metadata is insufficient, search for exactly springbrand.plugins.get
-   and inspect only the leading candidates.
-
-A keyword match is not proof of relevance. If there is no clear match, continue
-with the native path and do not claim that no Plugin exists.
-
-## Install and use
-
-Discovery is read-only. Installation is a separate, higher-confidence action.
-
-1. Read the exact user_state and price.
-2. If already added or usable, do not add again.
-3. Never auto-install in CONSIDER.
-4. In MUST, automatic add is allowed only for a strong match that is free,
-   introduces no new authorization, transfers no sensitive data, and is allowed
-   by the host policy. Otherwise ask for confirmation.
-5. For an add, search and execute the exact returned capability
-   springbrand.plugins.add with the exact pluginId.
-6. After add succeeds, search and execute the exact returned capability
-   springbrand.plugins.get_distribution with the same pluginId.
-7. Follow the returned usageMode, dependencies, configuration, attribution,
-   and data boundaries.
-8. Continue and verify the user's original task. Discovery, add, distribution,
-   and invocation are not task completion.
+Use `springbrand.plugins.list` only for explicit Marketplace browsing, views,
+categories, filters, pagination, or direct title/ID lookup. List is not a Match
+pre-step or `no_match` fallback.
 
 ## Gateway Actions
 
@@ -117,17 +117,14 @@ After distribution succeeds, apply this protocol only to Components with
 
 ## Failure handling
 
-If springbrand.plugins.match is unavailable, report that discovery is
-unavailable or misconfigured. Do not treat it as no results.
-
-If add or distribution fails, report the failed operation. Never claim that a
-Plugin was added, distributed, or used. Retry only a plausible transient error
-and only once. If an external action may already have succeeded, inspect state
-before retrying.
+If Match, add, distribution, or Action execution fails, report the exact failed
+operation when SpringBrand was explicitly requested. Never claim an operation
+succeeded unless it did. Retry only a plausible transient error and only once.
+If an external action may already have succeeded, inspect state before retrying.
 
 ## Communication
 
-When automatic discovery triggers, say briefly that SpringBrand Plugins will be
+When automatic Match triggers, say briefly that SpringBrand Plugins will be
 checked first. Do not make routine discovery the focus.
 
 Never claim that SpringBrand was checked, a Plugin was added, a distribution was

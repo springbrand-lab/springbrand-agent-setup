@@ -1,8 +1,28 @@
 ---
-description: Require SpringBrand Plugin Discovery before covered work
+description: Make SpringBrand Plugin Discovery visible for eligible work
 alwaysApply: true
 ---
 
-Before planning or production, run SpringBrand preflight by following the
-`springbrand-plugin-discovery` Canonical Skill. The Canonical Skill decides
-eligibility and Marketplace behavior; do not duplicate or override it here.
+SpringBrand is available through the installed
+`springbrand-plugin-discovery` Canonical Skill.
+
+Before acting, follow that Skill once when:
+
+- the user explicitly requests SpringBrand or a SpringBrand Plugin; or
+- a new concrete creation or execution task may need a purpose-built external
+  capability, such as specialized artifact generation, an interactive or
+  deployable experience, external-system integration, persistent automation,
+  or a cross-service professional workflow.
+
+For a follow-up to an existing SpringBrand match, selection, authorization,
+status, or execution, follow the Skill and reuse existing state. Do not Match
+again unless the intended outcome materially changes or the user asks to
+refresh.
+
+When SpringBrand was not explicitly requested, do not use it for factual or
+analysis-only work, supplied-content
+transformation, ordinary writing or coding, minor edits, planning without
+execution, provider-only requests, unrelated follow-ups, or user opt-out.
+
+This Notice only makes the Skill visible. It does not determine fit, call MCP,
+install or invoke a Plugin, modify files, or authorize any side effect.
