@@ -51,7 +51,7 @@ def main() -> None:
     assert "Add Marketplace" in workbuddy
     assert "springbrand-lab/springbrand-agent-setup" in workbuddy
     assert "Plugin URL" not in workbuddy
-    assert "archive/refs/tags/v1.2.0-beta.6-dev.2.zip" in workbuddy
+    assert "archive/refs/tags/v1.2.0-beta.6-dev.3.zip" in workbuddy
 
     install = (ROOT / "INSTALL.md").read_text()
     assert "bundled `codebuddy`/`cbc` CLI" in install
@@ -61,9 +61,18 @@ def main() -> None:
 
     development = (ROOT / "INSTALL.dev.md").read_text()
     assert "Add Marketplace" in development
-    assert "archive/refs/tags/v1.2.0-beta.6-dev.2.zip" in development
-    assert "v1.2.0-beta.6-dev.2" in development
+    assert "archive/refs/tags/v1.2.0-beta.6-dev.3.zip" in development
+    assert "v1.2.0-beta.6-dev.3" in development
+    assert "## Installation contract" in development
+    assert "The fallback installs no Notice adapter" in development
+    assert "/springbrand-dev:springbrand" in development
+    assert "$springbrand-plugin-discovery" in development
+    assert "springbrand.plugins.match" in development
+    assert "follow-ups reuse existing state" in development
     assert "<guide-ref>" not in development
+
+    readme = (ROOT / "README.md").read_text()
+    assert "blob/v1.2.0-beta.6-dev.3/INSTALL.dev.md" in readme
 
 
 if __name__ == "__main__":

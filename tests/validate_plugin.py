@@ -16,16 +16,6 @@ VERSION_PATTERN = re.compile(
     r"(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?"
     r"(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$"
 )
-EXPECTED_ROUTING_HOOK = rb'''#!/bin/sh
-
-if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"Route this turn exactly once before acting. Use MUST for the `/springbrand-dev:springbrand` Plugin Skill (Canonical Skill: `springbrand-plugin-discovery`) when the user explicitly requests SpringBrand or a Plugin, or the task is a concrete deliverable with a clear professional capability gap, or it needs an external action, workflow, integration, interactive experience, or a high-completeness shareable result. Use CONSIDER when the deliverable is complex but the capability gap is uncertain; allow at most one read-only targeted Marketplace search and do not install. Use SKIP for continuation, confirmation, OAuth callback, status query, translation, summarization, extraction, formatting, factual answers, ordinary planning, tiny local edits, existing-material processing, explicit single-provider work, or any request that declines Plugin or external tools. This Hook must not call MCP, install a Plugin, read the full Marketplace, or modify files. Search once per stable intent. Reuse the result. Never auto-install from a weak match. Discovery, acquisition, distribution, and Plugin usage stay in the Skill."}}'
-else
-  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"Route this turn exactly once before acting. Use MUST for the `$springbrand-plugin-discovery` Skill when the user explicitly requests SpringBrand or a Plugin, or the task is a concrete deliverable with a clear professional capability gap, or it needs an external action, workflow, integration, interactive experience, or a high-completeness shareable result. Use CONSIDER when the deliverable is complex but the capability gap is uncertain; allow at most one read-only targeted Marketplace search and do not install. Use SKIP for continuation, confirmation, OAuth callback, status query, translation, summarization, extraction, formatting, factual answers, ordinary planning, tiny local edits, existing-material processing, explicit single-provider work, or any request that declines Plugin or external tools. This Hook must not call MCP, install a Plugin, read the full Marketplace, or modify files. Search once per stable intent. Reuse the result. Never auto-install from a weak match. Discovery, acquisition, distribution, and Plugin usage stay in the Skill."}}'
-fi
-'''
-
-
 
 def require(condition, message: str) -> None:
     if not condition:
@@ -50,6 +40,32 @@ def component(root: Path, reference: str, label: str) -> Path:
     return path
 
 
+def validate_routing_hook(hook: Path, skill_name: str) -> None:
+    require(os.access(hook, os.X_OK), "Codex Hook is not executable")
+    source = hook.read_text()
+    require(source.startswith("#!/bin/sh\n"), "Canonical Hook must be a POSIX shell command")
+    for forbidden in ("curl ", "wget ", "http://", "https://", "$@", "${1"):
+        require(forbidden not in source, "Canonical Hook must remain a static, network-free routing command")
+
+    for claude_root, reference in (("", f"${skill_name}"), ("/tmp/plugin", "/springbrand-dev:springbrand")):
+        result = subprocess.run(
+            [str(hook)],
+            check=True,
+            capture_output=True,
+            text=True,
+            env={**os.environ, "CLAUDE_PLUGIN_ROOT": claude_root},
+        )
+        try:
+            output = json.loads(result.stdout)["hookSpecificOutput"]
+            context = output["additionalContext"]
+        except (json.JSONDecodeError, KeyError, TypeError) as exc:
+            raise AssertionError("Canonical Hook must emit valid UserPromptSubmit JSON") from exc
+        require(output.get("hookEventName") == "UserPromptSubmit", "Canonical Hook must emit UserPromptSubmit context")
+        require(reference in context, "Canonical Hook must reference the Host-visible Skill")
+        require("This Notice only makes the Skill visible" in context, "Canonical Hook must remain a Notice-only adapter")
+        require("Do not Match again" in context, "Canonical Hook must preserve follow-up state")
+
+
 def validate_canonical_package(root: Path) -> tuple[str, str]:
     try:
         version = (root / "VERSION").read_text().strip()
@@ -66,8 +82,7 @@ def validate_canonical_package(root: Path) -> tuple[str, str]:
     skill_name = re.search(r"^name:\s*(\S+)\s*$", skills[0].read_text(), re.MULTILINE)
     require(skill_name, f"Canonical Skill is missing a name: {skills[0]}")
 
-    hook = root / "hooks/user-prompt-submit"
-    require(hook.read_bytes() == EXPECTED_ROUTING_HOOK, "Canonical Hook must remain a static, network-free routing command")
+    validate_routing_hook(root / "hooks/user-prompt-submit", skill_name.group(1))
     return version, skill_name.group(1)
 
 
@@ -198,10 +213,10 @@ def validate_cursor_adapter(root: Path, version: str, skill_name: str) -> None:
     frontmatter = rule.split("\n---\n", 1)
     require(len(frontmatter) == 2 and frontmatter[0].startswith("---\n"), "Cursor Rule must have frontmatter")
     require(re.search(r"^alwaysApply:\s*true\s*$", frontmatter[0][4:], re.MULTILINE), "Cursor Rule must always apply")
-    require("Before planning or production" in rule, "Cursor Rule must route covered work before planning or production")
     require("capability-gap gate" not in rule, "Cursor Rule must not impose the capability-gap gate")
-    require(skill_name in rule, "Cursor Rule must delegate to the Canonical Skill")
-    require("eligibility and Marketplace behavior" in rule, "Cursor Rule must delegate eligibility and Marketplace behavior to the Canonical Skill")
+    require(skill_name in rule, "Cursor Rule must reference the Canonical Skill")
+    require("This Notice only makes the Skill visible" in rule, "Cursor Rule must remain a Notice-only adapter")
+    require("Do not Match again" in normalized_rule, "Cursor Rule must preserve follow-up state")
 
     expected_mcp = {"mcpServers": {"springbrand-dev": {"url": DEVELOPMENT_MCP_URL}}}
     require(read_json(package / "mcp.json") == expected_mcp, f"Cursor MCP endpoint must be {DEVELOPMENT_MCP_URL} with no credentials or extra fields")
