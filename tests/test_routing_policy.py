@@ -18,8 +18,32 @@ def main() -> None:
         "Use SKIP for",
         "Search once per stable task intent",
         "A keyword match is not proof of relevance",
+        "springbrand.plugins.match",
+        "request as `intent`",
+        "Platform best-first order",
+        "`user_state`",
+        "On `no_match`, continue the original task normally",
+        "springbrand.plugins.list only for explicit browsing",
+        "usageMode: gateway_action",
+        "reference actually returned by that search",
+        "input_schema",
+        "risk: high",
+        "follow the MCP",
+        "never fabricate approval",
+        "`execution_id` as `executionId` to `get_execution`",
+        "reuse the same reference, body, and idempotency key",
+        "insufficient_credits",
+        "recovery.action: add_credits",
+        "`outcome_unknown`: never retry automatically",
+        "Action discovery is incomplete, not that no Action matches",
     ):
         assert phrase in normalized_skill, phrase
+
+    assert "name: springbrand-plugin-discovery" in skill
+    assert "springbrand.plugins.*" in skill
+    assert "springbrand.resources.match" not in skill
+    assert "approval_required" not in skill
+    assert "full-catalogue fallback" not in normalized_skill
 
     assert "Route this turn exactly once before acting" in hook
     assert "Use MUST" in hook
