@@ -28,8 +28,11 @@ transport, Match quality, and task completion as separate verdicts.
 6. `找一个 SpringBrand Plugin 完成这个任务。`
 
 Expected: the Notice loads the Skill before planning or production. The Skill
-runs `springbrand.plugins.match` once with the faithful intent and `limit: 5`,
-then preserves Platform order.
+runs `springbrand.catalog.match` once with the faithful intent and `limit: 5`,
+then preserves Platform order and branches on `kind`: `plugin` candidates use
+the Plugin lifecycle, `api_service` candidates bypass it and go directly to
+exact `action_id` → `action:springbrand@0:<actionId>` lookup →
+`execute_capability`.
 
 ## NO_FIT: successful no_match
 

@@ -94,7 +94,7 @@ if "$WORKBUDDY_CLI" plugin marketplace list | grep -q '"name": "springbrand-dev"
   "$WORKBUDDY_CLI" plugin marketplace update springbrand-dev
 else
   "$WORKBUDDY_CLI" plugin marketplace add \
-    https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.6-dev.3.zip
+    https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.6-dev.4.zip
 fi
 
 if "$WORKBUDDY_CLI" plugin list --json | grep -q '"id": "springbrand-dev@springbrand-dev"'; then
@@ -108,9 +108,9 @@ fi
 
 For manual development installation, paste the same ZIP into **Add
 Marketplace**, install **SpringBrand Dev**, and complete OAuth for
-`springbrand-dev`. After reload, verify version `1.2.0-beta.6-dev.3`, one
+`springbrand-dev`. After reload, verify version `1.2.0-beta.6-dev.4`, one
 Canonical Skill, one Plugin-level Notice Hook, one bundled `springbrand-dev` MCP
-entry, and exact discovery of `springbrand.plugins.match`.
+entry, and exact discovery of `springbrand.catalog.match`.
 
 ## Security and verification
 

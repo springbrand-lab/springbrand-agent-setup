@@ -30,7 +30,7 @@ def main() -> None:
         "**REUSE:**",
         "**BROWSE:**",
         "**MATCH:**",
-        "action_id` is `springbrand.plugins.match",
+        "action_id` is `springbrand.catalog.match",
         "`limit`: `5`",
         "preserve `match_id` and Platform order",
         "Do not call List",
@@ -48,6 +48,16 @@ def main() -> None:
         "recovery.action: add_credits",
         "`outcome_unknown`: never retry automatically",
         "Action discovery is incomplete, not that no Action matches",
+        # Catalog Match contract: kind branching
+        "kind = plugin",
+        "kind = api_service",
+        "action:springbrand@0:<actionId>",
+        "bypass Plugin lifecycle",
+        "Do not synthesize",
+        "no `user_state`",
+        "no revision",
+        "no `expectedRevision`",
+        "springbrand.plugins.list",
     ):
         assert phrase in normalized_skill, phrase
 
