@@ -1,94 +1,129 @@
 # Cross-Host Routing Evaluation Corpus
 
-Use this corpus for issue #25 against the same immutable Plugin version on each
-Surface. Record every run, including failures. Do not score MCP transport
-failures as routing false positives.
+Use this corpus against the same immutable development Plugin version on every
+Surface. Record every run, including failures. Do not score MCP transport or
+provider failures as routing false positives.
 
 ## Scoring
 
-- **Eligible recall:** eligible prompts that enter Plugin Discovery.
-- **First-action ordering:** eligible prompts that enter Plugin Discovery
-  before task-specific planning or production.
-- **Unexpected skip:** covered prompts that do not load the Skill before
+- **Notice recall:** eligible prompts that load the Canonical Skill.
+- **Notice precision:** Skill loads that were eligible.
+- **Match precision:** Match results that satisfy the prompt's hard constraints.
+- **First-action ordering:** eligible prompts that load the Skill before
   task-specific planning or production.
-- **Original-task completion:** prompts whose requested outcome is still
-  completed after routing.
-- **Transport failure:** eligible prompts whose SpringBrand MCP call fails by
-  timeout, DNS, OAuth, transport, or provider error.
+- **Duplicate Match rate:** follow-ups that incorrectly run Match again.
+- **Match latency:** P50/P95 for the Match call, recorded separately from routing.
+- **Original-task completion:** requested outcomes completed after routing.
 
-Targets remain: eligible recall and first-action ordering at least 90%, false
-trigger at most 10%, at least 25 percentage points of recall improvement over
-the Skill-plus-MCP baseline, install/OAuth/routing success at least 95%, and no
-material original-task regression.
+Establish a cross-Host baseline before setting thresholds. Keep routing,
+transport, Match quality, and task completion as separate verdicts.
 
-## Informational or diagnostic: no SpringBrand calls
+## FIT: Match once
+
+1. `帮我做一份可以分享的电子礼物。`
+2. `帮我制作一个人机恋主题的 DIY 互动体验。`
+3. `帮我生成一组专业产品宣传图片。`
+4. `制作一个可部署的互动品牌网站。`
+5. `把这些跨服务步骤做成一个长期运行的自动化。`
+6. `找一个 SpringBrand Plugin 完成这个任务。`
+
+Expected: the Notice loads the Skill before planning or production. The Skill
+runs `springbrand.catalog.match` once with the faithful intent and `limit: 5`,
+then preserves Platform order and branches on `kind`: `plugin` candidates use
+the Plugin lifecycle, `api_service` candidates bypass it and go directly to
+exact `action_id` → `action:springbrand@0:<actionId>` lookup →
+`execute_capability`.
+
+## NO_FIT: successful no_match
+
+Use plausible Plugin-shaped creation or execution tasks for which the current
+dev Marketplace has no matching supply.
+
+Expected: Match runs once, returns `no_match`, and the Agent continues natively.
+It must not call List, scan the catalogue, add a Plugin, or report an error.
+
+## SKIP: no SpringBrand calls
 
 1. `总结这份文档。`
-2. `总结刚才的测试结果。`
-3. `把我提供的内容翻译成英文。`
-4. `润色这段文字，但不要改变含义。`
-5. `从这份材料提取待办事项。`
-6. `分析我提供的数据并列出三个结论。`
-7. `解释这段已有代码。`
-8. `审查这段代码并指出明显错误。`
-9. `把这个函数里的变量名改清楚。`
-10. `解释为什么 SpringBrand 没有触发。`
-11. `诊断这个 MCP timeout。`
-12. `2+2。`
+2. `把我提供的内容翻译成英文。`
+3. `分析这些现有数据并列出三个结论。`
+4. `解释这段已有代码。`
+5. `修复这个函数里的小语法错误。`
+6. `帮我写一个普通 Python 排序函数。`
+7. `规划一个网站，但现在不要制作。`
+8. `只使用 GitHub 完成这个操作。`
+9. `2+2。`
 
 Expected: no Skill load, no capability search, no Marketplace call, and the
 original task completes directly.
 
-## Covered: Plugin Discovery first
+## DIRECT: explicit Plugin
 
-1. `帮我生成一组产品宣传图片。`
-2. `抓取这个网页的数据，并持续监控变化。`
-3. `制作一个复杂的互动品牌网站。`
-4. `批量处理这些文件，并做成可重复工作流。`
-5. `帮我集成一个长期运行的第三方自动化。`
-6. `找一个 SpringBrand Plugin 完成这个任务。`
-7. `浏览 SpringBrand Marketplace，推荐适合做演示模板的 Plugin。`
+1. `使用 Plugin ID res-example 完成这个任务。`
+2. `查看并使用刚才给你的 SpringBrand Plugin。`
 
-Expected: Skill load and targeted discovery before task-specific planning or
-production. Complete-catalog fallback is permitted after targeted discovery according to
-this Skill's fallback rules.
+Expected: inspect the resolvable Plugin directly. Do not Match first.
 
-## Boundary cases
+## REUSE: follow-up state
 
-| Prompt | Expected routing |
-| --- | --- |
-| `帮我写一个普通 Python 排序函数。` | Trigger before implementation. |
-| `解释并修复这个函数里的语法错误。` | Trigger before diagnosis and edit. |
-| `帮我做一个完整 SaaS 网站。` | Trigger before planning. |
-| `为现有项目增加第三方登录集成。` | Trigger before implementation. |
-| `帮我规划一个网站，但现在不要制作。` | Trigger before planning. |
-| `帮我规划并实际制作一个互动网站。` | Trigger before planning. |
-| `设计一个可复用的自动化调试工作流。` | Trigger before planning. |
+After one successful Match, continue with:
 
-## Transport scenarios
+1. `就用第一个。`
+2. `继续添加它。`
+3. `完成授权后继续。`
+4. `查看刚才的执行状态。`
+5. `继续刚才那个 Action。`
 
-For an eligible prompt, inject or observe a retryable timeout/provider failure:
+Expected: load the Skill and reuse the existing `match_id`, Plugin ID,
+distribution, authorization, idempotency, or execution state. Do not Match
+again unless the desired outcome changed or the user requested refresh.
 
-1. retry the same targeted request once;
-2. do not enter complete-catalog fallback after the retry fails;
-3. continue the original task when SpringBrand was automatic;
-4. report the failure and stop when the user explicitly requires SpringBrand;
-5. record `mcp_transport_timeout`, not `routing_false_positive`.
+## BROWSE: List only
 
-## Competing Skills
+1. `打开 SpringBrand Marketplace。`
+2. `查看 Featured Plugins。`
+3. `显示下一页。`
+4. `浏览图片分类。`
+5. `按标题查找这个 Plugin。`
 
-Run the same eligible, ineligible, and boundary prompts with representative
-inventories containing at least 10 and 50 competing Skills. Keep prompt text,
-model, host build, Plugin version, OAuth state, and scoring rules fixed.
+Expected: use `springbrand.plugins.list`; do not Match.
+
+## FAILURE: distinct from no_match
+
+For an eligible prompt, exercise Match capability missing, OAuth failure,
+retryable transport failure, and service failure:
+
+1. retry the same Match once only when explicitly retryable;
+2. never enter a List fallback;
+3. report the actual failure when SpringBrand was explicitly requested;
+4. for automatic discovery, state briefly that discovery is unavailable and
+   continue the original task after the bounded retry;
+5. record the failure separately from `no_match` and routing verdicts.
+
+## Gateway Action continuation
+
+For a matched Plugin whose Distribution contains `kind: action` with
+`usageMode: gateway_action`, verify:
+
+- exact Action capability reference and schemas are used;
+- `risk: high` is disclosed and Host policy is followed;
+- retries preserve the original reference, body, and idempotency key;
+- `running` polls `get_execution` before completion is claimed;
+- `outcome_unknown` never retries automatically;
+- `insufficient_credits` reports `recovery.action: add_credits` and requires a
+  new Action invocation after Credits are added;
+- incomplete Action sources and lookup Tool Errors are not forged into terminal
+  execution states.
 
 ## Required evidence fields
 
 - Surface and application build;
 - Plugin version and Git ref;
 - clean/update install state and OAuth state;
-- prompt and eligibility label;
+- prompt and expected route: FIT, NO_FIT, SKIP, DIRECT, REUSE, BROWSE, FAILURE;
 - first loaded Skill or first production action;
 - SpringBrand tool calls and arguments;
-- targeted, catalog, or no-fallback path;
+- Match ID, outcome, Platform order, and duplicate-Match verdict;
 - original-task completion;
-- routing verdict and transport verdict recorded separately.
+- routing, transport, Match quality, and Action execution verdicts recorded
+  separately.
