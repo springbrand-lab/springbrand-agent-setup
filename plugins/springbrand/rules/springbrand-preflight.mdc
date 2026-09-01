@@ -1,28 +1,15 @@
 ---
-description: Make SpringBrand Plugin Discovery visible for eligible work
+description: Make the SpringBrand Skills visible at the start of every prompt
 alwaysApply: true
 ---
 
-SpringBrand is available through the installed
-`springbrand-plugin-discovery` Canonical Skill.
+SpringBrand is available through the installed `ask-springbrand` Skill.
 
-Before acting, follow that Skill once when:
+It has three capability domains:
+- Platform: create and publish artifacts, manage Plugins, and browse the Marketplace
+- Action API: use dynamic API services for tasks
+- Connector: work with third-party systems such as GitHub
 
-- the user explicitly requests SpringBrand or a SpringBrand Plugin; or
-- a new concrete creation or execution task may need a purpose-built external
-  capability, such as specialized artifact generation, an interactive or
-  deployable experience, external-system integration, persistent automation,
-  or a cross-service professional workflow.
+When the right domain is unclear, or the user asks what SpringBrand can do, follow `ask-springbrand` Skill first; it recommends exactly one Domain Skill and stops.
 
-For a follow-up to an existing SpringBrand match, selection, authorization,
-status, or execution, follow the Skill and reuse existing state. Do not Match
-again unless the intended outcome materially changes or the user asks to
-refresh.
-
-When SpringBrand was not explicitly requested, do not use it for factual or
-analysis-only work, supplied-content
-transformation, ordinary writing or coding, minor edits, planning without
-execution, provider-only requests, unrelated follow-ups, or user opt-out.
-
-This Notice only makes the Skill visible. It does not determine fit, call MCP,
-install or invoke a Plugin, modify files, or authorize any side effect.
+This Notice only makes the Skills visible. It does not determine fit, call MCP, or authorize side effects.

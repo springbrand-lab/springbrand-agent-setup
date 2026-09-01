@@ -9,9 +9,17 @@
   "skills": "./skills/",
   "hooks": "./hooks/claude-hooks.json",
   "mcpServers": {
-    "springbrand": {
+    "springbrand-platform": {
       "type": "http",
-      "url": "https://connector.springbrand.ai/mcp"
+      "url": "https://connector.springbrand.ai/mcp/platform"
+    },
+    "springbrand-action-api": {
+      "type": "http",
+      "url": "https://connector.springbrand.ai/mcp/action-api"
+    },
+    "springbrand-connector": {
+      "type": "http",
+      "url": "https://connector.springbrand.ai/mcp/connectors"
     }
   }
 }
