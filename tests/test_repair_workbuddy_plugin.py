@@ -17,18 +17,28 @@ def main() -> None:
             target = package / name
             shutil.copytree(source, target) if source.is_dir() else shutil.copy2(source, target)
 
-        skill = package / "plugins/springbrand-workbuddy/skills/springbrand/SKILL.md"
+        canonical = sorted((package / "skills").glob("*/SKILL.md"))
+        assert len(canonical) == 4, canonical
+        mirrors = [
+            package / "plugins/springbrand-workbuddy/skills" / skill.parent.name / "SKILL.md"
+            for skill in canonical
+        ]
         hook = package / "plugins/springbrand-workbuddy/hooks/user-prompt-submit"
-        skill.unlink()
+        for mirror in mirrors:
+            mirror.unlink()
         hook.write_text("drift\n")
 
         command = ["python3", "scripts/repair_workbuddy_plugin.py"]
         subprocess.run(command, cwd=package, check=True)
-        first = (skill.read_bytes(), hook.read_bytes())
+        first = [(mirror.read_bytes(), hook.read_bytes()) for mirror in mirrors]
         subprocess.run(command, cwd=package, check=True)
 
-        assert first == (skill.read_bytes(), hook.read_bytes())
-        assert skill.read_bytes() == (package / "skills/springbrand/SKILL.md").read_bytes()
+        assert first == [(mirror.read_bytes(), hook.read_bytes()) for mirror in mirrors]
+        for mirror, skill in zip(mirrors, canonical):
+            assert mirror.read_bytes() == skill.read_bytes()
+        assert sorted(path.name for path in (package / "plugins/springbrand-workbuddy/skills").glob("*")) == [
+            skill.parent.name for skill in canonical
+        ]
         assert hook.read_bytes() == (package / "hooks/user-prompt-submit").read_bytes()
         assert hook.stat().st_mode & 0o111
 

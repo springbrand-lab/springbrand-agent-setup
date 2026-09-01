@@ -1,9 +1,9 @@
 #!/bin/sh
 
 if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-  reference='`/springbrand:springbrand` Plugin Skill (Canonical Skill: `springbrand-plugin-discovery`)'
+  reference='`/springbrand:ask-springbrand` Plugin Skill (Canonical Skill: `ask-springbrand`)'
 else
-  reference='`$springbrand-plugin-discovery` Skill'
+  reference='`$ask-springbrand` Skill'
 fi
 
-printf '%s\n' "{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"SpringBrand is available through the installed ${reference}.\\n\\nBefore acting, follow that Skill once when:\\n- the user explicitly requests SpringBrand or a SpringBrand Plugin; or\\n- a new concrete creation or execution task may need a purpose-built external capability, such as specialized artifact generation, an interactive or deployable experience, external-system integration, persistent automation, or a cross-service professional workflow.\\n\\nFor a follow-up to an existing SpringBrand match, selection, authorization, status, or execution, follow the Skill and reuse existing state. Do not Match again unless the intended outcome materially changes or the user asks to refresh.\\n\\nWhen SpringBrand was not explicitly requested, do not use it for factual or analysis-only work, supplied-content transformation, ordinary writing or coding, minor edits, planning without execution, provider-only requests, unrelated follow-ups, or user opt-out.\\n\\nThis Notice only makes the Skill visible. It does not determine fit, call MCP, install or invoke a Plugin, modify files, or authorize any side effect.\"}}"
+printf '%s\n' "{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"SpringBrand is available through the installed ${reference}.\\n\\nIt has three capability domains:\\n- Platform: create and publish artifacts, manage Plugins, and browse the Marketplace\\n- Action API: use dynamic API services for tasks\\n- Connector: work with third-party systems such as GitHub\\n\\nWhen the right domain is unclear, or the user asks what SpringBrand can do, follow ${reference} first; it recommends exactly one Domain Skill and stops.\\n\\nThis Notice only makes the Skills visible. It does not determine fit, call MCP, or authorize side effects.\"}}"
