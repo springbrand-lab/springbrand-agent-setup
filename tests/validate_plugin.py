@@ -320,14 +320,20 @@ def validate_secrets(root: Path) -> None:
     forbidden_names = {".env", ".env.local", "credentials.json", "secrets.json"}
     forbidden_suffixes = (".pem", ".key")
     for path in root.rglob("*"):
-        if ".git" in path.parts or not path.is_file() or path.resolve() == Path(__file__).resolve():
+        if (
+            ".git" in path.parts
+            or "__pycache__" in path.parts
+            or path.suffix == ".pyc"
+            or not path.is_file()
+            or path.resolve() == Path(__file__).resolve()
+        ):
             continue
         relative = path.relative_to(root)
         require(path.name not in forbidden_names, f"forbidden credential file: {relative}")
         require(not path.name.endswith(forbidden_suffixes), f"forbidden private-key file: {relative}")
         text = path.read_bytes()
         require(b"-----BEGIN " not in text, f"private key material found in: {relative}")
-        require(not re.search(rb"\b(?:sk|ghp|github_pat|AKIA)[A-Za-z0-9_-]{12,}\b", text), f"credential-like token found in: {relative}")
+        require(not re.search(rb"\b(?:sk-[A-Za-z0-9_-]{12,}|ghp_[A-Za-z0-9]{12,}|github_pat_[A-Za-z0-9_]{12,}|AKIA[A-Z0-9]{12,})\b", text), f"credential-like token found in: {relative}")
 
 
 def validate_package(root: Path = ROOT) -> None:

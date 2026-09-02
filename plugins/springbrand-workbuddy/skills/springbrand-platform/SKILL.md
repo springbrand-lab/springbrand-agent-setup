@@ -196,20 +196,90 @@ The user reviews and requests changes. Stage exit: the
 ### Stage 4 — Upload (confirmation gate)
 
 Say what will happen — "this uploads your file to SpringBrand as a private
-draft" — and get the user's explicit yes. Then call
-`springbrand.creations.upload` via `platform_execute_capability`.
+draft" — and get the user's explicit yes. Then run the normal procedure below:
+one Creation and one initial `platform_execute_capability` call. Only an
+unknown transport result may trigger one identical replay.
 
-- Input: `title` (1–200 characters), `files[]` (1–500 files, each
-  `filename` + `content_base64`, optional `content_type`), optional
-  `entry_path` for a website bundle, and an `idempotency_key`.
-- The `idempotency_key` is accepted **here only**. A new key creates a new
-  Creation; the same key deterministically replays the same one. On a safe
-  retry (transport error, outcome unknown), reuse the same key — never
-  generate a new one mid-retry.
-- Success returns `artifact_id` and the Creation's projection. The Creation
-  is born **private** and `ready`. Upload and publish currently cost no
-  Credits; `will_watermark` is true when the owner is unsubscribed (a
-  display fact, not an action item).
+1. **Identify the files.** Take the Artifact Workspace from the State
+   Document. The upload carries the Artifact files only — never
+   `springbrand-state.md`.
+2. **Self-check.** The [pre-upload self-check](#pre-upload-self-check)
+   must have passed.
+3. **Prepare the key.** If the State Document already contains an
+   `upload_idempotency_key` with `upload_attempt: pending` or
+   `outcome_unknown`, recover and reuse it for the same body. Otherwise,
+   generate one new UUID `idempotency_key` with any available method
+   (`uuidgen`, the runtime's UUID function; if one is unavailable, use
+   another) and write the key with `upload_attempt: pending` **before** the
+   initial call. A `failed` attempt is terminal: do not retry it automatically;
+   start a new user-confirmed attempt with a new key.
+4. **Encode.** Encode each file at call time with a local command
+   (`base64 < FILE | tr -d '\n'` or equivalent) and place the first command
+   output as-is into the following arguments — do not reread it in chunks,
+   rewrap it, or manually retype it. File-tool display limits (line
+   truncation, output caps) describe what you *see*, never what tool
+   arguments may *carry*. The Platform admission limit is 20 MiB decoded
+   and the Gateway encoded-request limit is 30 MiB; a Host may impose a
+   lower documented limit. Never infer a Host limit from display truncation
+   or pre-emptively decline a call. Stop and report only when the Host
+   documents or actually returns a request-size rejection, and never chunk.
+5. **Call once.** Make the single initial `platform_execute_capability` call,
+   with the exact upload reference copied from `platform_list_capabilities` or
+   a verified handoff, and the key at the top level. The example below shows
+   that verified reference; never synthesize or edit a reference:
+
+   ```text
+   platform_execute_capability({
+     name: "platform:springbrand@0:springbrand.creations.upload",
+     idempotency_key: "<uuid>",
+     body: {
+       title: "<title>",
+       entry_path: "<entry path>",
+       files: [
+         { filename: "<relative path>", content_base64: "<base64>", content_type: "<mime>" }
+       ]
+     }
+   })
+   ```
+
+   `title` is 1–200 characters; `files[]` is 1–500 files, each
+   `filename` + `content_base64` + optional `content_type`; `entry_path`
+   names the entry file of a website bundle and is omitted for a single-file
+   upload. The `idempotency_key` is accepted **here only**: a new key creates
+   a new Creation, and the same key deterministically replays the same one.
+6. **Verify and record.** Accept completion only when the result is
+   successful and returns the Creation projection — the Creation is born
+   **private** and `ready`. Record `uploaded: true`, State Document
+   `artifactId` (mapped from response `artifact_id`), `versionNumber` (mapped
+   from the returned version, always 1 for an MCP-created Creation), and
+   `upload_attempt: succeeded`; a failed or ambiguous call never counts as an
+   upload. Upload and publish currently cost no Credits; `will_watermark` is
+   true when the owner is unsubscribed (a display fact, not an action item).
+
+**The MCP entry is the only sanctioned transport.** Never call the endpoint
+directly over HTTP, never extract, inspect, or reuse OAuth credentials
+(Keychain, config files, other agents' configuration), never route the
+call through another CLI or agent, and never chunk or stitch a payload
+across multiple calls — if a documented upload-session capability ever
+exists, follow that capability instead.
+
+**On failure, take the sanctioned branch — never invent a transport.**
+Report the actual error, then:
+
+- Transport error with unknown outcome — first write
+  `upload_attempt: outcome_unknown`, then replay **once** with the same
+  capability reference, identical body, and the same `idempotency_key`
+  recovered from the State Document. If the replay is successful, write
+  `succeeded`; if it returns a known failure, write `failed`; if it is still
+  ambiguous, leave `outcome_unknown` and stop. Never generate a new key for
+  this replay or enter an unbounded retry loop.
+- OAuth or permission error — write `upload_attempt: failed`, ask the user to
+  reauthorize, then obtain upload confirmation again before starting a new
+  attempt with a new key; do not change transport.
+- Schema or admission error — write `upload_attempt: failed`, report the
+  actual field error, fix the Artifact, obtain upload confirmation again for
+  the changed body, and start a new attempt with a new key; never report it as
+  a `no_match`.
 
 Record the pointers in the State Document
 ([below](#the-state-document)).
@@ -325,6 +395,13 @@ Keep it current. Required content:
 Additional fields when known: `match_id`, `public_url` (after publish),
 `next_action`, `updated_at`, the artifact shape (single file / website
 bundle), `entry_path`, `title`, and a pointer to the workspace file list.
+For a new upload attempt, write `upload_idempotency_key` and
+`upload_attempt: pending` **before** the initial call. After the call, update
+the attempt to `outcome_unknown`, `succeeded`, or `failed` according to the
+actual result. A later session with `pending` or `outcome_unknown` recovers the
+same key and body for the sanctioned replay; it never regenerates that key.
+A known `failed` attempt is terminal and may start again only after a new user
+confirmation (and a new key when the attempt or body is new).
 
 The Platform Skill verifies pointers itself through MCP
 (`springbrand.plugins.get`, `springbrand.creations.list`); Ask SpringBrand
@@ -409,7 +486,14 @@ developer.
 - `remove` and `rate` are user-initiated only, never automatic.
 - `creations.list` takes a strict empty object — send no parameters.
 - The `idempotency_key` belongs to `creations.upload` alone; safe retries
-  reuse the same key; a new key means a new Creation.
+  reuse the same key and an identical body; a new key means a new
+  Creation. Before an initial call, write the key with
+  `upload_attempt: pending`; a later session with `pending` or
+  `outcome_unknown` recovers it and never regenerates it for the replay.
+- The MCP entry is the only sanctioned transport for every SpringBrand call:
+  never direct HTTP to the endpoint, never credential extraction or
+  inspection, never another CLI or agent, never manual payload chunking. On
+  failure, report the actual error — never invent an alternative transport.
 - Updates are create-only: new Creation, new publish, old public link stays
   live, withdrawal is a platform-web action. Never present an update as an
   in-place revision.
