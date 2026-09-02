@@ -6,7 +6,7 @@ This guide tests the self-contained SpringBrand Host Adapter through Cursor desk
 
 Check Cursor for an existing global SpringBrand Skill or `springbrand` MCP entry and report duplicates before continuing. Do not delete or replace a legacy SpringBrand entry, OAuth state, or unrelated configuration without explicit user approval.
 
-A legacy install using a single `springbrand` entry at `https://connector.springbrand.ai/mcp` continues to work; upgrading to the three entries is voluntary and there is no automatic sunset.
+A Legacy Plugin Release using a single `springbrand` entry at `https://connector.springbrand.ai/mcp` continues to work; upgrading to the three entries is voluntary and there is no automatic sunset.
 
 ## Install and authenticate
 

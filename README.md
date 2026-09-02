@@ -105,9 +105,9 @@ If either is missing, `INSTALL.md` tells the Agent to stop and report the limita
 
 Use each host's native Marketplace update flow for Plugins. For the manual fallback, send the same prompt again; `INSTALL.md` / `INSTALL.dev.md` updates the existing entries rather than adding duplicates.
 
-## Migration from the legacy single-entry install
+## Migration from a Legacy Plugin Release
 
-Older SpringBrand installs use a single `springbrand` MCP entry at `https://connector.springbrand.ai/mcp` (the Gateway Legacy Aggregate Entry). These installs continue to work; the Gateway keeps serving `/mcp` until the owner explicitly retires it. Upgrading to the three-entry architecture is voluntary — there is no automatic sunset.
+A Legacy Plugin Release — an already-installed SpringBrand Plugin version that uses a single `springbrand` MCP entry at `https://connector.springbrand.ai/mcp` (the Gateway Legacy Aggregate Entry) — continues to work; the Gateway keeps serving `/mcp` until the owner explicitly retires it. Upgrading to the three-entry architecture is voluntary — there is no automatic sunset.
 
 ## Future: deterministic installer
 

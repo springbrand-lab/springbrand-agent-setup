@@ -184,19 +184,20 @@ authorization codes, secrets, or credentials.
 
 OAuth completion does not prove that a Plugin was used.
 
-## Migration from the legacy single-entry install
+## Migration from a Legacy Plugin Release
 
-Older SpringBrand installs use a single `springbrand` MCP entry at
-`https://connector.springbrand.ai/mcp` (the Gateway Legacy Aggregate Entry).
-These installs continue to work; the Gateway keeps serving `/mcp` until the
-owner explicitly retires it. Upgrading to the three-entry architecture is
-voluntary — there is no automatic sunset.
+A Legacy Plugin Release — an already-installed SpringBrand Plugin version that
+uses a single `springbrand` MCP entry at
+`https://connector.springbrand.ai/mcp` (the Gateway Legacy Aggregate Entry) —
+continues to work; the Gateway keeps serving `/mcp` until the owner explicitly
+retires it. Upgrading to the three-entry architecture is voluntary — there is
+no automatic sunset.
 
 To upgrade, install or update the production Plugin from `main` as described
 above. The new Plugin bundles the three Domain Entries and the four Skills.
-The legacy `springbrand` entry may remain alongside the three new entries
-until the user removes it; removing it is optional and does not affect the
-new entries.
+The Legacy Plugin Release's `springbrand` entry may remain alongside the three
+new entries until the user removes it; removing it is optional and does not
+affect the new entries.
 
 ## Safety and verification
 

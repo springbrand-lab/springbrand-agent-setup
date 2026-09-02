@@ -17,7 +17,7 @@ manual Skill. Preserve unrelated configuration and OAuth state. Report a
 conflicting legacy SpringBrand entry and wait for approval before replacing or
 removing it.
 
-A legacy install using a single `springbrand` entry at
+A Legacy Plugin Release using a single `springbrand` entry at
 `https://connector.springbrand.ai/mcp` continues to work; upgrading to the
 three entries is voluntary and there is no automatic sunset.
 

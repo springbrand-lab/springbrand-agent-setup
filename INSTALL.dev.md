@@ -38,7 +38,7 @@ Do not start a long clone or unbounded diagnosis.
 
 ## Native `springbrand-dev` Plugin
 
-A legacy dev install using a single `springbrand-dev` entry at
+A Legacy Plugin Release using a single `springbrand-dev` entry at
 `https://devconnector.springbrand.ai/mcp` continues to work; upgrading to the
 three `springbrand-dev-*` entries is voluntary and there is no automatic
 sunset.

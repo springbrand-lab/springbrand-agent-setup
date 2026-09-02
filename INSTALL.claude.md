@@ -26,7 +26,7 @@ They contain no token, header, client secret, API key, or extra OAuth resource p
 
 Check Claude for an existing global `springbrand` MCP entry or SpringBrand Skill and report duplicates before continuing. Do not delete or replace a legacy SpringBrand entry, OAuth state, or unrelated configuration without explicit user approval.
 
-A legacy install using a single `springbrand` entry at `https://connector.springbrand.ai/mcp` continues to work; upgrading to the three entries is voluntary and there is no automatic sunset.
+A Legacy Plugin Release using a single `springbrand` entry at `https://connector.springbrand.ai/mcp` continues to work; upgrading to the three entries is voluntary and there is no automatic sunset.
 
 ## Install and authenticate
 
