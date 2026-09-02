@@ -1,13 +1,13 @@
 {
   "mcpServers": {
-    "springbrand-platform": {
-      "url": "https://connector.springbrand.ai/mcp/platform"
+    "springbrand-dev-platform": {
+      "url": "https://devconnector.springbrand.ai/mcp/platform"
     },
-    "springbrand-action-api": {
-      "url": "https://connector.springbrand.ai/mcp/action-api"
+    "springbrand-dev-action-api": {
+      "url": "https://devconnector.springbrand.ai/mcp/action-api"
     },
-    "springbrand-connector": {
-      "url": "https://connector.springbrand.ai/mcp/connectors"
+    "springbrand-dev-connector": {
+      "url": "https://devconnector.springbrand.ai/mcp/connectors"
     }
   }
 }

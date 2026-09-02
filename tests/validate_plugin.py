@@ -9,11 +9,11 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PRODUCTION_MCP_BASE = "https://connector.springbrand.ai/mcp"
-PRODUCTION_ENTRIES = {
-    "springbrand-platform": f"{PRODUCTION_MCP_BASE}/platform",
-    "springbrand-action-api": f"{PRODUCTION_MCP_BASE}/action-api",
-    "springbrand-connector": f"{PRODUCTION_MCP_BASE}/connectors",
+DEVELOPMENT_MCP_BASE = "https://devconnector.springbrand.ai/mcp"
+DEVELOPMENT_ENTRIES = {
+    "springbrand-dev-platform": f"{DEVELOPMENT_MCP_BASE}/platform",
+    "springbrand-dev-action-api": f"{DEVELOPMENT_MCP_BASE}/action-api",
+    "springbrand-dev-connector": f"{DEVELOPMENT_MCP_BASE}/connectors",
 }
 CANONICAL_SKILLS = (
     "ask-springbrand",
@@ -85,7 +85,7 @@ def validate_routing_hook(hook: Path) -> None:
 
     for claude_root, reference in (
         ("", "`$ask-springbrand` Skill"),
-        ("/tmp/plugin", "`/springbrand:ask-springbrand`"),
+        ("/tmp/plugin", "`/springbrand-dev:ask-springbrand`"),
     ):
         result = subprocess.run(
             [str(hook)],
@@ -102,17 +102,17 @@ def validate_routing_hook(hook: Path) -> None:
         require(output.get("hookEventName") == "UserPromptSubmit", "Canonical Hook must emit UserPromptSubmit context")
         validate_routing_notice(context, reference)
         if claude_root:
-            require("/springbrand:ask-springbrand" in context, "Claude Hook must use the namespaced Ask SpringBrand reference")
+            require("/springbrand-dev:ask-springbrand" in context, "Claude Hook must use the namespaced Ask SpringBrand reference")
         else:
-            require("/springbrand:" not in context, "Codex Hook must not use a Claude Plugin namespace")
+            require("/springbrand-dev:" not in context, "Codex Hook must not use a Claude Plugin namespace")
 
 
 def validate_mcp_entries(servers, label: str, entry_type: None | str) -> None:
     expected = {
         name: ({"type": entry_type, "url": url} if entry_type else {"url": url})
-        for name, url in PRODUCTION_ENTRIES.items()
+        for name, url in DEVELOPMENT_ENTRIES.items()
     }
-    require(servers == expected, f"{label} must register exactly the three production MCP Domain Entries (platform, action-api, connectors) at {PRODUCTION_MCP_BASE} with no credentials or extra fields")
+    require(servers == expected, f"{label} must register exactly the three development MCP Domain Entries (platform, action-api, connectors) at {DEVELOPMENT_MCP_BASE} with no credentials or extra fields")
 
 
 def validate_canonical_package(root: Path) -> str:
@@ -123,7 +123,7 @@ def validate_canonical_package(root: Path) -> str:
     require(VERSION_PATTERN.fullmatch(version), f"invalid repository version: {version!r}")
 
     mcp = read_json(root / ".mcp.json")
-    validate_mcp_entries(mcp.get("mcpServers"), "production MCP manifest", entry_type=None)
+    validate_mcp_entries(mcp.get("mcpServers"), "development MCP manifest", entry_type=None)
 
     skill_names = sorted(path.parent.name for path in (root / "skills").glob("*/SKILL.md"))
     require(
@@ -143,7 +143,7 @@ def validate_canonical_package(root: Path) -> str:
 
 def validate_codex_adapter(root: Path, version: str) -> None:
     plugin = read_json(root / ".codex-plugin/plugin.json")
-    require(plugin.get("name") == "springbrand", "Codex manifest name must be springbrand")
+    require(plugin.get("name") == "springbrand-dev", "Codex manifest name must be springbrand-dev")
     require(plugin.get("version") == version, f"Codex manifest version must match VERSION ({version})")
     require(plugin.get("repository") == "https://github.com/springbrand-lab/springbrand-agent-setup", "Codex repository URL is invalid")
     require(plugin.get("skills") == "./skills/", "Codex skills component must reference ./skills/")
@@ -161,9 +161,9 @@ def validate_codex_adapter(root: Path, version: str) -> None:
         require(component(root, reference, f"Codex {field}").is_file(), f"Codex {field} must be a file")
 
     marketplace = read_json(root / ".agents/plugins/marketplace.json")
-    require(marketplace.get("name") == "springbrand", "Codex Marketplace name must be springbrand")
-    entries = [entry for entry in marketplace.get("plugins", []) if entry.get("name") == "springbrand"]
-    require(len(entries) == 1, "Codex Marketplace must contain exactly one springbrand entry")
+    require(marketplace.get("name") == "springbrand-dev", "Codex Marketplace name must be springbrand-dev")
+    entries = [entry for entry in marketplace.get("plugins", []) if entry.get("name") == "springbrand-dev"]
+    require(len(entries) == 1, "Codex Marketplace must contain exactly one springbrand-dev entry")
     entry = entries[0]
     require(entry.get("source") == {"source": "local", "path": "./"}, "Codex Marketplace source must reference the package root")
     require(component(root, entry["source"]["path"], "Codex Marketplace source").is_dir(), "Codex Marketplace source must be a directory")
@@ -204,9 +204,9 @@ def validate_codex_adapter(root: Path, version: str) -> None:
 def validate_claude_adapter(root: Path, version: str) -> None:
     require(not (root / "hooks/hooks.json").exists(), "Claude Adapter must not auto-discover the Codex Hook config")
     plugin = read_json(root / ".claude-plugin/plugin.json")
-    require(plugin.get("name") == "springbrand", "Claude manifest name must be springbrand")
+    require(plugin.get("name") == "springbrand-dev", "Claude manifest name must be springbrand-dev")
     require(plugin.get("version") == version, f"Claude manifest version must match VERSION ({version})")
-    require(plugin.get("description") == "Discover and use SpringBrand Plugins through the production connector.", "Claude manifest description is invalid")
+    require(plugin.get("description") == "Discover and use SpringBrand Plugins through the development connector. Internal testing only.", "Claude manifest description is invalid")
     require(plugin.get("author") == {"name": "SpringBrand"}, "Claude manifest author is invalid")
     require(plugin.get("repository") == "https://github.com/springbrand-lab/springbrand-agent-setup", "Claude repository URL is invalid")
     require(plugin.get("skills") == "./skills/", "Claude skills component must reference ./skills/")
@@ -231,15 +231,15 @@ def validate_claude_adapter(root: Path, version: str) -> None:
     )
     context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
     require(
-        "/springbrand:ask-springbrand" in context and "ask-springbrand" in context,
+        "/springbrand-dev:ask-springbrand" in context and "ask-springbrand" in context,
         "Claude Hook must invoke the namespaced Ask SpringBrand Skill",
     )
 
     marketplace = read_json(root / ".claude-plugin/marketplace.json")
-    require(marketplace.get("name") == "springbrand", "Claude Marketplace name must be springbrand")
-    require(marketplace.get("description") == "SpringBrand plugins for discovering and using reusable Plugins.", "Claude Marketplace description is invalid")
+    require(marketplace.get("name") == "springbrand-dev", "Claude Marketplace name must be springbrand-dev")
+    require(marketplace.get("description") == "SpringBrand development Plugin for internal Plugin testing.", "Claude Marketplace description is invalid")
     require(marketplace.get("owner") == {"name": "SpringBrand"}, "Claude Marketplace owner is invalid")
-    require(marketplace.get("plugins") == [{"name": "springbrand", "source": "./"}], "Claude Marketplace must contain exactly one root springbrand entry")
+    require(marketplace.get("plugins") == [{"name": "springbrand-dev", "source": "./"}], "Claude Marketplace must contain exactly one root springbrand-dev entry")
     require(component(root, marketplace["plugins"][0]["source"], "Claude Marketplace source").is_dir(), "Claude Marketplace source must be a directory")
 
 
@@ -254,16 +254,16 @@ def validate_skill_mirrors(root: Path, package: Path, host: str) -> None:
 
 def validate_cursor_adapter(root: Path, version: str) -> None:
     marketplace = read_json(root / ".cursor-plugin/marketplace.json")
-    require(marketplace.get("name") == "springbrand", "Cursor Marketplace name must be springbrand")
+    require(marketplace.get("name") == "springbrand-dev", "Cursor Marketplace name must be springbrand-dev")
     require(marketplace.get("metadata", {}).get("version") == version, f"Cursor Marketplace version must match VERSION ({version})")
-    entries = [entry for entry in marketplace.get("plugins", []) if entry.get("name") == "springbrand"]
-    require(len(entries) == 1, "Cursor Marketplace must contain exactly one springbrand entry")
+    entries = [entry for entry in marketplace.get("plugins", []) if entry.get("name") == "springbrand-dev"]
+    require(len(entries) == 1, "Cursor Marketplace must contain exactly one springbrand-dev entry")
     require(entries[0].get("source") == "./plugins/springbrand", "Cursor Marketplace source must reference ./plugins/springbrand")
     package = component(root, entries[0]["source"], "Cursor Marketplace source")
     require(package.is_dir(), "Cursor Marketplace source must be a directory")
 
     plugin = read_json(package / ".cursor-plugin/plugin.json")
-    require(plugin.get("name") == "springbrand", "Cursor manifest name must be springbrand")
+    require(plugin.get("name") == "springbrand-dev", "Cursor manifest name must be springbrand-dev")
     require(plugin.get("version") == version, f"Cursor manifest version must match VERSION ({version})")
     require(plugin.get("logo") == "assets/springbrand-icon.svg", "Cursor logo must reference assets/springbrand-icon.svg")
     require((package / plugin["logo"]).is_file(), "Cursor logo does not exist")
@@ -289,15 +289,15 @@ def validate_cursor_adapter(root: Path, version: str) -> None:
 
 def validate_workbuddy_adapter(root: Path, version: str) -> None:
     marketplace = read_json(root / ".codebuddy-plugin/marketplace.json")
-    require(marketplace.get("name") == "springbrand", "WorkBuddy Marketplace name must be springbrand")
+    require(marketplace.get("name") == "springbrand-dev", "WorkBuddy Marketplace name must be springbrand-dev")
     entries = marketplace.get("plugins", [])
-    require(len(entries) == 1 and entries[0].get("name") == "springbrand", "WorkBuddy Marketplace must contain exactly one springbrand entry")
+    require(len(entries) == 1 and entries[0].get("name") == "springbrand-dev", "WorkBuddy Marketplace must contain exactly one springbrand-dev entry")
     require(entries[0].get("source") == "./plugins/springbrand-workbuddy", "WorkBuddy Marketplace source must reference ./plugins/springbrand-workbuddy")
     package = component(root, entries[0]["source"], "WorkBuddy Marketplace source")
     require(package.is_dir(), "WorkBuddy Marketplace source must be a directory")
 
     plugin = read_json(package / ".workbuddy-plugin/plugin.json")
-    require(plugin.get("name") == "springbrand", "WorkBuddy manifest name must be springbrand")
+    require(plugin.get("name") == "springbrand-dev", "WorkBuddy manifest name must be springbrand-dev")
     require(plugin.get("version") == version, f"WorkBuddy manifest version must match VERSION ({version})")
     for field, reference in (("skills", "./skills/"), ("hooks", "./hooks/hooks.json"), ("mcpServers", "./.mcp.json")):
         require(plugin.get(field) == reference, f"WorkBuddy {field} component must reference {reference}")

@@ -48,20 +48,20 @@ jobs:
 
           added = json.loads(Path("marketplace-add.json").read_text())
           listed = json.loads(Path("marketplace-list.json").read_text())
-          assert added["marketplaceName"] == "springbrand", added
-          assert any(item["name"] == "springbrand" for item in listed["marketplaces"]), listed
+          assert added["marketplaceName"] == "springbrand-dev", added
+          assert any(item["name"] == "springbrand-dev" for item in listed["marketplaces"]), listed
           PY
       - name: Install the Plugin through Codex
         env:
           HOME: ${{ runner.temp }}/codex-home
         run: |
-          codex plugin add springbrand --marketplace springbrand --json > plugin-add.json
+          codex plugin add springbrand-dev --marketplace springbrand-dev --json > plugin-add.json
           python3 - <<'PY'
           import json
           from pathlib import Path
 
           installed = json.loads(Path("plugin-add.json").read_text())
-          assert installed["name"] == "springbrand", installed
-          assert installed["marketplaceName"] == "springbrand", installed
+          assert installed["name"] == "springbrand-dev", installed
+          assert installed["marketplaceName"] == "springbrand-dev", installed
           assert installed["version"] == Path("VERSION").read_text().strip(), installed
           PY

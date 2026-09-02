@@ -73,16 +73,16 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / ".mcp.json",
-            lambda value: value["mcpServers"]["springbrand-platform"].update(url="https://example.com/mcp"),
+            lambda value: value["mcpServers"]["springbrand-dev-platform"].update(url="https://example.com/mcp"),
         ),
-        "must register exactly the three production MCP Domain Entries",
+        "must register exactly the three development MCP Domain Entries",
     )
     expect_failure(
         lambda root: edit_json(
             root / ".mcp.json",
             lambda value: value["mcpServers"].update({"springbrand": {"url": "https://connector.springbrand.ai/mcp"}}),
         ),
-        "must register exactly the three production MCP Domain Entries",
+        "must register exactly the three development MCP Domain Entries",
     )
     expect_failure(
         lambda root: _add_legacy_skill(root),
@@ -128,16 +128,16 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
-            lambda value: value["mcpServers"]["springbrand-platform"].update(url="https://example.com/mcp"),
+            lambda value: value["mcpServers"]["springbrand-dev-platform"].update(url="https://example.com/mcp"),
         ),
-        "Claude MCP server must register exactly the three production MCP Domain Entries",
+        "Claude MCP server must register exactly the three development MCP Domain Entries",
     )
     expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
-            lambda value: value["mcpServers"]["springbrand-platform"].update(headers={"Authorization": "Bearer token"}),
+            lambda value: value["mcpServers"]["springbrand-dev-platform"].update(headers={"Authorization": "Bearer token"}),
         ),
-        "Claude MCP server must register exactly the three production MCP Domain Entries",
+        "Claude MCP server must register exactly the three development MCP Domain Entries",
     )
     expect_failure(
         lambda root: edit_json(
@@ -167,9 +167,9 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand/mcp.json",
-            lambda value: value["mcpServers"]["springbrand-platform"].update(token="secret"),
+            lambda value: value["mcpServers"]["springbrand-dev-platform"].update(token="secret"),
         ),
-        "Cursor MCP endpoint must register exactly the three production MCP Domain Entries",
+        "Cursor MCP endpoint must register exactly the three development MCP Domain Entries",
     )
     expect_failure(
         lambda root: (root / "plugins/springbrand/hooks").mkdir(),
@@ -193,9 +193,9 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand-workbuddy/.mcp.json",
-            lambda value: value["mcpServers"]["springbrand-connector"].update(token="secret"),
+            lambda value: value["mcpServers"]["springbrand-dev-connector"].update(token="secret"),
         ),
-        "WorkBuddy MCP server must register exactly the three production MCP Domain Entries",
+        "WorkBuddy MCP server must register exactly the three development MCP Domain Entries",
     )
 
 
