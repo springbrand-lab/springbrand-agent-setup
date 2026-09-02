@@ -6,9 +6,12 @@ provider failures as routing false positives.
 
 This corpus evaluates the four-Skill routing model: **Ask SpringBrand** (the
 non-executing Capability Guide) plus the three Domain Skills —
-**Platform**, **Action API**, **Connector** — each bound to its own MCP Domain
-Entry (`springbrand-platform`, `springbrand-action-api`,
-`springbrand-connector`). It amends the scoring dimensions of #25; the retired
+**Platform**, **Action API**, **Connector** — all reached through one shared
+MCP entry per environment (`springbrand-dev` in dev,
+`springbrand` in production) whose tools carry frozen domain prefixes:
+`platform_` / `action_` / `connector_` (nine tools in total). Domain
+isolation is conventional — Skill constraints plus the prefix naming — not
+structural. It amends the scoring dimensions of #25; the retired
 mixed MATCH / REUSE / BROWSE classes are absorbed into DOMAIN_SELECT,
 TOOL_ISOLATION, and TRANSITION below.
 
@@ -25,7 +28,8 @@ differs; the expected route does not.
 | WorkBuddy | Rule mirror | Skill list from the Marketplace mirror |
 
 Per Surface, record: application build, Plugin version and Git ref, clean or
-update install state, and OAuth state (per entry — up to three consents).
+update install state, and OAuth state (one consent — the single MCP entry
+covers all three domains).
 
 ## Scoring (amends #25)
 
@@ -41,11 +45,11 @@ before setting thresholds.
    that enter the correct Domain Skill directly. Precision: Domain Skill
    activations that were justified by the prompt. Gate: at least 90% each,
    in the style of #25's recall gate.
-3. **Tool-isolation violations** — target **zero**: any call to another
-   domain's entry tools, any cross-domain reference executed without
-   `capability_domain_mismatch` handling, any merged search across entries, any
-   automatic forwarding, any tool picked by name alone without naming the MCP
-   entry.
+3. **Tool-isolation violations** — target **zero**: any call to a tool
+   prefixed with another domain's prefix, any cross-domain reference executed
+   without `capability_domain_mismatch` handling, any merged search across
+   domains, any automatic forwarding, any tool picked without regard to its
+   domain prefix.
 4. **Workflow completion** — requested outcomes completed after routing, with
    no material regression against the baseline (carries #25's gate).
 5. **Duplicate-discovery rate** — follow-ups that rematch, re-list, or
@@ -127,12 +131,13 @@ Platform (artifact and Plugin lifecycle):
    `entitled_not_added`, and `not_entitled`)
 8. `这个 Creation 要更新一版内容。`
 
-Expected: `springbrand-platform` is entered directly, and everything runs on
-the `springbrand-platform` MCP entry only, with Platform order preserved
+Expected: `springbrand-platform` is entered directly, and everything runs
+through the `platform_`-prefixed tools only, with Platform order preserved
 exactly. Two distinct browsing paths must not be confused: Marketplace
 browsing uses `springbrand.plugins.list` (views `usable` / `marketplace` /
 `my` / `featured`) without a match, while case 6 asks for the capability
-registry and is answered by `list_capabilities` — not by `plugins.list`.
+registry and is answered by `platform_list_capabilities` — not by
+`plugins.list`.
 Case 5 goes through `springbrand.creations.list` (strict empty object) →
 confirm → `springbrand.creations.publish`. Case 7 exercises the `get` →
 `add` trunk with its `user_state` branches (`added` → use;
@@ -152,8 +157,8 @@ Action API (dynamic API intent):
 12. `查看刚才那次执行的状态。`
 
 Expected: `springbrand-action-api` is entered directly. Cases 11–12 reuse the
-existing execution state: verify with `get_execution` on the
-`springbrand-action-api` entry and continue — no rematch, no re-execution.
+existing execution state: verify with `action_get_execution` and
+continue — no rematch, no re-execution.
 
 Connector (named third-party system):
 
@@ -161,7 +166,7 @@ Connector (named third-party system):
 14. `在 GitHub 上给我的项目建一个新 release。`
 
 Expected: `springbrand-connector` is entered directly. Search and execute run
-on the `springbrand-connector` MCP entry only; pagination continues until
+through the `connector_`-prefixed tools only; pagination continues until
 `complete` is true.
 
 Competing-domain inventory: build the ≥10 and ≥50 prompt sets from prompts
@@ -171,70 +176,71 @@ where two or three domains compete, for example `把这份报告发布到 GitHub
 services). Score each with domain selection precision/recall; a wrong-domain
 entry is a recall miss, and an unjustified activation is a precision miss.
 
-## TOOL_ISOLATION: one domain, one entry — cross-domain reference → mismatch + deliberate switch
+## TOOL_ISOLATION: one domain, one prefix — cross-domain reference → mismatch + deliberate switch
 
-Target: **zero** violations. A Domain Skill uses only its own MCP entry's
-tools, always names the entry in instructions, and never infers a tool by
-name alone (other entries expose similarly named tools — the known Cursor
-duplicate-tool-name risk makes this a scored check on every Surface).
+Target: **zero** violations. A Domain Skill calls only tools prefixed with
+its own domain prefix (`platform_` / `action_` / `connector_`) and never
+touches another domain's prefixed tools. All three prefixes are visible in
+the single entry's tool list, so isolation is enforced by the Skill
+constraints alone — which makes this a scored check on every Surface.
 
-Cross-domain reference sent to the wrong entry (inject or simulate; on real
-Surfaces, induce by handing a foreign reference into the domain workflow):
+Cross-domain reference sent to the wrong domain's tool (inject or simulate;
+on real Surfaces, induce by handing a foreign reference into the domain
+workflow):
 
-1. An `action:springbrand@0:<actionId>` reference submitted to the
-   `springbrand-platform` entry.
-2. A `platform:springbrand@0:<capabilityId>` reference submitted to the
-   `springbrand-action-api` entry.
-3. A `connector:...` reference submitted to the `springbrand-action-api`
-   entry.
-4. A `connector:...` reference submitted to the `springbrand-platform`
-   entry.
+1. An `action:springbrand@0:<actionId>` reference submitted with a
+   `platform_` tool.
+2. A `platform:springbrand@0:<capabilityId>` reference submitted with an
+   `action_` tool.
+3. A `connector:...` reference submitted with an `action_` tool.
+4. A `connector:...` reference submitted with a `platform_` tool.
 
-Expected: the entry rejects it with `capability_domain_mismatch`; the Skill
+Expected: the tool rejects it with `capability_domain_mismatch`; the Skill
 surfaces the error's `recovery.domain` to the user, announces the switch in
-plain language, preserves the task state, and hands over to that domain's
-Skill as an explicit Domain Transition (`recovery.domain: action-api` →
-`springbrand-action-api`; `recovery.domain: connectors` →
-`springbrand-connector`; `recovery.domain: platform` →
-`springbrand-platform`). Never forward automatically, never run another
-domain's workflow in place, never treat the error as a no-match.
+plain language, preserves the task state, ends its workflow, and hands back
+through Ask SpringBrand into that domain's Skill as an explicit Domain
+Transition (`recovery.domain: action-api` → `springbrand-action-api`;
+`recovery.domain: connectors` → `springbrand-connector`; `recovery.domain:
+platform` → `springbrand-platform`). Never forward automatically, never run
+another domain's workflow in place, never treat the error as a no-match.
 
-Tool-name inference traps (same tool name, different entries):
+Prefix-selection traps (all domains' tools visible in one list):
 
-5. `执行这个能力。` with both `execute_capability` tools visible (all three
-   entries expose one).
-6. `搜一下有什么能力。` with `list_capabilities` (Platform, Action API) and
-   `search_capabilities` (Connector) visible.
+5. `执行这个能力。` with all three execute tools visible
+   (`platform_execute_capability`, `action_execute_capability`,
+   `connector_execute_capability`).
+6. `搜一下有什么能力。` with `platform_list_capabilities` /
+   `action_list_capabilities` and `connector_search_capabilities` visible.
 
-Expected: the acting Skill names its own MCP entry in the instruction and
-calls only that entry's tool. A call to another entry's tool — even with the
-right arguments — is a tool-isolation violation.
+Expected: the acting Skill calls only its own domain's prefixed tool. A call
+to another domain's prefixed tool — even with the right arguments — is a
+tool-isolation violation.
 
 Merged-search traps:
 
 7. `同时看看 Platform 和 Action API 都有什么能用的。`
 
-Expected: no merged search across entries. The Skill finishes (or hands off
+Expected: no merged search across domains. The Skill finishes (or hands off
 between) one domain at a time; if the user wants both maps, that is two
 explicit domain visits, announced separately.
 
 ## TRANSITION: multi-domain tasks hand off explicitly
 
 Multi-domain tasks start in the earliest domain they need and move by explicit
-Domain Transition: announce, preserve state, end the prior workflow, enter the
-target Domain Skill directly — never via Ask SpringBrand, never a merged
-search, one executor at a time.
+Domain Transition: announce, preserve state, end the prior workflow, and hand
+back through Ask SpringBrand, which selects the target domain (by tool
+prefix) and hands off — never a merged search, one executor at a time.
 
 1. `帮我把这份笔记做成页面发布出去，然后更新到我的 GitHub 仓库。`
 
 Expected: Platform first (create → upload → publish), then an explicit Domain
-Transition to `springbrand-connector` with the state (Creation link, repo,
-task) handed over. The Connector workflow ends before Connector begins; the
-Connector step is not re-discovered from scratch.
+Transition into `springbrand-connector` with the state (Creation link, repo,
+task) preserved through the handoff. The Platform workflow ends before
+Connector begins; the Connector step is not re-discovered from scratch.
 
 2. `发布之后，用那个页面里的服务再生成一份英文版。`
 
-Expected: Platform publishes, then transitions to `springbrand-action-api`
+Expected: Platform publishes, then transitions into `springbrand-action-api`
 with the pointer; the Action API match uses the handed-over task, not a fresh
 broad discovery of everything.
 
@@ -242,10 +248,11 @@ broad discovery of everything.
    `kind: "action"` and `usageMode: "gateway_action"`.
 
 Expected: the Platform Skill stops its own workflow, announces the
-transition, and hands the component's exact Action ID to
-`springbrand-action-api`, which skips matching and goes straight to contract →
-execute as `action:springbrand@0:<id>`. The Platform entry never executes it,
-and the user is never left to run it by hand.
+transition, and hands the component's exact Action ID through the Domain
+Transition into `springbrand-action-api`, which skips matching and goes
+straight to contract → execute as `action:springbrand@0:<id>`. No
+`platform_` tool ever executes it, and the user is never left to run it by
+hand.
 
 Scored on every TRANSITION case: the announcement happened, state pointers
 survived the handoff, the prior workflow ended, the target domain did not
@@ -308,14 +315,15 @@ transport failure, and service failure:
 ## Required evidence fields
 
 - Surface, application build, Plugin version, Git ref;
-- install state (clean/update) and OAuth state per MCP entry;
+- install state (clean/update) and OAuth state (single consent);
 - prompt and expected route: ROUTER, DOMAIN_SELECT, TOOL_ISOLATION,
   TRANSITION, NO_FIT, SKIP, FAILURE — with the expected domain and expected
   first action;
 - first loaded Skill (Ask SpringBrand vs the Domain Skill) and whether the
-  handoff carried the four elements (selected domain, one-line reason, task
-  restated, known state pointers);
-- MCP entry named in instructions, and every tool call mapped to its entry;
+  handoff carried the four elements (selected domain with its tool prefix,
+  one-line reason, task restated, known state pointers);
+- domain prefix named in instructions, and every tool call mapped to its
+  prefix;
 - pointers reused vs re-discovered (duplicate-discovery verdict);
 - mismatch events with the surfaced `recovery.domain` and the switch that
   followed (tool-isolation verdict);

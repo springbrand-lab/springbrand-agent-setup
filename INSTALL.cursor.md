@@ -6,18 +6,16 @@ This guide tests the self-contained SpringBrand Host Adapter through Cursor desk
 
 Check Cursor for an existing global SpringBrand Skill or `springbrand` MCP entry and report duplicates before continuing. Do not delete or replace a legacy SpringBrand entry, OAuth state, or unrelated configuration without explicit user approval.
 
-A Legacy Plugin Release using a single `springbrand` entry at `https://connector.springbrand.ai/mcp` continues to work; upgrading to the three entries is voluntary and there is no automatic sunset.
+A Legacy Plugin Release using a single `springbrand` entry at `https://connector.springbrand.ai/mcp` with the Gateway's legacy mixed contract continues to work until the production release switches the `/mcp` slot to the unified endpoint; upgrading to the current Plugin with domain-prefixed tools is voluntary and there is no automatic sunset.
 
 ## Install and authenticate
 
 1. Open **Customize → Browse Marketplace → Add Marketplace → Import from GitHub**.
 2. Import `springbrand-lab/springbrand-agent-setup` and confirm it indexes exactly one **SpringBrand** Plugin.
 3. Install and enable that Plugin, then restart Cursor if its components are not visible.
-4. Confirm the Plugin exposes the four Canonical Skills (`ask-springbrand`, `springbrand-platform`, `springbrand-action-api`, `springbrand-connector`), the always-applied SpringBrand preflight Rule, and three bundled MCP servers:
-   - `springbrand-platform` → `https://connector.springbrand.ai/mcp/platform`
-   - `springbrand-action-api` → `https://connector.springbrand.ai/mcp/action-api`
-   - `springbrand-connector` → `https://connector.springbrand.ai/mcp/connectors`
-5. Authenticate each bundled MCP entry through Cursor's native browser OAuth flow. Each entry requires its own consent — up to three consents total. Do not create second global servers or add a token, authorization header, client secret, API key, or local bridge.
+4. Confirm the Plugin exposes the four Canonical Skills (`ask-springbrand`, `springbrand-platform`, `springbrand-action-api`, `springbrand-connector`), the always-applied SpringBrand preflight Rule, and one bundled MCP server:
+   - `springbrand` → `https://connector.springbrand.ai/mcp`
+5. Authenticate the bundled MCP entry through Cursor's native browser OAuth flow. A single consent covers all three domains. Do not create a second global server or add a token, authorization header, client secret, API key, or local bridge.
 
 Start a fresh task and confirm a covered request follows `ask-springbrand` before planning or production.
 

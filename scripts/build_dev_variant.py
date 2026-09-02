@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the dev Plugin variant from production manifests.
 
-Rewrites Plugin identity, the three MCP Domain Entries, the Claude hook
+Rewrites Plugin identity, the single MCP entry, the Claude hook
 namespace, and every version field from production (springbrand /
 connector.springbrand.ai) to development (springbrand-dev /
 devconnector.springbrand.ai). Run on a dev release branch only. The rewrite
@@ -16,12 +16,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 ENTRY_NAMES = {
-    "springbrand-platform": "springbrand-dev-platform",
-    "springbrand-action-api": "springbrand-dev-action-api",
-    "springbrand-connector": "springbrand-dev-connector",
+    "springbrand": "springbrand-dev",
 }
-PROD_URL = "https://connector.springbrand.ai/mcp/"
-DEV_URL = "https://devconnector.springbrand.ai/mcp/"
+PROD_URL = "https://connector.springbrand.ai/mcp"
+DEV_URL = "https://devconnector.springbrand.ai/mcp"
 PROD_NAME = "springbrand"
 DEV_NAME = "springbrand-dev"
 PROD_DISPLAY_NAME = "SpringBrand"
