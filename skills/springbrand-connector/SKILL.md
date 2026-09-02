@@ -57,6 +57,11 @@ publish list is `github` and nothing else.
   advertise, hint at, or attempt an unpublished connector — code existing
   behind the scenes is not something the user can reach, and pretending
   otherwise produces failures the user cannot debug.
+
+<!-- UNFROZEN (mcp-gateway Issue 10 real-OAuth E2E): the GitHub-only publish
+     set comes from the dev Gateway's `PUBLISHED_CONNECTORS` configuration
+     and stays unfrozen until the Gateway's real-OAuth end-to-end
+     verification lands. -->
 - If the user's task only *mentions* GitHub in passing but really creates,
   publishes, or manages SpringBrand artifacts or Plugins, that is the
   Platform domain — see [Domain boundaries](#domain-boundaries).
@@ -78,9 +83,9 @@ two modes:
 Rules that are not optional:
 
 - The response carries `matches`, `total`, `complete`, and `next_cursor`.
-  **Paginate through `next_cursor` until `complete` is true.** A single page
-  is never the whole answer; stopping early can silently hide later
-  capabilities.
+  **Paginate through `next_cursor` until `complete` is true.** Only
+  `complete: true` means you have seen everything; stopping at a page whose
+  `complete` is false can silently hide later capabilities.
 - **Preserve the returned order exactly.** Never rerank, never re-sort,
   never apply a threshold of your own.
 - An **empty result can be genuine**: if the user has not connected the
@@ -130,9 +135,9 @@ Handle the outcome honestly:
 - **Success** — deliver the result by its output schema, wrapped in plain
   language the user can act on. Never claim success that did not happen.
 - **`missing_scope`** — the user's connection lacks a permission this
-  capability needs. Tell the user plainly which permission is missing and
-  that the connection needs to be re-authorized with more permissions; do
-  not retry.
+  capability needs. Tell the user plainly that the connection is missing a
+  required permission and needs to be re-authorized with more permissions;
+  do not retry.
 - **`credential_invalid`** — the connection's authorization is unavailable.
   Tell the user the connection needs to be re-established; do not retry.
 - **`invalid_capability_reference`** — the reference was not an exact,
@@ -145,11 +150,13 @@ Handle the outcome honestly:
 ## Domain boundaries
 
 - **`capability_domain_mismatch`** — a reference from another domain was
-  sent here. Surface the error's `recovery.domain` to the user, announce the
-  switch in plain language, preserve the task state, and hand over to that
-  domain's Skill (`springbrand-platform` or `springbrand-action-api`) as an
-  explicit Domain Transition. Never forward automatically, never run another
-  domain's workflow here, and never treat this error as a no-match.
+  sent here. Surface the error's `recovery.domain` to the user — from this
+  entry it is `platform` or `action-api` — announce the switch in plain
+  language, preserve the task state, and hand over to that domain's Skill
+  (`recovery.domain: platform` → `springbrand-platform`;
+  `recovery.domain: action-api` → `springbrand-action-api`) as an explicit
+  Domain Transition. Never forward automatically, never run another domain's
+  workflow here, and never treat this error as a no-match.
 - **Outgoing:** if the user's goal turns out to need another domain —
   creating or publishing a SpringBrand artifact, managing Plugins, or a
   dynamic API service — say so and hand off explicitly to that one Domain
