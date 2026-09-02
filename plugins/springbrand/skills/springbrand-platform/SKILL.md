@@ -94,9 +94,14 @@ inputs: `normalizedIntent`, `locale`, `limit` (default 5, max 8).
 
 Rules that are not optional:
 
-- Candidates are **Plugin-only** (`plugin_id`, `title`, `summary`,
-  `user_state`, `score`, `matched_on`). There is no API-service kind here —
-  that belongs exclusively to the Action API domain.
+- Candidates carry a `kind` discriminant. `kind = plugin` candidates
+  (`plugin_id`, `title`, `summary`, `access.type: acquisition`,
+  `access.user_state`, `score`, `matched_on`) continue through the Plugin
+  lifecycle below. `kind = api_service` candidates are direct API Service
+  Actions, not Plugins: never run them through the Plugin lifecycle and
+  never execute them on this entry — hand them over as an explicit Domain
+  Transition to the Action API Skill with the exact `action_id` and task
+  state (see [Domain boundaries](#domain-boundaries)).
 - **Preserve the returned order exactly.** Never rerank, never re-sort,
   never apply a second threshold of your own. Keep every ID exact.
 - A genuine `no_match` (with its `match_id`) means the Marketplace has
