@@ -53,6 +53,25 @@ def expect_failure(change, message: str) -> None:
             raise AssertionError(f"expected validation failure containing: {message}")
 
 
+def expect_secret_scan_failure(payload: bytes) -> None:
+    with tempfile.TemporaryDirectory() as directory:
+        package = Path(directory)
+        (package / "sample.txt").write_bytes(payload)
+        try:
+            VALIDATOR.validate_secrets(package)
+        except AssertionError as exc:
+            assert "credential-like token found in" in str(exc), exc
+        else:
+            raise AssertionError(f"expected credential scan failure for: {payload!r}")
+
+
+def expect_secret_scan_pass(payload: bytes) -> None:
+    with tempfile.TemporaryDirectory() as directory:
+        package = Path(directory)
+        (package / "sample.txt").write_bytes(payload)
+        VALIDATOR.validate_secrets(package)
+
+
 def edit_json(path: Path, edit) -> None:
     value = json.loads(path.read_text())
     edit(value)
@@ -66,6 +85,21 @@ def _add_legacy_skill(root: Path) -> None:
 
 
 def main() -> None:
+    for token in (
+        b"sk-" + b"proj-123456789012",
+        b"ghp_" + b"123456789012",
+        b"github_pat_" + b"123456789012",
+        b"AKIA" + b"123456789012",
+    ):
+        expect_secret_scan_failure(token)
+    for text in (
+        b"sk123456789012345",
+        b"sk_test_123456789012",
+        b"github_pat123456789012",
+        b"akia123456789012",
+    ):
+        expect_secret_scan_pass(text)
+
     expect_failure(
         lambda root: (root / "VERSION").write_text("01.2.3\n"),
         "invalid repository version",
