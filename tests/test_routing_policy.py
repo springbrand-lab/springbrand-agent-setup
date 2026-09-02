@@ -6,6 +6,108 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
+SKILL_PHRASES = {
+    "ask-springbrand": (
+        "name: ask-springbrand",
+        "## The three domains (user-facing wording)",
+        "**Platform** —",
+        "**Action API** —",
+        "**Connector** —",
+        "exactly one Domain Skill, and stop",
+        "It never discovers or executes a capability",
+        "It never calls an MCP tool",
+        "It never activates more than one Domain Skill",
+        "springbrand-state.md",
+        "Ask at most **one** clarifying question",
+        "`springbrand-platform`",
+        "`springbrand-action-api`",
+        "`springbrand-connector`",
+        "## Choosing the domain",
+        "**The selected domain**",
+        "**A one-line reason**",
+        "**The task, restated**",
+        "**Known state pointers**",
+    ),
+    "springbrand-platform": (
+        "name: springbrand-platform",
+        "`springbrand-platform` MCP Domain Entry",
+        "## Domain boundaries",
+        "match → get → add → get_distribution → use",
+        "springbrand.plugins.match",
+        "Plugin-only",
+        "Preserve the returned order exactly.",
+        "error is not a no-match",
+        "`springbrand.plugins.list` search",
+        "springbrand.creations.list",
+        "springbrand.creations.upload",
+        "springbrand.creations.publish",
+        "strict empty object",
+        'usageMode: "gateway_action"',
+        "action:springbrand@0:<id>",
+        "capability_domain_mismatch",
+        "recovery.domain",
+        "Domain Transition",
+        "springbrand-state.md",
+        "Never present an update as an in-place revision.",
+        "never pay or complete an acquisition on the user's behalf",
+    ),
+    "springbrand-action-api": (
+        "name: springbrand-action-api",
+        "`springbrand-action-api` MCP Domain Entry",
+        "## Domain boundaries",
+        "`match_capabilities`",
+        "`list_capabilities`",
+        "`get_capability`",
+        "`execute_capability`",
+        "`get_execution`",
+        "complete: false",
+        "action:springbrand@0:<actionId>",
+        "expectedRevision",
+        "the same reference, the same input body, and the same idempotency key",
+        "insufficient_credits",
+        "outcome_unknown",
+        "`succeeded`",
+        "lookup failure, not a status",
+        "capability_domain_mismatch",
+        "Domain Transition",
+    ),
+    "springbrand-connector": (
+        "name: springbrand-connector",
+        "`springbrand-connector` MCP Domain Entry",
+        "## Domain boundaries",
+        "`search_capabilities`",
+        "`execute_capability`",
+        "GitHub",
+        "next_cursor",
+        "connector:<connection_id>:<release>:<action_id>",
+        "missing_scope",
+        "credential_invalid",
+        "Send no idempotency key.",
+        "capability_domain_mismatch",
+        "Domain Transition",
+    ),
+}
+
+RETIRED_PHRASES = (
+    "springbrand.catalog.match",
+    "springbrand.resources.match",
+    "springbrand-plugin-discovery",
+    "Do not Match again",
+    "follow-up to an existing SpringBrand match",
+    "kind = plugin",
+    "kind = api_service",
+)
+
+ROUTING_NOTICE_PHRASES = (
+    "It has three capability domains",
+    "- Platform: create and publish artifacts, manage Plugins, and browse the Marketplace",
+    "- Action API: use dynamic API services for tasks",
+    "- Connector: work with third-party systems such as GitHub",
+    "recommends exactly one Domain Skill and stops",
+    "This Notice only makes the Skills visible",
+    "does not determine fit, call MCP",
+)
+
 
 def hook_context(**env: str) -> str:
     result = subprocess.run(
@@ -19,67 +121,32 @@ def hook_context(**env: str) -> str:
 
 
 def main() -> None:
-    skill = (ROOT / "skills/springbrand/SKILL.md").read_text()
-    rule = (ROOT / "plugins/springbrand/rules/springbrand-preflight.mdc").read_text()
-    normalized_skill = " ".join(skill.split())
-    normalized_rule = " ".join(rule.split())
-
-    assert "## Route" in skill
-    for phrase in (
-        "**DIRECT:**",
-        "**REUSE:**",
-        "**BROWSE:**",
-        "**MATCH:**",
-        "action_id` is `springbrand.catalog.match",
-        "`limit`: `5`",
-        "preserve `match_id` and Platform order",
-        "Do not call List",
-        "Never treat an error as `no_match`",
-        "Read `user_state`",
-        "List is not a Match pre-step",
-        "usageMode: gateway_action",
-        "reference actually returned by that search",
-        "input_schema",
-        "risk: high",
-        "never fabricate approval",
-        "`execution_id` as `executionId` to `get_execution`",
-        "reuse the same reference, body, and idempotency key",
-        "insufficient_credits",
-        "recovery.action: add_credits",
-        "`outcome_unknown`: never retry automatically",
-        "Action discovery is incomplete, not that no Action matches",
-        # Catalog Match contract: kind branching
-        "kind = plugin",
-        "kind = api_service",
-        "action:springbrand@0:<actionId>",
-        "bypass Plugin lifecycle",
-        "Do not synthesize",
-        "no `user_state`",
-        "no revision",
-        "no `expectedRevision`",
-        "springbrand.plugins.list",
-    ):
-        assert phrase in normalized_skill, phrase
-
-    assert "name: springbrand-plugin-discovery" in skill
-    assert "springbrand.resources.match" not in skill
-    assert "approval_required" not in skill
-    assert "full-catalogue fallback" not in normalized_skill
+    for name, phrases in SKILL_PHRASES.items():
+        skill = (ROOT / f"skills/{name}/SKILL.md").read_text()
+        normalized = " ".join(skill.split())
+        for phrase in phrases:
+            assert phrase in normalized, f"{name}: {phrase}"
+        for phrase in RETIRED_PHRASES:
+            assert phrase not in normalized, f"{name}: retired phrase {phrase!r}"
 
     codex_context = hook_context(CLAUDE_PLUGIN_ROOT="")
     claude_context = hook_context(CLAUDE_PLUGIN_ROOT="/tmp/plugin")
     for context in (codex_context, claude_context):
-        assert "This Notice only makes the Skill visible" in context
-        assert "follow-up to an existing SpringBrand match" in context
-        assert "Do not Match again" in context
-        assert "does not determine fit, call MCP" in context
-    assert "$springbrand-plugin-discovery" in codex_context
-    assert "/springbrand:springbrand" in claude_context
+        for phrase in ROUTING_NOTICE_PHRASES:
+            assert phrase in context, phrase
+        for phrase in RETIRED_PHRASES:
+            assert phrase not in context, phrase
+    assert "$ask-springbrand" in codex_context
+    assert "/springbrand:ask-springbrand" in claude_context
 
+    rule = (ROOT / "plugins/springbrand/rules/springbrand-preflight.mdc").read_text()
+    normalized_rule = " ".join(rule.split())
     assert "alwaysApply: true" in rule
-    assert "springbrand-plugin-discovery" in rule
-    assert "This Notice only makes the Skill visible" in rule
-    assert "Do not Match again" in normalized_rule
+    assert "ask-springbrand" in normalized_rule
+    for phrase in ROUTING_NOTICE_PHRASES:
+        assert phrase in normalized_rule, phrase
+    for phrase in RETIRED_PHRASES:
+        assert phrase not in normalized_rule, phrase
 
 
 if __name__ == "__main__":

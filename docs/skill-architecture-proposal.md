@@ -9,7 +9,8 @@ work.**
 
 Date: 2026-09-01 (Asia/Shanghai)
 Session: `/grill-with-docs` architecture interview for the three-domain MCP Gateway consumption.
-Handoff input: `/tmp/codex-handoff-springbrand-skill-architecture-2026-09-01.md`.
+Handoff input: the codex handoff file for this session (written to `/tmp`,
+dated 2026-09-01).
 
 This document records architecture discussion only. It changes no product files
 (Skills, Hooks, Rules, manifests, mirrors, validators, tests, install guides,

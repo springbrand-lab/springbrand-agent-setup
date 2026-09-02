@@ -29,6 +29,7 @@ def copy_package(destination: Path) -> None:
         "hooks",
         "INSTALL.workbuddy.md",
         "plugins",
+        "rules",
         "skills",
     ):
         source = ROOT / name
@@ -58,6 +59,12 @@ def edit_json(path: Path, edit) -> None:
     path.write_text(json.dumps(value))
 
 
+def _add_legacy_skill(root: Path) -> None:
+    legacy = root / "skills/springbrand-plugin-discovery"
+    legacy.mkdir()
+    (legacy / "SKILL.md").write_text("---\nname: springbrand-plugin-discovery\n---\n")
+
+
 def main() -> None:
     expect_failure(
         lambda root: (root / "VERSION").write_text("01.2.3\n"),
@@ -66,13 +73,20 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / ".mcp.json",
-            lambda value: value["mcpServers"]["springbrand"].update(url="https://example.com/mcp"),
+            lambda value: value["mcpServers"]["springbrand-platform"].update(url="https://example.com/mcp"),
         ),
-        "production MCP endpoint",
+        "must register exactly the three production MCP Domain Entries",
     )
     expect_failure(
-        lambda root: (root / ".env").write_text("SPRINGBRAND_TOKEN=secret\n"),
-        "forbidden credential file",
+        lambda root: edit_json(
+            root / ".mcp.json",
+            lambda value: value["mcpServers"].update({"springbrand": {"url": "https://connector.springbrand.ai/mcp"}}),
+        ),
+        "must register exactly the three production MCP Domain Entries",
+    )
+    expect_failure(
+        lambda root: _add_legacy_skill(root),
+        "Canonical Skill Set must be exactly the named four-Skill list",
     )
     expect_failure(
         lambda root: edit_json(
@@ -82,11 +96,26 @@ def main() -> None:
         "Codex skills component must reference ./skills/",
     )
     expect_failure(
+        lambda root: (root / ".env").write_text("SPRINGBRAND_TOKEN=secret\n"),
+        "forbidden credential file",
+    )
+    expect_failure(
         lambda root: [
             (root / path).write_text("#!/bin/sh\ncurl https://example.com\n")
             for path in ("hooks/user-prompt-submit", "plugins/springbrand-workbuddy/hooks/user-prompt-submit")
         ],
         "Canonical Hook must remain a static, network-free routing command",
+    )
+    expect_failure(
+        lambda root: [
+            (root / path).write_text(
+                (root / "hooks/user-prompt-submit").read_text().replace(
+                    "authorize side effects", "authorize side effects. Do not Match again"
+                )
+            )
+            for path in ("hooks/user-prompt-submit", "plugins/springbrand-workbuddy/hooks/user-prompt-submit")
+        ],
+        "Routing Notice must not use retired phrasing: Do not Match again",
     )
     expect_failure(
         lambda root: (root / "hooks/user-prompt-submit").chmod(0o644),
@@ -99,16 +128,16 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
-            lambda value: value["mcpServers"]["springbrand"].update(url="https://example.com/mcp"),
+            lambda value: value["mcpServers"]["springbrand-platform"].update(url="https://example.com/mcp"),
         ),
-        "Claude MCP server must contain only the production HTTP endpoint",
+        "Claude MCP server must register exactly the three production MCP Domain Entries",
     )
     expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
-            lambda value: value["mcpServers"]["springbrand"].update(headers={"Authorization": "Bearer token"}),
+            lambda value: value["mcpServers"]["springbrand-platform"].update(headers={"Authorization": "Bearer token"}),
         ),
-        "Claude MCP server must contain only the production HTTP endpoint",
+        "Claude MCP server must register exactly the three production MCP Domain Entries",
     )
     expect_failure(
         lambda root: edit_json(
@@ -118,8 +147,8 @@ def main() -> None:
         "Cursor Marketplace source must reference ./plugins/springbrand",
     )
     expect_failure(
-        lambda root: (root / "plugins/springbrand/skills/springbrand/SKILL.md").write_text("drift\n"),
-        "Cursor Skill mirror must be byte-equivalent",
+        lambda root: (root / "plugins/springbrand/skills/springbrand-platform/SKILL.md").write_text("drift\n"),
+        "Cursor Skill mirror for springbrand-platform must be byte-equivalent",
     )
     expect_failure(
         lambda root: (root / "plugins/springbrand/rules/springbrand-preflight.mdc").write_text(
@@ -130,11 +159,17 @@ def main() -> None:
         "Cursor Rule must always apply",
     )
     expect_failure(
+        lambda root: (root / "plugins/springbrand/rules/springbrand-preflight.mdc").write_text(
+            (root / "rules/springbrand-preflight.mdc").read_text().replace("ask-springbrand", "ask-springbrand-drift")
+        ),
+        "Cursor Rule mirror must be byte-equivalent",
+    )
+    expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand/mcp.json",
-            lambda value: value["mcpServers"]["springbrand"].update(token="secret"),
+            lambda value: value["mcpServers"]["springbrand-platform"].update(token="secret"),
         ),
-        "Cursor MCP endpoint must be",
+        "Cursor MCP endpoint must register exactly the three production MCP Domain Entries",
     )
     expect_failure(
         lambda root: (root / "plugins/springbrand/hooks").mkdir(),
@@ -148,8 +183,8 @@ def main() -> None:
         "WorkBuddy Marketplace source must reference ./plugins/springbrand-workbuddy",
     )
     expect_failure(
-        lambda root: (root / "plugins/springbrand-workbuddy/skills/springbrand/SKILL.md").write_text("drift\n"),
-        "WorkBuddy Skill mirror must be byte-equivalent",
+        lambda root: (root / "plugins/springbrand-workbuddy/skills/ask-springbrand/SKILL.md").write_text("drift\n"),
+        "WorkBuddy Skill mirror for ask-springbrand must be byte-equivalent",
     )
     expect_failure(
         lambda root: (root / "plugins/springbrand-workbuddy/hooks/user-prompt-submit").write_text("drift\n"),
@@ -158,9 +193,9 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand-workbuddy/.mcp.json",
-            lambda value: value["mcpServers"]["springbrand"].update(token="secret"),
+            lambda value: value["mcpServers"]["springbrand-connector"].update(token="secret"),
         ),
-        "WorkBuddy MCP server must contain only the production HTTP endpoint",
+        "WorkBuddy MCP server must register exactly the three production MCP Domain Entries",
     )
 
 
