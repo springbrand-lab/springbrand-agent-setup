@@ -9,12 +9,8 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DEVELOPMENT_MCP_BASE = "https://devconnector.springbrand.ai/mcp"
-DEVELOPMENT_ENTRIES = {
-    "springbrand-dev-platform": f"{DEVELOPMENT_MCP_BASE}/platform",
-    "springbrand-dev-action-api": f"{DEVELOPMENT_MCP_BASE}/action-api",
-    "springbrand-dev-connector": f"{DEVELOPMENT_MCP_BASE}/connectors",
-}
+DEVELOPMENT_MCP_URL = "https://devconnector.springbrand.ai/mcp"
+DEVELOPMENT_ENTRY = "springbrand-dev"
 CANONICAL_SKILLS = (
     "ask-springbrand",
     "springbrand-platform",
@@ -23,7 +19,7 @@ CANONICAL_SKILLS = (
 )
 ROUTING_NOTICE_MAX_LENGTH = 700
 ROUTING_NOTICE_PHRASES = (
-    "It has three capability domains",
+    "It has three capability domains on one MCP entry",
     "- Platform: create and publish artifacts, manage Plugins, and browse the Marketplace",
     "- Action API: use dynamic API services for tasks",
     "- Connector: work with third-party systems such as GitHub",
@@ -109,10 +105,9 @@ def validate_routing_hook(hook: Path) -> None:
 
 def validate_mcp_entries(servers, label: str, entry_type: None | str) -> None:
     expected = {
-        name: ({"type": entry_type, "url": url} if entry_type else {"url": url})
-        for name, url in DEVELOPMENT_ENTRIES.items()
+        DEVELOPMENT_ENTRY: ({"type": entry_type, "url": DEVELOPMENT_MCP_URL} if entry_type else {"url": DEVELOPMENT_MCP_URL})
     }
-    require(servers == expected, f"{label} must register exactly the three development MCP Domain Entries (platform, action-api, connectors) at {DEVELOPMENT_MCP_BASE} with no credentials or extra fields")
+    require(servers == expected, f"{label} must register exactly one MCP entry ({DEVELOPMENT_ENTRY}) at {DEVELOPMENT_MCP_URL} — a single URL and a single OAuth client — with no credentials, extra fields, or extra entries (legacy three-entry manifests are rejected)")
 
 
 def validate_canonical_package(root: Path) -> str:

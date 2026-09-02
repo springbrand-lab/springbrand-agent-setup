@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 HOOK = ROOT / "hooks" / "user-prompt-submit"
 
 ROUTING_NOTICE_PHRASES = (
-    "It has three capability domains",
+    "It has three capability domains on one MCP entry",
     "- Platform: create and publish artifacts, manage Plugins, and browse the Marketplace",
     "- Action API: use dynamic API services for tasks",
     "- Connector: work with third-party systems such as GitHub",

@@ -1,5 +1,10 @@
 # Register three MCP Domain Entries per Host manifest and no legacy entry
 
+> Amended 2026-09-02 by ADR-0005: Host manifests now register a single MCP
+> entry whose tools carry frozen domain prefixes; the three-entry rule below
+> is superseded. This record is kept for the naming rationale and the legacy
+> decision history.
+
 The Gateway serves three Domain Executors plus a deprecated-but-functional Legacy Aggregate entry (`/mcp`). Each Host Adapter declares exactly three named OAuth MCP entries mapped one-to-one to the Executors — `springbrand-platform` → `/mcp/platform`, `springbrand-action-api` → `/mcp/action-api`, `springbrand-connector` → `/mcp/connectors` — and never declares or selects the legacy entry. Dev Adapters use `springbrand-dev-platform`, `springbrand-dev-action-api`, `springbrand-dev-connector` against `devconnector.springbrand.ai`.
 
 ## Decisions

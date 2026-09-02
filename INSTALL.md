@@ -4,26 +4,24 @@ Install or update SpringBrand Production from the repository default branch
 `main`. `main` is the sole rolling production installation channel. Do not use
 the legacy `stable` branch, a dev tag, or the `springbrand-dev` Plugin.
 
-SpringBrand ships four Canonical Skills and three MCP Domain Entries:
+SpringBrand ships four Canonical Skills and one MCP entry. The entry's tools carry frozen domain prefixes, so each Domain Skill is served by its own tool namespace:
 
-| Skill | Role | MCP entry |
+| Skill | Role | Tool prefix |
 | --- | --- | --- |
-| `ask-springbrand` | Ask SpringBrand — non-executing Capability Guide | none |
-| `springbrand-platform` | Platform — create/publish artifacts, Plugin lifecycle | `springbrand-platform` |
-| `springbrand-action-api` | Action API — dynamic API service execution | `springbrand-action-api` |
-| `springbrand-connector` | Connector — third-party systems (GitHub in v1) | `springbrand-connector` |
+| `ask-springbrand` | Ask SpringBrand — non-executing Capability Guide | none (never calls MCP) |
+| `springbrand-platform` | Platform — create/publish artifacts, Plugin lifecycle | `platform_` |
+| `springbrand-action-api` | Action API — dynamic API service execution | `action_` |
+| `springbrand-connector` | Connector — third-party systems (GitHub in v1) | `connector_` |
 
-The three MCP Domain Entries are:
+The MCP entry is:
 
 | Entry name | URL |
 | --- | --- |
-| `springbrand-platform` | `https://connector.springbrand.ai/mcp/platform` |
-| `springbrand-action-api` | `https://connector.springbrand.ai/mcp/action-api` |
-| `springbrand-connector` | `https://connector.springbrand.ai/mcp/connectors` |
+| `springbrand` | `https://connector.springbrand.ai/mcp` |
 
 ## Preflight
 
-Before installing, verify the Skill URLs and MCP URLs are reachable.
+Before installing, verify the Skill URLs and MCP URL are reachable.
 
 ```text
 Skill URLs:
@@ -31,10 +29,8 @@ Skill URLs:
   https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-platform/SKILL.md
   https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-action-api/SKILL.md
   https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-connector/SKILL.md
-MCP URLs:
-  https://connector.springbrand.ai/mcp/platform
-  https://connector.springbrand.ai/mcp/action-api
-  https://connector.springbrand.ai/mcp/connectors
+MCP URL:
+  https://connector.springbrand.ai/mcp
 ```
 
 Check each with a five-second timeout. If a request fails:
@@ -60,9 +56,7 @@ For a first install, run:
 ```sh
 codex plugin marketplace add springbrand-lab/springbrand-agent-setup
 codex plugin add springbrand@springbrand
-codex mcp login springbrand-platform
-codex mcp login springbrand-action-api
-codex mcp login springbrand-connector
+codex mcp login springbrand
 ```
 
 For an existing install, do **not** assume that repeating the install prompt
@@ -72,9 +66,7 @@ then reinstall the same Plugin from the refreshed snapshot:
 ```sh
 codex plugin marketplace upgrade springbrand
 codex plugin add springbrand@springbrand
-codex mcp login springbrand-platform
-codex mcp login springbrand-action-api
-codex mcp login springbrand-connector
+codex mcp login springbrand
 ```
 
 `codex` has no separate `plugin update` command in the supported CLI. The
@@ -147,21 +139,11 @@ Use this path only when the Agent cannot install the native Plugin.
    <user Skill directory>/springbrand-connector/SKILL.md
    ```
 
-4. Add or update exactly three native remote HTTP MCP entries:
+4. Add or update exactly one native remote HTTP MCP entry:
 
    ```text
-   Name:      springbrand-platform
-   URL:       https://connector.springbrand.ai/mcp/platform
-   Transport: native Streamable HTTP (never stdio or a local command)
-   Auth:      native OAuth
-
-   Name:      springbrand-action-api
-   URL:       https://connector.springbrand.ai/mcp/action-api
-   Transport: native Streamable HTTP (never stdio or a local command)
-   Auth:      native OAuth
-
-   Name:      springbrand-connector
-   URL:       https://connector.springbrand.ai/mcp/connectors
+   Name:      springbrand
+   URL:       https://connector.springbrand.ai/mcp
    Transport: native Streamable HTTP (never stdio or a local command)
    Auth:      native OAuth
    ```
@@ -175,9 +157,9 @@ differs, report the difference and wait for approval before replacing it.
 Use the Agent's native OAuth flow. Pause only when the user must complete a
 browser, UI, or authorization action.
 
-Each of the three MCP Domain Entries requires its own OAuth consent. A full
-production install therefore involves up to three consents per Surface (one
-per entry). Disclose this to the user before starting.
+The MCP entry requires a single OAuth consent per install: one authorization
+covers all SpringBrand capabilities — Platform, Action API, and Connector.
+Say this to the user before starting.
 
 Never collect, store, print, proxy, or write access tokens, refresh tokens,
 authorization codes, secrets, or credentials.
@@ -188,24 +170,26 @@ OAuth completion does not prove that a Plugin was used.
 
 A Legacy Plugin Release — an already-installed SpringBrand Plugin version that
 uses a single `springbrand` MCP entry at
-`https://connector.springbrand.ai/mcp` (the Gateway Legacy Aggregate Entry) —
-continues to work; the Gateway keeps serving `/mcp` until the owner explicitly
-retires it. Upgrading to the three-entry architecture is voluntary — there is
-no automatic sunset.
+`https://connector.springbrand.ai/mcp` with the Gateway's legacy mixed
+contract (unprefixed tool names) — continues to work until the owner's
+production release switches the `/mcp` slot to the unified endpoint
+(Gateway ADR-0014; retirement is Gateway Issue 12, owner-controlled).
+Upgrading to the current single-entry Plugin with domain-prefixed tools is
+voluntary — there is no automatic sunset.
 
 To upgrade, install or update the production Plugin from `main` as described
-above. The new Plugin bundles the three Domain Entries and the four Skills.
-The Legacy Plugin Release's `springbrand` entry may remain alongside the three
-new entries until the user removes it; removing it is optional and does not
-affect the new entries.
+above. The new Plugin bundles the same single `springbrand` entry, now serving
+the unified endpoint's `platform_`- / `action_`- / `connector_`-prefixed
+tools, plus the four Skills. The entry name and URL are unchanged, so the
+upgrade replaces the toolset in place; no second SpringBrand entry is created.
 
 ## Safety and verification
 
 - Do not install or enable `springbrand-dev` alongside the production Plugin.
 - Do not add API keys, tokens, static authorization headers, client secrets, or
   local MCP bridges.
-- Authenticate the Plugin-bundled entries instead of creating second global
-  servers.
+- Authenticate the Plugin-bundled entry instead of creating a second global
+  server.
 - Preserve unrelated Plugins, Skills, Rules, Hooks, MCP servers, OAuth state,
   and configuration.
 - If a required step is UI-only, give the user the exact menu path and value;
@@ -214,12 +198,9 @@ affect the new entries.
 Verify before reporting success:
 
 - the four Skills exist and match the fixed source;
-- the three MCP entries are named `springbrand-platform`,
-  `springbrand-action-api`, and `springbrand-connector`;
-- the URLs are exactly `https://connector.springbrand.ai/mcp/platform`,
-  `https://connector.springbrand.ai/mcp/action-api`, and
-  `https://connector.springbrand.ai/mcp/connectors`;
-- the transport is native Streamable HTTP for every entry;
+- the MCP entry is named `springbrand`;
+- the URL is exactly `https://connector.springbrand.ai/mcp`;
+- the transport is native Streamable HTTP;
 - no duplicate SpringBrand entry exists;
 - all unrelated configuration is intact.
 

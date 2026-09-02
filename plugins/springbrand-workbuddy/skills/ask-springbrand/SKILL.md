@@ -51,6 +51,12 @@ Keep this wording plain. The domain names (Platform, Action API, Connector)
 are the only technical terms the user needs to see; everything else is
 everyday language.
 
+Agent-facing fact (never shown to the user): all three domains are reached
+through one shared SpringBrand MCP entry, and every tool on it carries a
+domain prefix — `platform_` for Platform, `action_` for Action API,
+`connector_` for Connector. Selecting a domain means selecting that domain's
+tool prefix.
+
 ## Scenario A: First use
 
 The user is meeting SpringBrand for the first time, or asks what it can do.
@@ -115,15 +121,16 @@ Decide which domain owns the next step (see
 
 ## Choosing the domain
 
-Select the domain from what the user wants to do:
+Select the domain from what the user wants to do. The selected domain maps
+to exactly one tool prefix on the shared SpringBrand MCP entry:
 
-| The user wants to... | Domain | Domain Skill |
-| --- | --- | --- |
-| Create and publish an artifact, upload material, or manage Plugins (find, add, remove, rate, browse the Marketplace) | Platform | `springbrand-platform` |
-| Use an available API service to do a task ("use an API to do X") | Action API | `springbrand-action-api` |
-| Continue an earlier Action execution | Action API | `springbrand-action-api` |
-| Read or change something in a named third-party system (GitHub, ...) | Connector | `springbrand-connector` |
-| Ordinary writing, coding, analysis, or planning with nothing to execute | (none — continue without SpringBrand) | — |
+| The user wants to... | Domain | Domain Skill | Tool prefix |
+| --- | --- | --- | --- |
+| Create and publish an artifact, upload material, or manage Plugins (find, add, remove, rate, browse the Marketplace) | Platform | `springbrand-platform` | `platform_` |
+| Use an available API service to do a task ("use an API to do X") | Action API | `springbrand-action-api` | `action_` |
+| Continue an earlier Action execution | Action API | `springbrand-action-api` | `action_` |
+| Read or change something in a named third-party system (GitHub, ...) | Connector | `springbrand-connector` | `connector_` |
+| Ordinary writing, coding, analysis, or planning with nothing to execute | (none — continue without SpringBrand) | — | — |
 
 Two special cases:
 
@@ -148,7 +155,8 @@ without a safe basis is not.
 
 End every Ask SpringBrand turn with a short handoff containing four things:
 
-1. **The selected domain** — one of Platform, Action API, Connector.
+1. **The selected domain** — one of Platform, Action API, Connector, named
+   together with its tool prefix (`platform_`, `action_`, or `connector_`).
 2. **A one-line reason** — why this domain fits ("you want to publish the
    document you just wrote, and publishing runs through Platform").
 3. **The task, restated** — the user's goal in their own terms, unchanged in
@@ -165,15 +173,22 @@ End every Ask SpringBrand turn with a short handoff containing four things:
 Then name the one Domain Skill that takes over — `springbrand-platform`,
 `springbrand-action-api`, or `springbrand-connector` — and stop. The Domain
 Skill owns everything from there: it does the discovering, confirming, and
-executing.
+executing, using only its own domain's prefixed tools.
+
+This handoff is also the path for a Domain Transition: when a Domain Skill
+runs into a cross-domain need, it hands the preserved task state back through
+Ask SpringBrand instead of touching another domain's tools. Ask selects the
+next domain with the table above and hands off as usual.
 
 ## Boundaries
 
 Ask SpringBrand guides; it does not act. These are hard rules:
 
-- It never calls an MCP tool, and never discovers, executes, acquires,
-  authorizes, uploads, or publishes a capability. Reading the conversation
-  and local files is the full extent of its reach.
+- It never calls an MCP tool — no `platform_`-, `action_`-, or
+  `connector_`-prefixed tool on the SpringBrand entry, and no tool of any
+  other domain — and never discovers, executes, acquires, authorizes,
+  uploads, or publishes a capability. Reading the conversation and local
+  files is the full extent of its reach.
 - It never activates more than one Domain Skill, and it never runs a domain's
   workflow itself.
 - It never guesses its way into execution: one clarifying question at most,

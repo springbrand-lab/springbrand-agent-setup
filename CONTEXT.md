@@ -21,23 +21,27 @@ One SpringBrand application scenario with its own discovery, execution, and guid
 _Avoid_: Mode, global capability pool, mixed MCP surface
 
 **Domain Skill**:
-The Canonical Skill that owns the Agent workflow for exactly one Capability Domain and uses only that domain's MCP Domain Entry.
+The Canonical Skill that owns the Agent workflow for exactly one Capability Domain and calls only that domain's prefixed tools on the Unified MCP Endpoint.
 _Avoid_: Helper Skill, shared executor, cross-domain Skill
 
-**MCP Domain Entry**:
-A Host-visible MCP server registration connected to exactly one Gateway Domain Executor and named so the Agent can select that domain without relying on tool-name inference.
-_Avoid_: MCP mode, aggregate server, global executor
+**Unified MCP Endpoint**:
+The single user-connectable SpringBrand MCP endpoint (`/mcp`) whose one OAuth consent covers all three Capability Domains; its tools are listed under frozen domain prefixes.
+_Avoid_: Per-domain entries, three-entry manifest, legacy aggregate entry
+
+**Domain Tool Namespace**:
+The frozen tool-name prefix (`platform_` / `action_` / `connector_`) that marks every tool of one Capability Domain on the Unified MCP Endpoint; a Domain Skill calls only its own namespace.
+_Avoid_: MCP Domain Entry, per-domain server, tool-name inference
 
 **Domain Transition**:
-An explicit handoff from one Domain Skill and MCP Domain Entry to another while preserving relevant task state and ending the prior domain workflow.
-_Avoid_: Automatic forwarding, simultaneous discovery, multi-Skill activation
+An explicit handoff from one Domain Skill to another — handed back through Ask SpringBrand — that preserves relevant task state and ends the prior domain workflow.
+_Avoid_: Automatic forwarding, calling another domain's prefixed tools, multi-Skill activation
 
 **Routing Notice**:
 The short, static, network-free domain map delivered through a Host's Hook or Rule so an Agent can invoke Ask SpringBrand when the domain is uncertain.
 _Avoid_: Prompt classifier, workflow instructions, execution Hook
 
 **Host Adapter**:
-The smallest host-native package that connects the SpringBrand Skill Set, MCP Domain Entries, Routing Notice, and lifecycle metadata to one plugin engine and configuration contract.
+The smallest host-native package that connects the SpringBrand Skill Set, the Unified MCP Endpoint, Routing Notice, and lifecycle metadata to one plugin engine and configuration contract.
 _Avoid_: Host implementation, generic plugin wrapper
 
 **Surface**:

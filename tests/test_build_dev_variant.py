@@ -23,7 +23,7 @@ COPIED = (
 )
 DEV_VERSION = "1.2.0-beta.7-dev.1"
 DEV_URL = "https://devconnector.springbrand.ai/mcp"
-DEV_ENTRIES = ("springbrand-dev-platform", "springbrand-dev-action-api", "springbrand-dev-connector")
+DEV_ENTRY = "springbrand-dev"
 DEV_DESCRIPTION = "Discover and use SpringBrand Plugins through the development connector. Internal testing only."
 
 
@@ -45,17 +45,11 @@ def main() -> None:
 
         for name in (".mcp.json", "plugins/springbrand/mcp.json"):
             servers = json.loads((package / name).read_text())["mcpServers"]
-            assert list(servers) == list(DEV_ENTRIES), servers
-            assert servers["springbrand-dev-platform"] == {"url": f"{DEV_URL}/platform"}, servers
-            assert servers["springbrand-dev-action-api"] == {"url": f"{DEV_URL}/action-api"}, servers
-            assert servers["springbrand-dev-connector"] == {"url": f"{DEV_URL}/connectors"}, servers
+            assert servers == {DEV_ENTRY: {"url": DEV_URL}}, servers
 
         for name in (".claude-plugin/plugin.json", "plugins/springbrand-workbuddy/.mcp.json"):
             servers = json.loads((package / name).read_text())["mcpServers"]
-            assert list(servers) == list(DEV_ENTRIES), servers
-            assert servers["springbrand-dev-platform"] == {"type": "http", "url": f"{DEV_URL}/platform"}, servers
-            assert servers["springbrand-dev-action-api"] == {"type": "http", "url": f"{DEV_URL}/action-api"}, servers
-            assert servers["springbrand-dev-connector"] == {"type": "http", "url": f"{DEV_URL}/connectors"}, servers
+            assert servers == {DEV_ENTRY: {"type": "http", "url": DEV_URL}}, servers
 
         for name in (
             ".codex-plugin/plugin.json",

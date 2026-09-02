@@ -3,10 +3,10 @@ name: springbrand-platform
 description: >
   Execute the SpringBrand Platform workflow: create and upload artifacts,
   publish creations, and manage the Plugin lifecycle (find, add, remove, rate,
-  browse Marketplace) through the springbrand-platform MCP entry. Use for
-  explicit SpringBrand Platform requests, artifact creation or publication,
-  and Plugin lifecycle tasks. Do not use for dynamic API services (Action API)
-  or third-party systems (Connector).
+  browse Marketplace) through the `platform_`-prefixed tools of the SpringBrand
+  MCP entry. Use for explicit SpringBrand Platform requests, artifact creation
+  or publication, and Plugin lifecycle tasks. Do not use for dynamic API
+  services (Action API) or third-party systems (Connector).
 ---
 
 # SpringBrand Platform
@@ -15,22 +15,25 @@ SpringBrand Platform is the Domain Skill for two jobs: taking an Artifact
 from idea to a published Creation (create → upload → publish), and managing
 the user's Plugins (find, add, use, remove, rate, browse the Marketplace).
 
-Everything runs through the `springbrand-platform` MCP Domain Entry. Use only
-that entry's two tools — `list_capabilities` and `execute_capability` — and
-always name the entry in instructions. Never infer a tool by its name alone:
-other SpringBrand entries expose similarly named tools, and picking by name
-can reach the wrong domain.
+Everything runs through the single SpringBrand MCP entry. Use only the
+Platform-prefixed tools — `platform_list_capabilities` and
+`platform_execute_capability` — and always name the `platform_` prefix in
+instructions. The same entry also exposes the `action_`- and
+`connector_`-prefixed tools of the other domains: never call them, never
+infer a tool by its name alone. A cross-domain need is an explicit Domain
+Transition (see [Domain boundaries](#domain-boundaries)), never a direct call
+to another domain's prefix.
 
 Capability references on this entry have the form
 `platform:springbrand@0:<capabilityId>`. Use references exactly as
-`list_capabilities` or a verified handoff provided them; never construct,
-edit, or synthesize one.
+`platform_list_capabilities` or a verified handoff provided them; never
+construct, edit, or synthesize one.
 
 **The registry has eleven capabilities** — the eight `springbrand.plugins.*`
 capabilities, plus `springbrand.creations.list`, `springbrand.creations.upload`,
 and `springbrand.creations.publish` (`creations.list` joined on 2026-09-01).
 Any older count written anywhere is outdated: treat the actual
-`list_capabilities` return as the truth.
+`platform_list_capabilities` return as the truth.
 
 ## How to use this Skill
 
@@ -59,10 +62,10 @@ user asks to start fresh.
 
 ## The two tools
 
-- **`list_capabilities`** — returns the static capability registry. Use it
-  for explicit browsing ("what can Platform do?") or to confirm a reference
-  before executing. It is not a fallback for a failed call.
-- **`execute_capability`** — runs one capability by its exact
+- **`platform_list_capabilities`** — returns the static capability registry.
+  Use it for explicit browsing ("what can Platform do?") or to confirm a
+  reference before executing. It is not a fallback for a failed call.
+- **`platform_execute_capability`** — runs one capability by its exact
   `platform:springbrand@0:<capabilityId>` reference with input built strictly
   to that capability's schema: every required field present, no invented
   fields. Every workflow step below goes through it.
@@ -70,8 +73,7 @@ user asks to start fresh.
 ## The Plugin lifecycle
 
 The trunk is: **match → get → add → get_distribution → use**. Each step calls
-`execute_capability` on the `springbrand-platform` MCP entry with the named
-capability.
+`platform_execute_capability` with the named capability.
 
 ### Step 1 — Find Plugins (`springbrand.plugins.match`)
 
@@ -94,8 +96,8 @@ Rules that are not optional:
   reported as failures — never tell the user "nothing fits" because a call
   errored, and never trigger the List fallback for one.
 
-For explicit browsing without a goal, use `springbrand.plugins.list` on the
-`springbrand-platform` MCP entry: `view` is `usable` (default),
+For explicit browsing without a goal, use `springbrand.plugins.list` via
+`platform_execute_capability`: `view` is `usable` (default),
 `marketplace`, `my` (the user's own added and entitled Plugins), or
 `featured`, with optional `query`, `category`, `page`, `pageSize`.
 
@@ -195,7 +197,7 @@ The user reviews and requests changes. Stage exit: the
 
 Say what will happen — "this uploads your file to SpringBrand as a private
 draft" — and get the user's explicit yes. Then call
-`springbrand.creations.upload` on the `springbrand-platform` MCP entry.
+`springbrand.creations.upload` via `platform_execute_capability`.
 
 - Input: `title` (1–200 characters), `files[]` (1–500 files, each
   `filename` + `content_base64`, optional `content_type`), optional
@@ -229,8 +231,8 @@ here, say so plainly and record it.
 #### Publishing an existing Creation (`springbrand.creations.list`)
 
 The publish stage has a second entry path: the user wants to publish
-something already in their account. Call `springbrand.creations.list` on the
-`springbrand-platform` MCP entry, present the user's Creations — title,
+something already in their account. Call `springbrand.creations.list` via
+`platform_execute_capability`, present the user's Creations — title,
 category, publication status, current and latest version, and the version
 list — in plain language, let the user
 select the exact `artifactId` + `versionNumber`, confirm, and publish.
@@ -334,14 +336,15 @@ is this Skill's job, never Ask's.
 When `springbrand.plugins.get_distribution` returns components with
 `kind: "action"` and `usageMode: "gateway_action"`, they are executable
 dynamic Actions — and they execute **only through the Action API domain**.
-The Platform entry rejects `action:` references with
+The `platform_` tools reject `action:` references with
 `capability_domain_mismatch`, and the user is never left to run them by
 hand.
 
 Perform an explicit Domain Transition to the `springbrand-action-api` Skill:
-announce it in plain language, hand over the component's exact Action ID —
+announce it in plain language, preserve the component's exact Action ID —
 which the Action API Skill executes as an `action:springbrand@0:<id>`
-reference — plus the task state, and end the Platform workflow. The Action
+reference — plus the task state, end the Platform workflow, and hand back
+through Ask SpringBrand, which selects Action API and hands off. The Action
 API Skill skips matching and goes straight to contract → execute.
 
 <!-- UNFROZEN (mcp-gateway Issue 10 real-OAuth E2E): the gateway_action
@@ -352,17 +355,19 @@ API Skill skips matching and goes straight to contract → execute.
 ## Domain boundaries
 
 - **`capability_domain_mismatch`** — a reference from another domain was
-  sent here. Surface the error's `recovery.domain` to the user — from this
-  entry it is `action-api` or `connectors` — announce the switch in plain
-  language, preserve the task state, and hand over to that domain's Skill
+  sent here. Surface the error's `recovery.domain` to the user — it is
+  `action-api` or `connectors` — announce the switch in plain language,
+  preserve the task state, end this workflow, and hand back through Ask
+  SpringBrand for an explicit Domain Transition into that domain's Skill
   (`recovery.domain: action-api` → `springbrand-action-api`;
-  `recovery.domain: connectors` → `springbrand-connector`) as an explicit
-  Domain Transition. Never forward automatically, never run another domain's
-  workflow here, and never treat this error as a no-match.
+  `recovery.domain: connectors` → `springbrand-connector`). Never forward
+  automatically, never call another domain's prefixed tool here, and never
+  treat this error as a no-match.
 - **Outgoing:** if the user's goal turns out to need another domain — a
-  dynamic API service, or a named third-party system — say so and hand off
-  explicitly to that one Domain Skill. Never via Ask SpringBrand, never a
-  merged search across entries.
+  dynamic API service, or a named third-party system — say so, end this
+  workflow, and hand back through Ask SpringBrand for the explicit Domain
+  Transition. Never call another domain's prefixed tool, never a merged
+  search across domains.
 - One executor at a time: end this domain's workflow before another
   domain's begins.
 
@@ -385,11 +390,12 @@ developer.
 
 ## Hard rules
 
-- Always name the `springbrand-platform` MCP entry in instructions. No
-  tool-name inference, ever.
-- Use only this entry's tools. Cross-domain work is an explicit Domain
-  Transition — announced, state-preserving, one executor at a time — never
-  auto-forward, never via Ask SpringBrand.
+- Call only `platform_`-prefixed tools on the SpringBrand MCP entry, and
+  name the `platform_` prefix in instructions. Never call an `action_`- or
+  `connector_`-prefixed tool; no tool-name inference, ever.
+- Cross-domain work is an explicit Domain Transition — announced,
+  state-preserving, handed back through Ask SpringBrand, one executor at a
+  time — never auto-forward, never another domain's prefixed tool.
 - Reuse beats rediscovery: never rematch or re-list when a usable pointer
   is in hand; rematch only when the outcome materially changes or the user
   asks.
