@@ -66,7 +66,22 @@ only as good as the intent: do not broaden, narrow, or embellish it.
 
 Call `match_capabilities` on the `springbrand-action-api` MCP entry, passing
 the faithful restatement from Step 1 unchanged — not a paraphrase, not an
-embellished version. Rules that are not optional:
+embellished version.
+
+**Keyword construction.** Build the match input before calling:
+
+- **`intent`** — the user's request verbatim. Never translated, paraphrased,
+  or stripped (Gateway Issue #48 contract).
+- **`normalized_intent`** — required for non-trivial intents. Translate the
+  user's intent into English and distill it into 1–3 English keywords or a
+  short English phrase. Example: 「用springbrand帮我做电子礼物」→
+  `normalized_intent: "digital gift"`.
+- **Never put the brand word `springbrand` in `normalized_intent`** (or rely
+  on it matching from `intent`): every capability title contains it, so it
+  matches everything and drowns the semantic signal.
+- **`locale`** — the detected user language.
+
+Rules that are not optional:
 
 - The match returns **API Service candidates only**. There is nothing else to
   filter in this domain.

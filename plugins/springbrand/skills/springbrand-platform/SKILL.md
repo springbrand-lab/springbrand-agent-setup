@@ -73,11 +73,24 @@ The trunk is: **match → get → add → get_distribution → use**. Each step 
 `execute_capability` on the `springbrand-platform` MCP entry with the named
 capability.
 
-### Step 1 — Find Plugins (`springbrand.plugins.match`)
+### Step 1 — Find Plugins (`springbrand.catalog.match`)
 
-Pass the user's intent faithfully — unchanged, not paraphrased or
-embellished. Optional inputs: `normalizedIntent`, `locale`, `limit`
-(default 5, max 8).
+Plugin discovery runs through `springbrand.catalog.match`. Pass the user's
+intent faithfully — unchanged, not paraphrased or embellished. Optional
+inputs: `normalizedIntent`, `locale`, `limit` (default 5, max 8).
+
+**Keyword construction.** Build the match input before calling:
+
+- **`intent`** — the user's request verbatim. Never translated, paraphrased,
+  or stripped (Gateway Issue #48 contract).
+- **`normalizedIntent`** — required for non-trivial intents. Translate the
+  user's intent into English (the catalog is English-first) and distill it
+  into 1–3 English keywords or a short English phrase. Example:
+  「用springbrand帮我做电子礼物」→ `normalizedIntent: "digital gift"`.
+- **Never put the brand word `springbrand` in `normalizedIntent`** (or rely
+  on it matching from `intent`): every Plugin title contains it, so it
+  matches the whole catalog and drowns the semantic signal.
+- **`locale`** — the detected user language.
 
 Rules that are not optional:
 
@@ -87,17 +100,28 @@ Rules that are not optional:
 - **Preserve the returned order exactly.** Never rerank, never re-sort,
   never apply a second threshold of your own. Keep every ID exact.
 - A genuine `no_match` (with its `match_id`) means the Marketplace has
-  nothing fitting. As a one-time fallback while the catalogue is small, you
-  may then run **one** `springbrand.plugins.list` search (`query`) before
-  telling the user nothing fits.
+  nothing fitting. You may browse with `springbrand.plugins.list` (below)
+  to show the user what does exist before saying nothing fits.
 - An **error is not a no-match.** Transport, OAuth, or service failures are
   reported as failures — never tell the user "nothing fits" because a call
-  errored, and never trigger the List fallback for one.
+  errored, and never start a List browse because of one.
 
-For explicit browsing without a goal, use `springbrand.plugins.list` on the
-`springbrand-platform` MCP entry: `view` is `usable` (default),
+`springbrand.plugins.list` is an **auxiliary information source**, usable at
+any time in the Platform domain — for explicit browsing without a goal, or
+alongside Match when the user's request is vague (a broad category like
+"electronic gift" rather than a named capability): browse the real
+categories and Plugin facts and present them next to the match results. On
+the `springbrand-platform` MCP entry: `view` is `usable` (default),
 `marketplace`, `my` (the user's own added and entitled Plugins), or
-`featured`, with optional `query`, `category`, `page`, `pageSize`.
+`featured`, with optional `query`, `category`, `page`, `pageSize`. List
+results supplement, never override: keep Platform order and exact IDs in
+both, and never let a List browse reorder or replace the Match ranking. The
+catalog is small today and List is fast; revisit this boundary when it
+grows.
+
+**Legacy:** `springbrand.plugins.match` is kept for legacy compatibility
+(manual-Plugin workflows only). Do not use it for new natural-language
+discovery — `springbrand.catalog.match` is the discovery channel.
 
 Present the candidates in plain language and let the user pick, or confirm
 your recommendation, before going further.
@@ -169,10 +193,10 @@ the finished Artifact is. Get it right before anything else.
 ### Stage 2 — Show the resources (always runs)
 
 Once the pipeline is engaged, this stage always runs. Search Plugins with
-the user's intent (`springbrand.plugins.match`, rules above; on a genuine
-`no_match`, one `springbrand.plugins.list` search as fallback) and present
-the best match plus the alternatives, in Platform order, so the user sees
-which Marketplace resources could complete the task.
+the user's intent (`springbrand.catalog.match`, rules above;
+`springbrand.plugins.list` as an auxiliary source when the request is
+vague) and present the best match plus the alternatives, in Platform order,
+so the user sees which Marketplace resources could complete the task.
 
 - The user adopts one → continue with it.
 - The user declines, or opted out upfront → generate natively; no Plugin.
@@ -395,8 +419,10 @@ developer.
   asks.
 - Preserve Platform order and exact IDs in match and list results; never
   rerank, never apply a second threshold.
-- Errors are never no-matches. The one-time List fallback runs only after a
-  genuine `no_match`, never after a transport, OAuth, or service error.
+- Errors are never no-matches. A List browse never starts because a
+  transport, OAuth, or service call errored.
+- Never put the brand word `springbrand` in `normalizedIntent`; `intent`
+  stays the user's verbatim request.
 - `add`, `remove`, and every upload and publish run behind an explicit user
   confirmation for that specific action. The Agent never pays or acquires
   on the user's behalf.
