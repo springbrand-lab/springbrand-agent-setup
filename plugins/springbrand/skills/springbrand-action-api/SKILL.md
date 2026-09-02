@@ -3,10 +3,10 @@ name: springbrand-action-api
 description: >
   Execute SpringBrand Action API workflows: match a user intent to available
   API services, inspect an Action contract, execute it, and track execution
-  status through the springbrand-action-api MCP entry. Use for "use an
-  available API to do X" tasks and for continuing an earlier Action execution.
-  Do not use for Platform artifact or Plugin work, or third-party system
-  connections.
+  status through the `action_`-prefixed tools of the SpringBrand MCP entry.
+  Use for "use an available API to do X" tasks and for continuing an earlier
+  Action execution. Do not use for Platform artifact or Plugin work, or
+  third-party system connections.
 ---
 
 # SpringBrand Action API
@@ -16,12 +16,15 @@ do a task for the user. It owns one workflow: understand what the user wants,
 find the API service that fits, read its contract, run it with the user's
 explicit confirmation, and report the result honestly.
 
-Everything runs through the `springbrand-action-api` MCP Domain Entry. Use
-only that entry's tools — `match_capabilities`, `list_capabilities`,
-`get_capability`, `execute_capability`, `get_execution` — and always name the
-entry in instructions. Never infer a tool by its name alone: other SpringBrand
-entries expose similarly named tools, and picking by name can reach the wrong
-domain.
+Everything runs through the single SpringBrand MCP entry. Use only the
+Action-API-prefixed tools — `action_match_capabilities`,
+`action_list_capabilities`, `action_get_capability`,
+`action_execute_capability`, `action_get_execution` — and always name the
+`action_` prefix in instructions. The same entry also exposes the
+`platform_`- and `connector_`-prefixed tools of the other domains: never call
+them, never infer a tool by its name alone. A cross-domain need is an
+explicit Domain Transition (see [Domain boundaries](#domain-boundaries)),
+never a direct call to another domain's prefix.
 
 ## How to use this Skill
 
@@ -64,24 +67,9 @@ only as good as the intent: do not broaden, narrow, or embellish it.
 
 ### Step 2 — Match the intent to API services
 
-Call `match_capabilities` on the `springbrand-action-api` MCP entry, passing
+Call `action_match_capabilities`, passing
 the faithful restatement from Step 1 unchanged — not a paraphrase, not an
-embellished version.
-
-**Keyword construction.** Build the match input before calling:
-
-- **`intent`** — the user's request verbatim. Never translated, paraphrased,
-  or stripped (Gateway Issue #48 contract).
-- **`normalized_intent`** — required for non-trivial intents. Translate the
-  user's intent into English and distill it into 1–3 English keywords or a
-  short English phrase. Example: 「用springbrand帮我做电子礼物」→
-  `normalized_intent: "digital gift"`.
-- **Never put the brand word `springbrand` in `normalized_intent`** (or rely
-  on it matching from `intent`): every capability title contains it, so it
-  matches everything and drowns the semantic signal.
-- **`locale`** — the detected user language.
-
-Rules that are not optional:
+embellished version. Rules that are not optional:
 
 - The match returns **API Service candidates only**. There is nothing else to
   filter in this domain.
@@ -92,7 +80,7 @@ Rules that are not optional:
   treat it as a definitive no-match.
 - An error is **not** a no-match. If the call fails, report the failure and
   stop or retry; never tell the user "nothing fits" because a call errored.
-- `list_capabilities` is for **explicit browsing only** — when the user wants
+- `action_list_capabilities` is for **explicit browsing only** — when the user wants
   to see what is available rather than get a task done. It is not a fallback
   for a failed or empty match.
 
@@ -102,7 +90,7 @@ recommendation, before going further.
 
 ### Step 3 — Read the contract
 
-Call `get_capability` on the `springbrand-action-api` MCP entry for the
+Call `action_get_capability` for the
 selected Action. Read three things before proposing execution:
 
 - **`risk`** — how consequential the Action is. A `high` risk Action must be
@@ -125,12 +113,12 @@ the user's explicit confirmation for this specific run.
    Action will do, what input it will use, and — if `risk` is `high` — say
    plainly that this is a consequential action before asking to proceed.
 2. **Reference the Action exactly.** Use the reference exactly as
-   `get_capability` returned it, in the form
+   `action_get_capability` returned it, in the form
    `action:springbrand@0:<actionId>`. Never construct, edit, or synthesize a
    reference from memory or from a match summary alone.
 3. **Send schema-valid input** built in Step 3, plus an **idempotency key**
    so an accidental duplicate cannot run the Action twice.
-4. Call `execute_capability` on the `springbrand-action-api` MCP entry.
+4. Call `action_execute_capability`.
 
 If a retry is safe and needed — for example a transport error where you know
 the request may not have been received — retry with **the same reference,
@@ -145,8 +133,8 @@ status says so.
 - **`succeeded`** — the only status that counts as complete. Deliver the
   result by its type — JSON, text, or a file URL — as the output schema
   describes it, wrapped in plain language the user can act on.
-- **`running`** — poll `get_execution` on the `springbrand-action-api` MCP
-  entry until it finishes. Tell the user it is in progress.
+- **`running`** — poll `action_get_execution` until it finishes. Tell the
+  user it is in progress.
 - **`failed`** — retry only when the failure is marked retryable, and only a
   finite number of times. A non-retryable failure is reported, not retried.
 - **`insufficient_credits`** — stop and tell the user plainly: they need to
@@ -154,8 +142,8 @@ status says so.
   run. Never describe this as a system failure.
 - **`outcome_unknown`** — never auto-retry. Report honestly that the outcome
   could not be confirmed and let the user decide what to do.
-- A **`get_execution` tool error is a lookup failure, not a status.** It
-  says nothing about whether the execution succeeded. Never report an
+- A **`action_get_execution` tool error is a lookup failure, not a status.**
+  It says nothing about whether the execution succeeded. Never report an
   execution as failed because the status lookup itself errored.
 
 ## Continuing an earlier execution
@@ -166,7 +154,7 @@ conversation or a later one:
 1. Find the existing **execution ID**: from the conversation, from a pointer
    the user restates, or from a State Document in the user's artifact
    workspace if one references it.
-2. Verify it with `get_execution` on the `springbrand-action-api` MCP entry.
+2. Verify it with `action_get_execution`.
    The Skill verifies pointers itself; it never asks the user to interpret
    raw status data.
 3. Continue from the verified status using
@@ -179,8 +167,8 @@ conversation or a later one:
 
 - **Incoming:** a Platform distribution component that carries an executable
   Action arrives with its exact Action ID. Use it as-is — skip matching and
-  go to Step 3. Never execute a Platform reference on this entry, and never
-  leave the execution to the user to do by hand.
+  go to Step 3. Never execute a Platform reference with an `action_` tool,
+  and never leave the execution to the user to do by hand.
 
   <!-- UNFROZEN (mcp-gateway Issue 10 real-OAuth E2E): the
        distribution-component (gateway_action) handoff path additionally
@@ -189,13 +177,15 @@ conversation or a later one:
 
 - **`capability_domain_mismatch`** — a reference from another domain was
   sent here. Surface the error's `recovery.domain` to the user, announce the
-  switch in plain language, preserve the task state, and hand over to that
-  domain's Skill (`springbrand-platform` or `springbrand-connector`) as an
-  explicit Domain Transition. Never forward automatically, never run another
-  domain's workflow here, and never treat this error as a no-match.
-- **Outgoing:** if the user's goal turns out to need another domain, say so
-  and hand off explicitly to that one Domain Skill — never via Ask
-  SpringBrand, never a merged search across entries.
+  switch in plain language, preserve the task state, end this workflow, and
+  hand back through Ask SpringBrand for an explicit Domain Transition into
+  that domain's Skill (`springbrand-platform` or `springbrand-connector`).
+  Never forward automatically, never call another domain's prefixed tool
+  here, and never treat this error as a no-match.
+- **Outgoing:** if the user's goal turns out to need another domain, say so,
+  end this workflow, and hand back through Ask SpringBrand for the explicit
+  Domain Transition — never by calling another domain's prefixed tool,
+  never a merged search across domains.
 
 ## Talking to the user
 
@@ -213,10 +203,11 @@ developer.
 
 ## Hard rules
 
-- Always name the `springbrand-action-api` MCP entry in instructions. No
-  tool-name inference, ever.
+- Call only `action_`-prefixed tools on the SpringBrand MCP entry, and name
+  the `action_` prefix in instructions. Never call a `platform_`- or
+  `connector_`-prefixed tool; no tool-name inference, ever.
 - Never synthesize, edit, or guess an Action reference; use exactly what
-  `get_capability` or a verified handoff provided.
+  `action_get_capability` or a verified handoff provided.
 - Never invent or send `expectedRevision`.
 - Never rematch when an existing execution can be reused; never re-execute
   to check a status.
@@ -224,8 +215,9 @@ developer.
   incomplete; only `succeeded` counts as done.
 - `outcome_unknown` is never auto-retried; a status-lookup error is never
   reported as an execution failure.
-- Use only this entry's tools. Cross-domain work is an explicit Domain
-  Transition, announced and state-preserving, one executor at a time.
+- Cross-domain work is an explicit Domain Transition — announced and
+  state-preserving, handed back through Ask SpringBrand, one executor at a
+  time — never another domain's prefixed tool.
 
 <!-- UNFROZEN (mcp-gateway Issue 10 real-OAuth E2E): the trunk above —
      match completeness reporting, contract fields, execution and status

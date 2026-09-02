@@ -3,9 +3,9 @@ name: springbrand-connector
 description: >
   Execute SpringBrand Connector workflows: search published Connector
   capabilities (GitHub in version one) and execute them through the
-  springbrand-connector MCP entry. Use when the task names a third-party
-  system such as GitHub. Do not use for Platform artifact or Plugin work, or
-  dynamic API services.
+  `connector_`-prefixed tools of the SpringBrand MCP entry. Use when the task
+  names a third-party system such as GitHub. Do not use for Platform artifact
+  or Plugin work, or dynamic API services.
 ---
 
 # SpringBrand Connector
@@ -16,11 +16,14 @@ workflow: see what the user's connections authorize, pick the capability that
 fits, run it with the user's explicit confirmation, and report the result
 honestly.
 
-Everything runs through the `springbrand-connector` MCP Domain Entry. Use only
-that entry's two tools — `search_capabilities` and `execute_capability` — and
-always name the entry in instructions. Never infer a tool by its name alone:
-other SpringBrand entries expose tools with the same names, and picking by
-name alone can reach the wrong domain.
+Everything runs through the single SpringBrand MCP entry. Use only the
+Connector-prefixed tools — `connector_search_capabilities` and
+`connector_execute_capability` — and always name the `connector_` prefix in
+instructions. The same entry also exposes the `platform_`- and
+`action_`-prefixed tools of the other domains: never call them, never infer a
+tool by its name alone. A cross-domain need is an explicit Domain Transition
+(see [Domain boundaries](#domain-boundaries)), never a direct call to another
+domain's prefix.
 
 ## How to use this Skill
 
@@ -70,7 +73,7 @@ publish list is `github` and nothing else.
 
 ### Step 1 — See what the connection authorizes
 
-Call `search_capabilities` on the `springbrand-connector` MCP entry. It has
+Call `connector_search_capabilities`. It has
 two modes:
 
 - **No query** — returns the complete capability inventory the user's active
@@ -101,7 +104,7 @@ invented:
   `connector:<connection_id>:<release>:<action_id>`. Execution accepts this
   reference and nothing else. Never construct, edit, or synthesize a
   reference from memory, from a title, or from a description; use exactly
-  what `search_capabilities` returned.
+  what `connector_search_capabilities` returned.
 - **`risk`** — how consequential the capability is. A `high` risk capability
   must be disclosed to the user before any confirmation is requested (see
   Step 2).
@@ -123,12 +126,13 @@ without the user's explicit confirmation for this specific run.
    is `high`, say plainly that this is a consequential action before asking
    to proceed.
 2. **Reference the capability exactly.** Pass the `name` exactly as
-   `search_capabilities` returned it, with a `body` built strictly to the
-   match's `input_schema` — every required field present, no invented fields.
+   `connector_search_capabilities` returned it, with a `body` built strictly
+   to the match's `input_schema` — every required field present, no invented
+   fields.
 3. **Send no idempotency key.** Connector capabilities reject one
    (`invalid_arguments`). This is different from the Action API domain; do
    not carry that habit over.
-4. Call `execute_capability` on the `springbrand-connector` MCP entry.
+4. Call `connector_execute_capability`.
 
 Handle the outcome honestly:
 
@@ -150,17 +154,19 @@ Handle the outcome honestly:
 ## Domain boundaries
 
 - **`capability_domain_mismatch`** — a reference from another domain was
-  sent here. Surface the error's `recovery.domain` to the user — from this
-  entry it is `platform` or `action-api` — announce the switch in plain
-  language, preserve the task state, and hand over to that domain's Skill
+  sent here. Surface the error's `recovery.domain` to the user — it is
+  `platform` or `action-api` — announce the switch in plain language,
+  preserve the task state, end this workflow, and hand back through Ask
+  SpringBrand for an explicit Domain Transition into that domain's Skill
   (`recovery.domain: platform` → `springbrand-platform`;
-  `recovery.domain: action-api` → `springbrand-action-api`) as an explicit
-  Domain Transition. Never forward automatically, never run another domain's
-  workflow here, and never treat this error as a no-match.
+  `recovery.domain: action-api` → `springbrand-action-api`). Never forward
+  automatically, never call another domain's prefixed tool here, and never
+  treat this error as a no-match.
 - **Outgoing:** if the user's goal turns out to need another domain —
   creating or publishing a SpringBrand artifact, managing Plugins, or a
-  dynamic API service — say so and hand off explicitly to that one Domain
-  Skill. Never via Ask SpringBrand, never a merged search across entries.
+  dynamic API service — say so, end this workflow, and hand back through Ask
+  SpringBrand for the explicit Domain Transition. Never call another
+  domain's prefixed tool, never a merged search across domains.
 - One executor at a time: end this domain's workflow before another domain's
   begins.
 
@@ -180,20 +186,23 @@ developer.
 
 ## Hard rules
 
-- Always name the `springbrand-connector` MCP entry in instructions. No
-  tool-name inference, ever.
+- Call only `connector_`-prefixed tools on the SpringBrand MCP entry, and
+  name the `connector_` prefix in instructions. Never call a `platform_`- or
+  `action_`-prefixed tool; no tool-name inference, ever.
 - Version one publishes GitHub only. Never advertise or attempt any other
   connector.
 - Never construct, edit, or synthesize a `connector:` reference; use exactly
-  what `search_capabilities` returned, and paginate until `complete`.
+  what `connector_search_capabilities` returned, and paginate until
+  `complete`.
 - Never execute without the user's explicit confirmation for this specific
   run; disclose `high` risk first.
 - Never send an idempotency key to a Connector capability.
 - Errors are never no-matches; an empty authorized inventory means "connect
   the service first", not "nothing fits".
 - An unknown write outcome is never auto-retried.
-- Use only this entry's tools. Cross-domain work is an explicit Domain
-  Transition, announced and state-preserving, one executor at a time.
+- Cross-domain work is an explicit Domain Transition — announced and
+  state-preserving, handed back through Ask SpringBrand, one executor at a
+  time — never another domain's prefixed tool.
 
 <!-- UNFROZEN (mcp-gateway Issue 10 real-OAuth E2E): the workflow above —
      search modes and pagination completeness, the exact-reference execute

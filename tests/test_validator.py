@@ -73,16 +73,29 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / ".mcp.json",
-            lambda value: value["mcpServers"]["springbrand-dev-platform"].update(url="https://example.com/mcp"),
+            lambda value: value["mcpServers"]["springbrand-dev"].update(url="https://example.com/mcp"),
         ),
-        "must register exactly the three development MCP Domain Entries",
+        "must register exactly one MCP entry",
     )
     expect_failure(
         lambda root: edit_json(
             root / ".mcp.json",
             lambda value: value["mcpServers"].update({"springbrand": {"url": "https://connector.springbrand.ai/mcp"}}),
         ),
-        "must register exactly the three development MCP Domain Entries",
+        "must register exactly one MCP entry",
+    )
+    expect_failure(
+        lambda root: edit_json(
+            root / ".mcp.json",
+            lambda value: value.update(
+                mcpServers={
+                    "springbrand-dev-platform": {"url": "https://devconnector.springbrand.ai/mcp/platform"},
+                    "springbrand-dev-action-api": {"url": "https://devconnector.springbrand.ai/mcp/action-api"},
+                    "springbrand-dev-connector": {"url": "https://devconnector.springbrand.ai/mcp/connectors"},
+                }
+            ),
+        ),
+        "must register exactly one MCP entry",
     )
     expect_failure(
         lambda root: _add_legacy_skill(root),
@@ -110,7 +123,7 @@ def main() -> None:
         lambda root: [
             (root / path).write_text(
                 (root / "hooks/user-prompt-submit").read_text().replace(
-                    "authorize side effects", "authorize side effects. Do not Match again"
+                    "or cause side effects", "or cause side effects. Do not Match again"
                 )
             )
             for path in ("hooks/user-prompt-submit", "plugins/springbrand-workbuddy/hooks/user-prompt-submit")
@@ -128,16 +141,16 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
-            lambda value: value["mcpServers"]["springbrand-dev-platform"].update(url="https://example.com/mcp"),
+            lambda value: value["mcpServers"]["springbrand-dev"].update(url="https://example.com/mcp"),
         ),
-        "Claude MCP server must register exactly the three development MCP Domain Entries",
+        "Claude MCP server must register exactly one MCP entry",
     )
     expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
-            lambda value: value["mcpServers"]["springbrand-dev-platform"].update(headers={"Authorization": "Bearer token"}),
+            lambda value: value["mcpServers"]["springbrand-dev"].update(headers={"Authorization": "Bearer token"}),
         ),
-        "Claude MCP server must register exactly the three development MCP Domain Entries",
+        "Claude MCP server must register exactly one MCP entry",
     )
     expect_failure(
         lambda root: edit_json(
@@ -167,9 +180,9 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand/mcp.json",
-            lambda value: value["mcpServers"]["springbrand-dev-platform"].update(token="secret"),
+            lambda value: value["mcpServers"]["springbrand-dev"].update(token="secret"),
         ),
-        "Cursor MCP endpoint must register exactly the three development MCP Domain Entries",
+        "Cursor MCP endpoint must register exactly one MCP entry",
     )
     expect_failure(
         lambda root: (root / "plugins/springbrand/hooks").mkdir(),
@@ -193,9 +206,9 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand-workbuddy/.mcp.json",
-            lambda value: value["mcpServers"]["springbrand-dev-connector"].update(token="secret"),
+            lambda value: value["mcpServers"]["springbrand-dev"].update(token="secret"),
         ),
-        "WorkBuddy MCP server must register exactly the three development MCP Domain Entries",
+        "WorkBuddy MCP server must register exactly one MCP entry",
     )
 
 
