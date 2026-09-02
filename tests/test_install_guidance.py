@@ -35,7 +35,7 @@ def main() -> None:
     install = (ROOT / "INSTALL.md").read_text()
     assert "codex plugin marketplace add springbrand-lab/springbrand-agent-setup" in install
     assert "--ref" not in install
-    assert "springbrand-agent-setup/main/skills/springbrand/SKILL.md" in install
+    assert "springbrand-agent-setup/main/skills/ask-springbrand/SKILL.md" in install
     assert "codex plugin marketplace upgrade springbrand" in install
     assert "`codex` has no separate `plugin update` command" in install
     assert "updates the installed Plugin in place" in install
@@ -51,7 +51,7 @@ def main() -> None:
     assert "Add Marketplace" in workbuddy
     assert "springbrand-lab/springbrand-agent-setup" in workbuddy
     assert "Plugin URL" not in workbuddy
-    assert "archive/refs/tags/v1.2.0-beta.6-dev.4.zip" in workbuddy
+    assert "archive/refs/tags/v1.2.0-beta.7-dev.1.zip" in workbuddy
 
     install = (ROOT / "INSTALL.md").read_text()
     assert "bundled `codebuddy`/`cbc` CLI" in install
@@ -61,18 +61,18 @@ def main() -> None:
 
     development = (ROOT / "INSTALL.dev.md").read_text()
     assert "Add Marketplace" in development
-    assert "archive/refs/tags/v1.2.0-beta.6-dev.4.zip" in development
-    assert "v1.2.0-beta.6-dev.4" in development
+    assert "archive/refs/tags/v1.2.0-beta.7-dev.1.zip" in development
+    assert "v1.2.0-beta.7-dev.1" in development
     assert "## Installation contract" in development
     assert "The fallback installs no Notice adapter" in development
-    assert "/springbrand-dev:springbrand" in development
-    assert "$springbrand-plugin-discovery" in development
-    assert "springbrand.catalog.match" in development
+    assert "/springbrand-dev:ask-springbrand" in development
+    assert "$ask-springbrand" in development
+    assert "springbrand.plugins.match" in development
     assert "follow-ups reuse existing state" in development
     assert "<guide-ref>" not in development
 
     readme = (ROOT / "README.md").read_text()
-    assert "blob/v1.2.0-beta.6-dev.4/INSTALL.dev.md" in readme
+    assert "blob/v1.2.0-beta.7-dev.1/INSTALL.dev.md" in readme
 
 
 if __name__ == "__main__":

@@ -5,12 +5,21 @@ Agent must use the bundled CLI first; the UI steps remain a manual fallback.
 Package validation is not Native Evidence; runtime evidence is recorded in
 `docs/workbuddy-native-evidence.md`.
 
+SpringBrand ships four Canonical Skills (`ask-springbrand`,
+`springbrand-platform`, `springbrand-action-api`, `springbrand-connector`) and
+three MCP Domain Entries (`springbrand-platform`, `springbrand-action-api`,
+`springbrand-connector`).
+
 ## Preflight
 
 Check for an existing SpringBrand Plugin, Marketplace, global MCP entry, or
 manual Skill. Preserve unrelated configuration and OAuth state. Report a
 conflicting legacy SpringBrand entry and wait for approval before replacing or
 removing it.
+
+A Legacy Plugin Release using a single `springbrand` entry at
+`https://connector.springbrand.ai/mcp` continues to work; upgrading to the
+three entries is voluntary and there is no automatic sunset.
 
 ## Agent-first production install
 
@@ -53,7 +62,8 @@ Do not stop before running these commands merely because installation is also
 available in the UI. After they succeed, tell the user to run
 `/reload-plugins` or open a new task. WorkBuddy's CLI does not expose an MCP
 OAuth login command, so the user must complete native browser OAuth when
-WorkBuddy prompts for the bundled `springbrand` server.
+WorkBuddy prompts for each of the three bundled MCP servers. Each entry
+requires its own consent — up to three consents total.
 
 ## Manual UI fallback
 
@@ -74,7 +84,9 @@ wants to install manually:
    ```
 
 3. Add the Marketplace, then install and enable **SpringBrand**.
-4. Complete native OAuth for the bundled `springbrand` MCP server.
+4. Complete native OAuth for each of the three bundled MCP servers
+   (`springbrand-platform`, `springbrand-action-api`,
+   `springbrand-connector`).
 
 The repository default branch `main` is the rolling production source. Do not
 add trailing punctuation to the Marketplace source.
@@ -94,7 +106,7 @@ if "$WORKBUDDY_CLI" plugin marketplace list | grep -q '"name": "springbrand-dev"
   "$WORKBUDDY_CLI" plugin marketplace update springbrand-dev
 else
   "$WORKBUDDY_CLI" plugin marketplace add \
-    https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.6-dev.4.zip
+    https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.7-dev.1.zip
 fi
 
 if "$WORKBUDDY_CLI" plugin list --json | grep -q '"id": "springbrand-dev@springbrand-dev"'; then
@@ -107,10 +119,11 @@ fi
 ```
 
 For manual development installation, paste the same ZIP into **Add
-Marketplace**, install **SpringBrand Dev**, and complete OAuth for
-`springbrand-dev`. After reload, verify version `1.2.0-beta.6-dev.4`, one
-Canonical Skill, one Plugin-level Notice Hook, one bundled `springbrand-dev` MCP
-entry, and exact discovery of `springbrand.catalog.match`.
+Marketplace**, install **SpringBrand Dev**, and complete OAuth for each of the
+three bundled `springbrand-dev-*` MCP entries. After reload, verify version
+`1.2.0-beta.7-dev.1`, the four Canonical Skills, one Plugin-level Notice Hook,
+three bundled `springbrand-dev-*` MCP entries, and exact discovery of
+`springbrand.plugins.match` on the Platform entry.
 
 ## Security and verification
 
@@ -124,9 +137,13 @@ After reload or a new task, verify:
 
 - exactly one `springbrand@springbrand` Plugin is installed and enabled;
 - its version matches repository `main`;
-- `springbrand-plugin-discovery` is visible;
-- the bundled `springbrand` MCP points only to
-  `https://connector.springbrand.ai/mcp` and is OAuth-connected;
+- the four Canonical Skills (`ask-springbrand`, `springbrand-platform`,
+  `springbrand-action-api`, `springbrand-connector`) are visible;
+- the three bundled MCP entries point only to
+  `https://connector.springbrand.ai/mcp/platform`,
+  `https://connector.springbrand.ai/mcp/action-api`, and
+  `https://connector.springbrand.ai/mcp/connectors`, and each is
+  OAuth-connected;
 - the Plugin-level Hook is loaded;
 - a covered concrete task triggers discovery before planning or production;
 - unrelated configuration remains unchanged.
