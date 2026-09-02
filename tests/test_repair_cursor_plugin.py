@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> None:
     with tempfile.TemporaryDirectory() as directory:
         package = Path(directory)
-        for name in ("VERSION", "assets", "plugins", "scripts", "skills"):
+        for name in ("VERSION", "assets", "plugins", "rules", "scripts", "skills"):
             source = ROOT / name
             target = package / name
             shutil.copytree(source, target) if source.is_dir() else shutil.copy2(source, target)

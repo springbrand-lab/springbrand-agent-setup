@@ -9,7 +9,34 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PRODUCTION_MCP_URL = "https://connector.springbrand.ai/mcp"
+PRODUCTION_MCP_BASE = "https://connector.springbrand.ai/mcp"
+PRODUCTION_ENTRIES = {
+    "springbrand-platform": f"{PRODUCTION_MCP_BASE}/platform",
+    "springbrand-action-api": f"{PRODUCTION_MCP_BASE}/action-api",
+    "springbrand-connector": f"{PRODUCTION_MCP_BASE}/connectors",
+}
+CANONICAL_SKILLS = (
+    "ask-springbrand",
+    "springbrand-platform",
+    "springbrand-action-api",
+    "springbrand-connector",
+)
+ROUTING_NOTICE_MAX_LENGTH = 700
+ROUTING_NOTICE_PHRASES = (
+    "It has three capability domains",
+    "- Platform: create and publish artifacts, manage Plugins, and browse the Marketplace",
+    "- Action API: use dynamic API services for tasks",
+    "- Connector: work with third-party systems such as GitHub",
+    "recommends exactly one Domain Skill and stops",
+    "This Notice only makes the Skills visible",
+    "does not determine fit, call MCP",
+)
+RETIRED_PHRASES = (
+    "Do not Match again",
+    "springbrand-plugin-discovery",
+    "springbrand.catalog.match",
+    "follow-up to an existing SpringBrand match",
+)
 VERSION_PATTERN = re.compile(
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
     r"(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)"
@@ -40,14 +67,26 @@ def component(root: Path, reference: str, label: str) -> Path:
     return path
 
 
-def validate_routing_hook(hook: Path, skill_name: str) -> None:
+def validate_routing_notice(context: str, reference: str) -> None:
+    require(len(context) <= ROUTING_NOTICE_MAX_LENGTH, f"Routing Notice must stay under {ROUTING_NOTICE_MAX_LENGTH} characters")
+    require(reference in context, "Routing Notice must reference the Host-visible Ask SpringBrand Skill")
+    for phrase in ROUTING_NOTICE_PHRASES:
+        require(phrase in context, f"Routing Notice must carry the three-domain map and Ask SpringBrand pointer (missing: {phrase})")
+    for phrase in RETIRED_PHRASES:
+        require(phrase not in context, f"Routing Notice must not use retired phrasing: {phrase}")
+
+
+def validate_routing_hook(hook: Path) -> None:
     require(os.access(hook, os.X_OK), "Codex Hook is not executable")
     source = hook.read_text()
     require(source.startswith("#!/bin/sh\n"), "Canonical Hook must be a POSIX shell command")
     for forbidden in ("curl ", "wget ", "http://", "https://", "$@", "${1"):
         require(forbidden not in source, "Canonical Hook must remain a static, network-free routing command")
 
-    for claude_root, reference in (("", f"${skill_name}"), ("/tmp/plugin", "/springbrand:springbrand")):
+    for claude_root, reference in (
+        ("", "`$ask-springbrand` Skill"),
+        ("/tmp/plugin", "`/springbrand:ask-springbrand`"),
+    ):
         result = subprocess.run(
             [str(hook)],
             check=True,
@@ -61,12 +100,22 @@ def validate_routing_hook(hook: Path, skill_name: str) -> None:
         except (json.JSONDecodeError, KeyError, TypeError) as exc:
             raise AssertionError("Canonical Hook must emit valid UserPromptSubmit JSON") from exc
         require(output.get("hookEventName") == "UserPromptSubmit", "Canonical Hook must emit UserPromptSubmit context")
-        require(reference in context, "Canonical Hook must reference the Host-visible Skill")
-        require("This Notice only makes the Skill visible" in context, "Canonical Hook must remain a Notice-only adapter")
-        require("Do not Match again" in context, "Canonical Hook must preserve follow-up state")
+        validate_routing_notice(context, reference)
+        if claude_root:
+            require("/springbrand:ask-springbrand" in context, "Claude Hook must use the namespaced Ask SpringBrand reference")
+        else:
+            require("/springbrand:" not in context, "Codex Hook must not use a Claude Plugin namespace")
 
 
-def validate_canonical_package(root: Path) -> tuple[str, str]:
+def validate_mcp_entries(servers, label: str, entry_type: None | str) -> None:
+    expected = {
+        name: ({"type": entry_type, "url": url} if entry_type else {"url": url})
+        for name, url in PRODUCTION_ENTRIES.items()
+    }
+    require(servers == expected, f"{label} must register exactly the three production MCP Domain Entries (platform, action-api, connectors) at {PRODUCTION_MCP_BASE} with no credentials or extra fields")
+
+
+def validate_canonical_package(root: Path) -> str:
     try:
         version = (root / "VERSION").read_text().strip()
     except OSError as exc:
@@ -74,19 +123,25 @@ def validate_canonical_package(root: Path) -> tuple[str, str]:
     require(VERSION_PATTERN.fullmatch(version), f"invalid repository version: {version!r}")
 
     mcp = read_json(root / ".mcp.json")
-    expected_mcp = {"mcpServers": {"springbrand": {"url": PRODUCTION_MCP_URL}}}
-    require(mcp == expected_mcp, f"production MCP endpoint must be {PRODUCTION_MCP_URL} with no credentials or extra fields")
+    validate_mcp_entries(mcp.get("mcpServers"), "production MCP manifest", entry_type=None)
 
-    skills = list((root / "skills").glob("*/SKILL.md"))
-    require(len(skills) == 1, "Canonical Skill must contain exactly one skills/*/SKILL.md")
-    skill_name = re.search(r"^name:\s*(\S+)\s*$", skills[0].read_text(), re.MULTILINE)
-    require(skill_name, f"Canonical Skill is missing a name: {skills[0]}")
+    skill_names = sorted(path.parent.name for path in (root / "skills").glob("*/SKILL.md"))
+    require(
+        skill_names == sorted(CANONICAL_SKILLS),
+        f"Canonical Skill Set must be exactly the named four-Skill list {sorted(CANONICAL_SKILLS)}, found {skill_names}",
+    )
+    for name in CANONICAL_SKILLS:
+        frontmatter = (root / f"skills/{name}/SKILL.md").read_text().split("\n---\n", 1)[0]
+        require(
+            re.search(rf"^name:\s*{re.escape(name)}\s*$", frontmatter, re.MULTILINE),
+            f"Canonical Skill {name} frontmatter name must match its directory",
+        )
 
-    validate_routing_hook(root / "hooks/user-prompt-submit", skill_name.group(1))
-    return version, skill_name.group(1)
+    validate_routing_hook(root / "hooks/user-prompt-submit")
+    return version
 
 
-def validate_codex_adapter(root: Path, version: str, skill_name: str) -> None:
+def validate_codex_adapter(root: Path, version: str) -> None:
     plugin = read_json(root / ".codex-plugin/plugin.json")
     require(plugin.get("name") == "springbrand", "Codex manifest name must be springbrand")
     require(plugin.get("version") == version, f"Codex manifest version must match VERSION ({version})")
@@ -143,10 +198,10 @@ def validate_codex_adapter(root: Path, version: str, skill_name: str) -> None:
     require(outputs[0] == outputs[1], "Codex Hook output must not vary by prompt")
     output = outputs[0].get("hookSpecificOutput", {})
     require(output.get("hookEventName") == "UserPromptSubmit", "Codex Hook must return UserPromptSubmit output")
-    require(f"${skill_name}" in output.get("additionalContext", ""), f"Codex Hook must route to ${skill_name}")
+    require("$ask-springbrand" in output.get("additionalContext", ""), "Codex Hook must route to $ask-springbrand")
 
 
-def validate_claude_adapter(root: Path, version: str, skill_name: str) -> None:
+def validate_claude_adapter(root: Path, version: str) -> None:
     require(not (root / "hooks/hooks.json").exists(), "Claude Adapter must not auto-discover the Codex Hook config")
     plugin = read_json(root / ".claude-plugin/plugin.json")
     require(plugin.get("name") == "springbrand", "Claude manifest name must be springbrand")
@@ -156,7 +211,7 @@ def validate_claude_adapter(root: Path, version: str, skill_name: str) -> None:
     require(plugin.get("repository") == "https://github.com/springbrand-lab/springbrand-agent-setup", "Claude repository URL is invalid")
     require(plugin.get("skills") == "./skills/", "Claude skills component must reference ./skills/")
     require(component(root, plugin["skills"], "Claude skills component").is_dir(), "Claude skills component must be a directory")
-    require(plugin.get("mcpServers") == {"springbrand": {"type": "http", "url": PRODUCTION_MCP_URL}}, "Claude MCP server must contain only the production HTTP endpoint")
+    validate_mcp_entries(plugin.get("mcpServers"), "Claude MCP server", entry_type="http")
 
     hooks_reference = plugin.get("hooks")
     require(hooks_reference == "./hooks/claude-hooks.json", "Claude Hook component must reference ./hooks/claude-hooks.json")
@@ -175,7 +230,10 @@ def validate_claude_adapter(root: Path, version: str, skill_name: str) -> None:
         text=True, capture_output=True, cwd=root, env={"CLAUDE_PLUGIN_ROOT": str(root)}, timeout=5, check=True,
     )
     context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
-    require("/springbrand:springbrand" in context and skill_name in context, "Claude Hook must invoke the namespaced Plugin Skill and name the Canonical Skill")
+    require(
+        "/springbrand:ask-springbrand" in context and "ask-springbrand" in context,
+        "Claude Hook must invoke the namespaced Ask SpringBrand Skill",
+    )
 
     marketplace = read_json(root / ".claude-plugin/marketplace.json")
     require(marketplace.get("name") == "springbrand", "Claude Marketplace name must be springbrand")
@@ -185,7 +243,16 @@ def validate_claude_adapter(root: Path, version: str, skill_name: str) -> None:
     require(component(root, marketplace["plugins"][0]["source"], "Claude Marketplace source").is_dir(), "Claude Marketplace source must be a directory")
 
 
-def validate_cursor_adapter(root: Path, version: str, skill_name: str) -> None:
+def validate_skill_mirrors(root: Path, package: Path, host: str) -> None:
+    for name in CANONICAL_SKILLS:
+        canonical_skill = root / f"skills/{name}/SKILL.md"
+        mirrored_skill = package / f"skills/{name}/SKILL.md"
+        require(mirrored_skill.is_file(), f"{host} Skill mirror does not exist: {name}")
+        require(mirrored_skill.read_bytes() == canonical_skill.read_bytes(), f"{host} Skill mirror for {name} must be byte-equivalent to the Canonical Skill")
+        require(re.search(rf"^name:\s*{re.escape(name)}\s*$", mirrored_skill.read_text(), re.MULTILINE), f"{host} Skill mirror name must match the Canonical Skill: {name}")
+
+
+def validate_cursor_adapter(root: Path, version: str) -> None:
     marketplace = read_json(root / ".cursor-plugin/marketplace.json")
     require(marketplace.get("name") == "springbrand", "Cursor Marketplace name must be springbrand")
     require(marketplace.get("metadata", {}).get("version") == version, f"Cursor Marketplace version must match VERSION ({version})")
@@ -201,29 +268,26 @@ def validate_cursor_adapter(root: Path, version: str, skill_name: str) -> None:
     require(plugin.get("logo") == "assets/springbrand-icon.svg", "Cursor logo must reference assets/springbrand-icon.svg")
     require((package / plugin["logo"]).is_file(), "Cursor logo does not exist")
 
-    canonical_skill = root / "skills/springbrand/SKILL.md"
-    mirrored_skill = package / "skills/springbrand/SKILL.md"
-    require(mirrored_skill.is_file(), "Cursor Skill mirror does not exist")
-    require(mirrored_skill.read_bytes() == canonical_skill.read_bytes(), "Cursor Skill mirror must be byte-equivalent to the Canonical Skill")
-    require(re.search(rf"^name:\s*{re.escape(skill_name)}\s*$", mirrored_skill.read_text(), re.MULTILINE), "Cursor Skill mirror name must match the Canonical Skill")
+    validate_skill_mirrors(root, package, "Cursor")
     require((package / "assets/springbrand-icon.svg").read_bytes() == (root / "assets/springbrand-icon.svg").read_bytes(), "Cursor logo mirror must be byte-equivalent to the canonical logo")
 
-    rule = (package / "rules/springbrand-preflight.mdc").read_text()
-    normalized_rule = " ".join(rule.split())
-    frontmatter = rule.split("\n---\n", 1)
+    rule = (package / "rules/springbrand-preflight.mdc")
+    require(rule.is_file(), "Cursor Rule mirror does not exist")
+    frontmatter = rule.read_text().split("\n---\n", 1)
     require(len(frontmatter) == 2 and frontmatter[0].startswith("---\n"), "Cursor Rule must have frontmatter")
     require(re.search(r"^alwaysApply:\s*true\s*$", frontmatter[0][4:], re.MULTILINE), "Cursor Rule must always apply")
-    require("capability-gap gate" not in rule, "Cursor Rule must not impose the capability-gap gate")
-    require(skill_name in rule, "Cursor Rule must reference the Canonical Skill")
-    require("This Notice only makes the Skill visible" in rule, "Cursor Rule must remain a Notice-only adapter")
-    require("Do not Match again" in normalized_rule, "Cursor Rule must preserve follow-up state")
+    require(rule.read_bytes() == (root / "rules/springbrand-preflight.mdc").read_bytes(), "Cursor Rule mirror must be byte-equivalent to the canonical Rule")
+    normalized_rule = " ".join(rule.read_text().split())
+    require("ask-springbrand" in normalized_rule, "Cursor Rule must point uncertain routing at Ask SpringBrand")
+    require("This Notice only makes the Skills visible" in normalized_rule, "Cursor Rule must remain a Notice-only adapter")
+    for phrase in RETIRED_PHRASES:
+        require(phrase not in normalized_rule, f"Cursor Rule must not use retired phrasing: {phrase}")
 
-    expected_mcp = {"mcpServers": {"springbrand": {"url": PRODUCTION_MCP_URL}}}
-    require(read_json(package / "mcp.json") == expected_mcp, f"Cursor MCP endpoint must be {PRODUCTION_MCP_URL} with no credentials or extra fields")
+    validate_mcp_entries(read_json(package / "mcp.json").get("mcpServers"), "Cursor MCP endpoint", entry_type=None)
     require(not (package / "hooks").exists(), "Cursor Adapter must not ship Hooks")
 
 
-def validate_workbuddy_adapter(root: Path, version: str, skill_name: str) -> None:
+def validate_workbuddy_adapter(root: Path, version: str) -> None:
     marketplace = read_json(root / ".codebuddy-plugin/marketplace.json")
     require(marketplace.get("name") == "springbrand", "WorkBuddy Marketplace name must be springbrand")
     entries = marketplace.get("plugins", [])
@@ -239,10 +303,7 @@ def validate_workbuddy_adapter(root: Path, version: str, skill_name: str) -> Non
         require(plugin.get(field) == reference, f"WorkBuddy {field} component must reference {reference}")
         component(package, reference, f"WorkBuddy {field} component")
 
-    canonical_skill = root / "skills/springbrand/SKILL.md"
-    mirrored_skill = package / "skills/springbrand/SKILL.md"
-    require(mirrored_skill.read_bytes() == canonical_skill.read_bytes(), "WorkBuddy Skill mirror must be byte-equivalent to the Canonical Skill")
-    require(re.search(rf"^name:\s*{re.escape(skill_name)}\s*$", mirrored_skill.read_text(), re.MULTILINE), "WorkBuddy Skill mirror name must match the Canonical Skill")
+    validate_skill_mirrors(root, package, "WorkBuddy")
 
     hook = package / "hooks/user-prompt-submit"
     require(hook.read_bytes() == (root / "hooks/user-prompt-submit").read_bytes(), "WorkBuddy Hook mirror must be byte-equivalent to the canonical Hook")
@@ -254,8 +315,7 @@ def validate_workbuddy_adapter(root: Path, version: str, skill_name: str) -> Non
         raise AssertionError("WorkBuddy Hook config must declare hooks.UserPromptSubmit") from exc
     require(hooks == expected_hooks, "WorkBuddy Hook config must reference ${CODEBUDDY_PLUGIN_ROOT}/hooks/user-prompt-submit")
 
-    expected_mcp = {"mcpServers": {"springbrand": {"type": "http", "url": PRODUCTION_MCP_URL}}}
-    require(read_json(package / ".mcp.json") == expected_mcp, f"WorkBuddy MCP server must contain only the production HTTP endpoint {PRODUCTION_MCP_URL}")
+    validate_mcp_entries(read_json(package / ".mcp.json").get("mcpServers"), "WorkBuddy MCP server", entry_type="http")
 
     guide = (root / "INSTALL.workbuddy.md").read_text().lower()
     require("installing and enabling" in guide and "trust decision" in guide, "WorkBuddy installation guide must disclose the Plugin Hook trust decision")
@@ -279,12 +339,12 @@ def validate_package(root: Path = ROOT) -> None:
     for path in root.rglob("*.json"):
         if ".git" not in path.parts:
             read_json(path)
-    version, skill_name = validate_canonical_package(root)
+    version = validate_canonical_package(root)
     validate_secrets(root)
-    validate_codex_adapter(root, version, skill_name)
-    validate_claude_adapter(root, version, skill_name)
-    validate_cursor_adapter(root, version, skill_name)
-    validate_workbuddy_adapter(root, version, skill_name)
+    validate_codex_adapter(root, version)
+    validate_claude_adapter(root, version)
+    validate_cursor_adapter(root, version)
+    validate_workbuddy_adapter(root, version)
 
 
 def main() -> None:

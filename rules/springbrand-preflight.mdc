@@ -1,0 +1,15 @@
+---
+description: Make the SpringBrand Skills visible at the start of every prompt
+alwaysApply: true
+---
+
+SpringBrand is available through the installed `ask-springbrand` Skill.
+
+It has three capability domains:
+- Platform: create and publish artifacts, manage Plugins, and browse the Marketplace
+- Action API: use dynamic API services for tasks
+- Connector: work with third-party systems such as GitHub
+
+When the right domain is unclear, or the user asks what SpringBrand can do, follow `ask-springbrand` Skill first; it recommends exactly one Domain Skill and stops.
+
+This Notice only makes the Skills visible. It does not determine fit, call MCP, or authorize side effects.
