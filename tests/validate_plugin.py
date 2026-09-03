@@ -245,6 +245,10 @@ def validate_skill_mirrors(root: Path, package: Path, host: str) -> None:
         require(mirrored_skill.is_file(), f"{host} Skill mirror does not exist: {name}")
         require(mirrored_skill.read_bytes() == canonical_skill.read_bytes(), f"{host} Skill mirror for {name} must be byte-equivalent to the Canonical Skill")
         require(re.search(rf"^name:\s*{re.escape(name)}\s*$", mirrored_skill.read_text(), re.MULTILINE), f"{host} Skill mirror name must match the Canonical Skill: {name}")
+        for reference in sorted((root / f"skills/{name}/references").glob("*.md")):
+            mirrored_reference = package / f"skills/{name}/references/{reference.name}"
+            require(mirrored_reference.is_file(), f"{host} Skill reference mirror does not exist: {name}/{reference.name}")
+            require(mirrored_reference.read_bytes() == reference.read_bytes(), f"{host} Skill reference mirror for {name}/{reference.name} must be byte-equivalent to the Canonical reference")
 
 
 def validate_cursor_adapter(root: Path, version: str) -> None:

@@ -6,6 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = sorted((ROOT / "skills").glob("*/SKILL.md"))
+REFERENCES = sorted((ROOT / "skills").glob("*/references/*.md"))
 COPIES = {
     ROOT / "assets/springbrand-icon.svg": ROOT / "plugins/springbrand/assets/springbrand-icon.svg",
     ROOT / "rules/springbrand-preflight.mdc": ROOT / "plugins/springbrand/rules/springbrand-preflight.mdc",
@@ -13,6 +14,10 @@ COPIES = {
 COPIES.update({
     skill: ROOT / "plugins/springbrand/skills" / skill.parent.name / "SKILL.md"
     for skill in SKILLS
+})
+COPIES.update({
+    reference: ROOT / "plugins/springbrand/skills" / reference.parent.parent.name / "references" / reference.name
+    for reference in REFERENCES
 })
 
 if not SKILLS:

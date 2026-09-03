@@ -75,11 +75,39 @@ user asks to start fresh.
 The trunk is: **match → get → add → get_distribution → use**. Each step calls
 `platform_execute_capability` with the named capability.
 
+### Match or List: the routing decision tree
+
+Before constructing any Match or List body, read
+[references/plugin-discovery.md](references/plugin-discovery.md) — the exact
+input and output schemas, defaults, bounds, valid and invalid examples, the
+English keyword construction, and the mixed-Catalog Match boundary live
+there. Then pick exactly one path:
+
+- **Clear goal or named capability/Plugin:** issue exactly **one**
+  `springbrand.plugins.match` request with the complete task intent. Never
+  split the intent into multiple Match requests, never union or rerank the
+  results, and never fire a second Match to try another keyword.
+- **Vague request or inspiration/browse:** use `springbrand.plugins.list` to
+  show real Plugins for the user to choose. `view=marketplace` with
+  pagination covers the full Plugin catalogue; `view=featured` only when the
+  user asks for curated recommendations; `view=my` for the user's own added
+  and entitled Plugins. Never use `view=usable` for Plugin discovery — it is
+  a mixed view whose semantics await correction upstream.
+- **Direct title/ID/category lookup:** use `springbrand.plugins.list` with
+  the appropriate English `query`/`category` and preserve Platform order.
+  This is browsing/lookup, not a replacement for semantic Match.
+
+A List result supplements a Match result only where this tree calls for user
+browsing; it never overrides Match order.
+
 ### Step 1 — Find Plugins (`springbrand.plugins.match`)
 
-Pass the user's intent faithfully — unchanged, not paraphrased or
-embellished. Optional inputs: `normalizedIntent`, `locale`, `limit`
-(default 5, max 8).
+Build the body exactly per the reference: `intent` carries the user's
+request faithfully — unchanged, not paraphrased or embellished — and
+`normalizedIntent` carries the English search form (one short English phrase
+or 1–3 English keywords, for example `digital gift`; never the brand word,
+never untranslated Chinese). `locale` carries the detected locale; `limit`
+defaults to 5, maximum 8. One request, no keyword fan-out.
 
 Rules that are not optional:
 
@@ -95,11 +123,6 @@ Rules that are not optional:
 - An **error is not a no-match.** Transport, OAuth, or service failures are
   reported as failures — never tell the user "nothing fits" because a call
   errored, and never trigger the List fallback for one.
-
-For explicit browsing without a goal, use `springbrand.plugins.list` via
-`platform_execute_capability`: `view` is `usable` (default),
-`marketplace`, `my` (the user's own added and entitled Plugins), or
-`featured`, with optional `query`, `category`, `page`, `pageSize`.
 
 Present the candidates in plain language and let the user pick, or confirm
 your recommendation, before going further.
@@ -214,15 +237,44 @@ unknown transport result may trigger one identical replay.
    initial call. A `failed` attempt is terminal: do not retry it automatically;
    start a new user-confirmed attempt with a new key.
 4. **Encode.** Encode each file at call time with a local command
-   (`base64 < FILE | tr -d '\n'` or equivalent) and place the first command
-   output as-is into the following arguments — do not reread it in chunks,
-   rewrap it, or manually retype it. File-tool display limits (line
-   truncation, output caps) describe what you *see*, never what tool
+   (`base64 < FILE | tr -d '\n'` or equivalent). File-tool display limits
+   (line truncation, output caps) describe what you *see*, never what tool
    arguments may *carry*. The Platform admission limit is 20 MiB decoded
    and the Gateway encoded-request limit is 30 MiB; a Host may impose a
    lower documented limit. Never infer a Host limit from display truncation
    or pre-emptively decline a call. Stop and report only when the Host
-   documents or actually returns a request-size rejection, and never chunk.
+   documents or actually returns a request-size rejection, and never chunk
+   the payload across MCP calls.
+
+   Pick the encoding path by what the Host can actually show, never by
+   what its arguments may carry:
+
+   - **Whole-output path (default).** The Host shows the command output
+     whole: place the first command output as-is into the following
+     arguments — do not reread it in chunks, rewrap it, or manually
+     retype it.
+   - **Staged path (long-line display truncation).** The Host's file
+     tools truncate long lines, so a single-line base64 cannot be read
+     back whole: do not retry the same read, do not decline, and do not
+     split the upload — run this staging procedure once instead:
+     1. Record the expected length: `base64 < FILE | tr -d '\n' | wc -c`.
+     2. Stage the encoding with a local script: split it into numbered
+        parts shorter than the Host's line cap (for example
+        `fold -w 1900`), one part per file, printing the part count,
+        each part's length, and each part's first and last characters.
+     3. Read every part in order and assemble the full string in
+        sequence.
+     4. Verify before calling: write the assembled string to a
+        temporary file and check it byte-for-byte against the original
+        (`base64 -d assembled.b64 | cmp - FILE` or equivalent). On a
+        mismatch, use the printed head/tail markers to locate the bad
+        part, re-read it, and re-verify. Never call with an unverified
+        assembly.
+     5. Make the single upload call with the verified string, then
+        delete the staging files.
+
+   Staging changes how the encoded string is read, never how it is
+   transported: still one Creation and one initial call.
 5. **Call once.** Make the single initial `platform_execute_capability` call,
    with the exact upload reference copied from `platform_list_capabilities` or
    a verified handoff, and the key at the top level. The example below shows
@@ -478,6 +530,11 @@ developer.
   asks.
 - Preserve Platform order and exact IDs in match and list results; never
   rerank, never apply a second threshold.
+- Discovery follows the Match/List decision tree: exactly one
+  `springbrand.plugins.match` per request — faithful `intent`, English
+  `normalizedIntent`, no keyword fan-out, no agent-side threshold — and List
+  browsing through `marketplace`, `featured`, or `my`, never `usable` for
+  Plugin discovery.
 - Errors are never no-matches. The one-time List fallback runs only after a
   genuine `no_match`, never after a transport, OAuth, or service error.
 - `add`, `remove`, and every upload and publish run behind an explicit user
