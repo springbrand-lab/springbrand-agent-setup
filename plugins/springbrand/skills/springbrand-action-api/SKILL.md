@@ -67,14 +67,27 @@ only as good as the intent: do not broaden, narrow, or embellish it.
 
 ### Step 2 — Match the intent to API services
 
-Call `action_match_capabilities`, passing
-the faithful restatement from Step 1 unchanged — not a paraphrase, not an
-embellished version. Rules that are not optional:
+Before constructing any match body, read
+[references/action-discovery.md](references/action-discovery.md) — the exact
+input and output schemas, the English normalized-intent construction, and the
+empty-result semantics live there.
 
+Call `action_match_capabilities`, passing
+the faithful restatement from Step 1 unchanged in `intent` — not a
+paraphrase, not an embellished version — plus the English search form in
+`normalized_intent` and the detected `locale`. Rules that are not optional:
+
+- A non-English intent **always** carries an English `normalized_intent`
+  (one verb-first English phrase, for example `generate comic image from
+  text`; never the brand word). A match body without it is malformed for
+  matching purposes and produces false empty results.
 - The match returns **API Service candidates only**. There is nothing else to
   filter in this domain.
 - **Preserve the returned order exactly.** Never rerank, never re-sort, never
   apply a second threshold of your own.
+- An empty result from a body lacking an English `normalized_intent` is a
+  **malformed body, not a no-match**: fix the body and rematch once. Only a
+  well-formed body's empty result may be reported as "nothing fits".
 - If the response says the result may be incomplete (`complete: false`), say
   so honestly — "these are the best matches, there may be more" — and never
   treat it as a definitive no-match.
@@ -213,6 +226,9 @@ developer.
   to check a status.
 - Errors are never no-matches; incomplete results are reported as
   incomplete; only `succeeded` counts as done.
+- A non-English match intent always carries an English `normalized_intent`;
+  an empty result from a body without one is a malformed body — fix it and
+  rematch once, never report it as "nothing fits".
 - `outcome_unknown` is never auto-retried; a status-lookup error is never
   reported as an execution failure.
 - Cross-domain work is an explicit Domain Transition — announced and
