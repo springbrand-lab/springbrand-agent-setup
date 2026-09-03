@@ -24,10 +24,10 @@ SpringBrand has two environments. Pick the one you need and paste the matching p
 ### Development
 
 > Follow the official SpringBrand development installation guide to complete setup:
-> https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.2.0-beta.8/INSTALL.dev.md
+> https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.2.0-beta.8-dev.1/INSTALL.dev.md
 > Use the native `springbrand-dev` Plugin on Codex, Claude Code/Desktop Code, Cursor, or WorkBuddy. Use the documented Skill-plus-MCP fallback only on unsupported hosts. Preserve unrelated configuration, complete native OAuth once, verify the installation, and tell me whether I need to restart.
 
-The native development Plugin is the immutable prerelease [`v1.2.0-beta.8`](https://github.com/springbrand-lab/springbrand-agent-setup/releases/tag/v1.2.0-beta.8). It is identified as `springbrand-dev`, displays as **SpringBrand Dev**, and bundles a single `springbrand-dev` MCP entry at `https://devconnector.springbrand.ai/mcp`. Authentication is host-native OAuth — one consent per Surface (a single authorization covers all three domains).
+The native development Plugin is the immutable prerelease [`v1.2.0-beta.8-dev.1`](https://github.com/springbrand-lab/springbrand-agent-setup/releases/tag/v1.2.0-beta.8). It is identified as `springbrand-dev`, displays as **SpringBrand Dev**, and bundles a single `springbrand-dev` MCP entry at `https://devconnector.springbrand.ai/mcp`. Authentication is host-native OAuth — one consent per Surface (a single authorization covers all three domains).
 
 Disable or uninstall the full production `springbrand` Plugin before enabling the full development Plugin. Both package the same four Canonical Skills and three-domain routing behavior, so enabling both can duplicate routing and make connector selection ambiguous. The manual fallback remains available for unsupported hosts and may coexist with production because it shares the same Skill files and adds only the separately named `springbrand-dev` MCP entry.
 
@@ -61,7 +61,7 @@ Both MCP environments require native OAuth before normal use. No Plugin contains
 | Environment | Installation channel |
 | --- | --- |
 | Production | `https://github.com/springbrand-lab/springbrand-agent-setup` (`main`) |
-| Development | `springbrand-lab/springbrand-agent-setup@v1.2.0-beta.8` |
+| Development | `springbrand-lab/springbrand-agent-setup@v1.2.0-beta.8-dev.1` |
 
 Production always follows `main`. Immutable production tags remain release and
 evidence records, not the default installation channel. Development Plugins
