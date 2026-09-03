@@ -214,15 +214,44 @@ unknown transport result may trigger one identical replay.
    initial call. A `failed` attempt is terminal: do not retry it automatically;
    start a new user-confirmed attempt with a new key.
 4. **Encode.** Encode each file at call time with a local command
-   (`base64 < FILE | tr -d '\n'` or equivalent) and place the first command
-   output as-is into the following arguments — do not reread it in chunks,
-   rewrap it, or manually retype it. File-tool display limits (line
-   truncation, output caps) describe what you *see*, never what tool
+   (`base64 < FILE | tr -d '\n'` or equivalent). File-tool display limits
+   (line truncation, output caps) describe what you *see*, never what tool
    arguments may *carry*. The Platform admission limit is 20 MiB decoded
    and the Gateway encoded-request limit is 30 MiB; a Host may impose a
    lower documented limit. Never infer a Host limit from display truncation
    or pre-emptively decline a call. Stop and report only when the Host
-   documents or actually returns a request-size rejection, and never chunk.
+   documents or actually returns a request-size rejection, and never chunk
+   the payload across MCP calls.
+
+   Pick the encoding path by what the Host can actually show, never by
+   what its arguments may carry:
+
+   - **Whole-output path (default).** The Host shows the command output
+     whole: place the first command output as-is into the following
+     arguments — do not reread it in chunks, rewrap it, or manually
+     retype it.
+   - **Staged path (long-line display truncation).** The Host's file
+     tools truncate long lines, so a single-line base64 cannot be read
+     back whole: do not retry the same read, do not decline, and do not
+     split the upload — run this staging procedure once instead:
+     1. Record the expected length: `base64 < FILE | tr -d '\n' | wc -c`.
+     2. Stage the encoding with a local script: split it into numbered
+        parts shorter than the Host's line cap (for example
+        `fold -w 1900`), one part per file, printing the part count,
+        each part's length, and each part's first and last characters.
+     3. Read every part in order and assemble the full string in
+        sequence.
+     4. Verify before calling: write the assembled string to a
+        temporary file and check it byte-for-byte against the original
+        (`base64 -d assembled.b64 | cmp - FILE` or equivalent). On a
+        mismatch, use the printed head/tail markers to locate the bad
+        part, re-read it, and re-verify. Never call with an unverified
+        assembly.
+     5. Make the single upload call with the verified string, then
+        delete the staging files.
+
+   Staging changes how the encoded string is read, never how it is
+   transported: still one Creation and one initial call.
 5. **Call once.** Make the single initial `platform_execute_capability` call,
    with the exact upload reference copied from `platform_list_capabilities` or
    a verified handoff, and the key at the top level. The example below shows
