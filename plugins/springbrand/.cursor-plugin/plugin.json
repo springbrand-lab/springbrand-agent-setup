@@ -1,16 +1,15 @@
 {
-  "name": "springbrand-dev",
-  "displayName": "SpringBrand Dev",
+  "name": "springbrand",
+  "displayName": "SpringBrand",
   "version": "1.2.0-beta.8",
-  "description": "Discover and use SpringBrand Plugins through the development connector. Internal testing only.",
+  "description": "Discover and use SpringBrand Plugins through the production connector.",
   "author": {
     "name": "SpringBrand"
   },
   "keywords": [
     "springbrand",
     "resources",
-    "marketplace",
-    "dev"
+    "marketplace"
   ],
   "logo": "assets/springbrand-icon.svg"
 }

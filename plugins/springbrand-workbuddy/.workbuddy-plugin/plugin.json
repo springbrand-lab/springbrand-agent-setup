@@ -1,7 +1,7 @@
 {
-  "name": "springbrand-dev",
+  "name": "springbrand",
   "version": "1.2.0-beta.8",
-  "description": "Discover and use SpringBrand Plugins through the development connector. Internal testing only.",
+  "description": "Discover and use SpringBrand Plugins through the production connector.",
   "author": {
     "name": "SpringBrand"
   },

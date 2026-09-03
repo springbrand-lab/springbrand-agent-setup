@@ -1,13 +1,13 @@
 {
-  "name": "springbrand-dev",
+  "name": "springbrand",
   "owner": {
     "name": "SpringBrand"
   },
   "plugins": [
     {
-      "name": "springbrand-dev",
+      "name": "springbrand",
       "source": "./"
     }
   ],
-  "description": "SpringBrand development Plugin for internal Plugin testing."
+  "description": "SpringBrand plugins for discovering and using reusable Plugins."
 }
