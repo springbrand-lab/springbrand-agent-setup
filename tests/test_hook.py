@@ -8,6 +8,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 HOOK = ROOT / "hooks" / "user-prompt-submit"
 
+ROUTING_NOTICE_PHRASES = (
+    "It has three capability domains on one MCP entry",
+    "- Platform: create and publish artifacts, manage Plugins, and browse the Marketplace",
+    "- Action API: use dynamic API services for tasks",
+    "- Connector: work with third-party systems such as GitHub",
+    "recommends exactly one Domain Skill and stops",
+    "This Notice only makes the Skills visible",
+    "does not determine fit, call MCP",
+)
+RETIRED_PHRASES = (
+    "Do not Match again",
+    "springbrand-plugin-discovery",
+    "springbrand.catalog.match",
+)
+
 
 def main() -> None:
     config = json.loads((ROOT / "hooks" / "codex-hooks.json").read_text())
@@ -39,20 +54,23 @@ def main() -> None:
     output = outputs[0]["hookSpecificOutput"]
     assert output["hookEventName"] == "UserPromptSubmit"
     context = output["additionalContext"]
-    assert "$springbrand-plugin-discovery" in context
-    assert "This Notice only makes the Skill visible" in context
-    assert "follow-up to an existing SpringBrand match" in context
-    assert "Do not Match again" in context
-    assert "does not determine fit, call MCP" in context
+    assert "$ask-springbrand" in context
+    assert "/springbrand:" not in context
+    for phrase in ROUTING_NOTICE_PHRASES:
+        assert phrase in context, phrase
+    for phrase in RETIRED_PHRASES:
+        assert phrase not in context, phrase
+    assert len(context) <= 700
 
     claude = subprocess.run(
         [HOOK], input=json.dumps({"prompt": "build a website"}), text=True,
         capture_output=True, cwd=ROOT, env={"CLAUDE_PLUGIN_ROOT": str(ROOT)}, timeout=1, check=True,
     )
     claude_context = json.loads(claude.stdout)["hookSpecificOutput"]["additionalContext"]
-    assert "/springbrand:springbrand" in claude_context
-    assert "springbrand-plugin-discovery" in claude_context
-    assert "This Notice only makes the Skill visible" in claude_context
+    assert "/springbrand-dev:ask-springbrand" in claude_context
+    assert "ask-springbrand" in claude_context
+    for phrase in ROUTING_NOTICE_PHRASES:
+        assert phrase in claude_context, phrase
 
 
 if __name__ == "__main__":

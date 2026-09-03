@@ -12,23 +12,40 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> None:
     with tempfile.TemporaryDirectory() as directory:
         package = Path(directory)
-        for name in ("VERSION", "assets", "plugins", "scripts", "skills"):
+        for name in ("VERSION", "assets", "plugins", "rules", "scripts", "skills"):
             source = ROOT / name
             target = package / name
             shutil.copytree(source, target) if source.is_dir() else shutil.copy2(source, target)
 
-        skill = package / "plugins/springbrand/skills/springbrand/SKILL.md"
+        canonical = sorted((package / "skills").glob("*/SKILL.md"))
+        assert len(canonical) == 4, canonical
+        references = sorted((package / "skills").glob("*/references/*.md"))
+        mirrors = [
+            package / "plugins/springbrand/skills" / skill.parent.name / "SKILL.md"
+            for skill in canonical
+        ] + [
+            package / "plugins/springbrand/skills" / reference.parent.parent.name / "references" / reference.name
+            for reference in references
+        ]
         logo = package / "plugins/springbrand/assets/springbrand-icon.svg"
-        skill.unlink()
+        for mirror in mirrors:
+            mirror.unlink()
         logo.write_text("drift\n")
 
         command = ["python3", "scripts/repair_cursor_plugin.py"]
         subprocess.run(command, cwd=package, check=True)
-        first = (skill.read_bytes(), logo.read_bytes())
+        first = [(mirror.read_bytes(), logo.read_bytes()) for mirror in mirrors]
         subprocess.run(command, cwd=package, check=True)
 
-        assert first == (skill.read_bytes(), logo.read_bytes())
-        assert skill.read_bytes() == (package / "skills/springbrand/SKILL.md").read_bytes()
+        assert first == [(mirror.read_bytes(), logo.read_bytes()) for mirror in mirrors]
+        for mirror, skill in zip(mirrors[: len(canonical)], canonical):
+            assert mirror.read_bytes() == skill.read_bytes()
+        for mirror, reference in zip(mirrors[len(canonical):], references):
+            assert mirror.read_bytes() == reference.read_bytes()
+        assert len(mirrors) == len(canonical) + len(references)
+        assert sorted(path.name for path in (package / "plugins/springbrand/skills").glob("*")) == [
+            skill.parent.name for skill in canonical
+        ]
         assert logo.read_bytes() == (package / "assets/springbrand-icon.svg").read_bytes()
 
 
