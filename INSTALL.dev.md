@@ -19,10 +19,10 @@ Before installing, verify the Skill URLs and MCP URL are reachable.
 
 ```text
 Skill URLs:
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.8-dev.1/skills/ask-springbrand/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.8-dev.1/skills/springbrand-platform/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.8-dev.1/skills/springbrand-action-api/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.8-dev.1/skills/springbrand-connector/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.9-dev.1/skills/ask-springbrand/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.9-dev.1/skills/springbrand-platform/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.9-dev.1/skills/springbrand-action-api/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.9-dev.1/skills/springbrand-connector/SKILL.md
 MCP URL:
   https://devconnector.springbrand.ai/mcp
 ```
@@ -49,8 +49,8 @@ The immutable internal-testing release is:
 | --- | --- |
 | Plugin / Marketplace ID | `springbrand-dev` |
 | Display name | SpringBrand Dev |
-| Version | `1.2.0-beta.8-dev.1` |
-| Git ref | `v1.2.0-beta.8-dev.1` |
+| Version | `1.2.0-beta.9-dev.1` |
+| Git ref | `v1.2.0-beta.9-dev.1` |
 | MCP entry | `springbrand-dev` |
 | MCP URL | `https://devconnector.springbrand.ai/mcp` |
 | Transport | Native remote HTTP / Streamable HTTP |
@@ -96,7 +96,7 @@ Plugin invocation remain in the Skills.
 ### Codex CLI and Desktop
 
 ```sh
-codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.0-beta.8-dev.1
+codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.0-beta.9-dev.1
 codex plugin add springbrand-dev@springbrand-dev
 codex mcp login springbrand-dev
 ```
@@ -108,7 +108,7 @@ The Marketplace bootstrap also exposes **SpringBrand Dev** in the Codex desktop 
 CLI:
 
 ```sh
-claude plugin marketplace add springbrand-lab/springbrand-agent-setup@v1.2.0-beta.8-dev.1 --scope user
+claude plugin marketplace add springbrand-lab/springbrand-agent-setup@v1.2.0-beta.9-dev.1 --scope user
 claude plugin install springbrand-dev@springbrand-dev --scope user
 claude mcp login plugin:springbrand-dev:springbrand-dev
 ```
@@ -116,7 +116,7 @@ claude mcp login plugin:springbrand-dev:springbrand-dev
 Desktop Code: open **Plugin Browser → Add Marketplace** and enter:
 
 ```text
-springbrand-lab/springbrand-agent-setup@v1.2.0-beta.8-dev.1
+springbrand-lab/springbrand-agent-setup@v1.2.0-beta.9-dev.1
 ```
 
 Install **SpringBrand Dev**, complete the single OAuth consent, and open a new Code task. This does not apply to Claude Chat, Cowork, web sessions, or account-level Connectors.
@@ -126,7 +126,7 @@ Install **SpringBrand Dev**, complete the single OAuth consent, and open a new C
 Open **Customize → Browse Marketplace → Add Marketplace → Import from GitHub** and enter:
 
 ```text
-springbrand-lab/springbrand-agent-setup@v1.2.0-beta.8-dev.1
+springbrand-lab/springbrand-agent-setup@v1.2.0-beta.9-dev.1
 ```
 
 Install **SpringBrand Dev**, complete OAuth for the `springbrand-dev` entry, and open a new task.
@@ -139,7 +139,7 @@ ZIP Marketplace and install `springbrand-dev@springbrand-dev`; **Add Marketplace
 remains the manual fallback:
 
 ```text
-https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.8-dev.1.zip
+https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.9-dev.1.zip
 ```
 
 WorkBuddy does not accept the `owner/repo@tag` shorthand. OAuth remains a native
@@ -149,7 +149,7 @@ browser step when WorkBuddy prompts the user for the `springbrand-dev` entry.
 
 Verify that the installed Plugin shows:
 
-- Plugin ID `springbrand-dev` and version `1.2.0-beta.8-dev.1`;
+- Plugin ID `springbrand-dev` and version `1.2.0-beta.9-dev.1`;
 - exactly one bundled `springbrand-dev` MCP entry;
 - URL exactly `https://devconnector.springbrand.ai/mcp`;
 - the transport is native Streamable HTTP;
@@ -212,10 +212,10 @@ it intact.
 ### Inputs
 
 - **Skill sources:**
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.8-dev.1/skills/ask-springbrand/SKILL.md`
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.8-dev.1/skills/springbrand-platform/SKILL.md`
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.8-dev.1/skills/springbrand-action-api/SKILL.md`
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.8-dev.1/skills/springbrand-connector/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.9-dev.1/skills/ask-springbrand/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.9-dev.1/skills/springbrand-platform/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.9-dev.1/skills/springbrand-action-api/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.9-dev.1/skills/springbrand-connector/SKILL.md`
 - **MCP server name:** `springbrand-dev`
 - **MCP server URL (fixed):**
   - `https://devconnector.springbrand.ai/mcp`
