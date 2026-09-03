@@ -11,6 +11,9 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 ROOT = Path(__file__).resolve().parents[1]
+# Expected MCP entry follows the VERSION dev marker (see AGENTS.md).
+ENTRY = "springbrand-dev" if "-dev." in (ROOT / "VERSION").read_text() else "springbrand"
+WRONG_URL = "https://connector.springbrand.ai/mcp" if "-dev." in (ROOT / "VERSION").read_text() else "https://devconnector.springbrand.ai/mcp"
 SPEC = importlib.util.spec_from_file_location("validate_plugin", ROOT / "tests/validate_plugin.py")
 VALIDATOR = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(VALIDATOR)
@@ -107,14 +110,14 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / ".mcp.json",
-            lambda value: value["mcpServers"]["springbrand"].update(url="https://example.com/mcp"),
+            lambda value: value["mcpServers"][ENTRY].update(url="https://example.com/mcp"),
         ),
         "must register exactly one MCP entry",
     )
     expect_failure(
         lambda root: edit_json(
             root / ".mcp.json",
-            lambda value: value["mcpServers"].update({"springbrand": {"url": "https://devconnector.springbrand.ai/mcp"}}),
+            lambda value: value["mcpServers"].update({ENTRY: {"url": WRONG_URL}}),
         ),
         "must register exactly one MCP entry",
     )
@@ -175,14 +178,14 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
-            lambda value: value["mcpServers"]["springbrand"].update(url="https://example.com/mcp"),
+            lambda value: value["mcpServers"][ENTRY].update(url="https://example.com/mcp"),
         ),
         "Claude MCP server must register exactly one MCP entry",
     )
     expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
-            lambda value: value["mcpServers"]["springbrand"].update(headers={"Authorization": "Bearer token"}),
+            lambda value: value["mcpServers"][ENTRY].update(headers={"Authorization": "Bearer token"}),
         ),
         "Claude MCP server must register exactly one MCP entry",
     )
@@ -214,7 +217,7 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand/mcp.json",
-            lambda value: value["mcpServers"]["springbrand"].update(token="secret"),
+            lambda value: value["mcpServers"][ENTRY].update(token="secret"),
         ),
         "Cursor MCP endpoint must register exactly one MCP entry",
     )
@@ -240,7 +243,7 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand-workbuddy/.mcp.json",
-            lambda value: value["mcpServers"]["springbrand"].update(token="secret"),
+            lambda value: value["mcpServers"][ENTRY].update(token="secret"),
         ),
         "WorkBuddy MCP server must register exactly one MCP entry",
     )
