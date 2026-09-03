@@ -107,14 +107,14 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / ".mcp.json",
-            lambda value: value["mcpServers"]["springbrand-dev"].update(url="https://example.com/mcp"),
+            lambda value: value["mcpServers"]["springbrand"].update(url="https://example.com/mcp"),
         ),
         "must register exactly one MCP entry",
     )
     expect_failure(
         lambda root: edit_json(
             root / ".mcp.json",
-            lambda value: value["mcpServers"].update({"springbrand": {"url": "https://connector.springbrand.ai/mcp"}}),
+            lambda value: value["mcpServers"].update({"springbrand": {"url": "https://devconnector.springbrand.ai/mcp"}}),
         ),
         "must register exactly one MCP entry",
     )
@@ -175,14 +175,14 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
-            lambda value: value["mcpServers"]["springbrand-dev"].update(url="https://example.com/mcp"),
+            lambda value: value["mcpServers"]["springbrand"].update(url="https://example.com/mcp"),
         ),
         "Claude MCP server must register exactly one MCP entry",
     )
     expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
-            lambda value: value["mcpServers"]["springbrand-dev"].update(headers={"Authorization": "Bearer token"}),
+            lambda value: value["mcpServers"]["springbrand"].update(headers={"Authorization": "Bearer token"}),
         ),
         "Claude MCP server must register exactly one MCP entry",
     )
@@ -214,7 +214,7 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand/mcp.json",
-            lambda value: value["mcpServers"]["springbrand-dev"].update(token="secret"),
+            lambda value: value["mcpServers"]["springbrand"].update(token="secret"),
         ),
         "Cursor MCP endpoint must register exactly one MCP entry",
     )
@@ -240,7 +240,7 @@ def main() -> None:
     expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand-workbuddy/.mcp.json",
-            lambda value: value["mcpServers"]["springbrand-dev"].update(token="secret"),
+            lambda value: value["mcpServers"]["springbrand"].update(token="secret"),
         ),
         "WorkBuddy MCP server must register exactly one MCP entry",
     )

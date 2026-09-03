@@ -1,7 +1,7 @@
 {
-  "name": "springbrand-dev",
+  "name": "springbrand",
   "version": "1.2.0-beta.8",
-  "description": "Discover and use SpringBrand Plugins through the development connector. Internal testing only.",
+  "description": "Discover and use SpringBrand Plugins through the production connector.",
   "author": {
     "name": "SpringBrand"
   },
@@ -9,9 +9,9 @@
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
-    "displayName": "SpringBrand Dev",
-    "shortDescription": "Test SpringBrand Plugins",
-    "longDescription": "Search for reusable SpringBrand Plugins and apply them through the development connector. Internal testing only.",
+    "displayName": "SpringBrand",
+    "shortDescription": "Discover and use SpringBrand Plugins",
+    "longDescription": "Search for reusable SpringBrand Plugins and apply them to your work through the production connector.",
     "developerName": "SpringBrand",
     "category": "Productivity",
     "capabilities": [
@@ -19,7 +19,7 @@
       "Execute"
     ],
     "defaultPrompt": [
-      "Find a SpringBrand Plugin using the development environment."
+      "Find a SpringBrand Plugin for this task."
     ],
     "brandColor": "#FF8A2C",
     "composerIcon": "./assets/springbrand-icon.svg",

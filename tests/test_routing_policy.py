@@ -152,7 +152,7 @@ def main() -> None:
         for phrase in RETIRED_PHRASES:
             assert phrase not in context, phrase
     assert "$ask-springbrand" in codex_context
-    assert "/springbrand-dev:ask-springbrand" in claude_context
+    assert "/springbrand:ask-springbrand" in claude_context
 
     rule = (ROOT / "plugins/springbrand/rules/springbrand-preflight.mdc").read_text()
     normalized_rule = " ".join(rule.split())
