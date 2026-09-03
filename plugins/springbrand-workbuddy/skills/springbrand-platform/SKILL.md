@@ -75,11 +75,39 @@ user asks to start fresh.
 The trunk is: **match → get → add → get_distribution → use**. Each step calls
 `platform_execute_capability` with the named capability.
 
+### Match or List: the routing decision tree
+
+Before constructing any Match or List body, read
+[references/plugin-discovery.md](references/plugin-discovery.md) — the exact
+input and output schemas, defaults, bounds, valid and invalid examples, the
+English keyword construction, and the mixed-Catalog Match boundary live
+there. Then pick exactly one path:
+
+- **Clear goal or named capability/Plugin:** issue exactly **one**
+  `springbrand.plugins.match` request with the complete task intent. Never
+  split the intent into multiple Match requests, never union or rerank the
+  results, and never fire a second Match to try another keyword.
+- **Vague request or inspiration/browse:** use `springbrand.plugins.list` to
+  show real Plugins for the user to choose. `view=marketplace` with
+  pagination covers the full Plugin catalogue; `view=featured` only when the
+  user asks for curated recommendations; `view=my` for the user's own added
+  and entitled Plugins. Never use `view=usable` for Plugin discovery — it is
+  a mixed view whose semantics await correction upstream.
+- **Direct title/ID/category lookup:** use `springbrand.plugins.list` with
+  the appropriate English `query`/`category` and preserve Platform order.
+  This is browsing/lookup, not a replacement for semantic Match.
+
+A List result supplements a Match result only where this tree calls for user
+browsing; it never overrides Match order.
+
 ### Step 1 — Find Plugins (`springbrand.plugins.match`)
 
-Pass the user's intent faithfully — unchanged, not paraphrased or
-embellished. Optional inputs: `normalizedIntent`, `locale`, `limit`
-(default 5, max 8).
+Build the body exactly per the reference: `intent` carries the user's
+request faithfully — unchanged, not paraphrased or embellished — and
+`normalizedIntent` carries the English search form (one short English phrase
+or 1–3 English keywords, for example `digital gift`; never the brand word,
+never untranslated Chinese). `locale` carries the detected locale; `limit`
+defaults to 5, maximum 8. One request, no keyword fan-out.
 
 Rules that are not optional:
 
@@ -95,11 +123,6 @@ Rules that are not optional:
 - An **error is not a no-match.** Transport, OAuth, or service failures are
   reported as failures — never tell the user "nothing fits" because a call
   errored, and never trigger the List fallback for one.
-
-For explicit browsing without a goal, use `springbrand.plugins.list` via
-`platform_execute_capability`: `view` is `usable` (default),
-`marketplace`, `my` (the user's own added and entitled Plugins), or
-`featured`, with optional `query`, `category`, `page`, `pageSize`.
 
 Present the candidates in plain language and let the user pick, or confirm
 your recommendation, before going further.
@@ -507,6 +530,11 @@ developer.
   asks.
 - Preserve Platform order and exact IDs in match and list results; never
   rerank, never apply a second threshold.
+- Discovery follows the Match/List decision tree: exactly one
+  `springbrand.plugins.match` per request — faithful `intent`, English
+  `normalizedIntent`, no keyword fan-out, no agent-side threshold — and List
+  browsing through `marketplace`, `featured`, or `my`, never `usable` for
+  Plugin discovery.
 - Errors are never no-matches. The one-time List fallback runs only after a
   genuine `no_match`, never after a transport, OAuth, or service error.
 - `add`, `remove`, and every upload and publish run behind an explicit user

@@ -19,9 +19,13 @@ def main() -> None:
 
         canonical = sorted((package / "skills").glob("*/SKILL.md"))
         assert len(canonical) == 4, canonical
+        references = sorted((package / "skills").glob("*/references/*.md"))
         mirrors = [
             package / "plugins/springbrand/skills" / skill.parent.name / "SKILL.md"
             for skill in canonical
+        ] + [
+            package / "plugins/springbrand/skills" / reference.parent.parent.name / "references" / reference.name
+            for reference in references
         ]
         logo = package / "plugins/springbrand/assets/springbrand-icon.svg"
         for mirror in mirrors:
@@ -34,8 +38,11 @@ def main() -> None:
         subprocess.run(command, cwd=package, check=True)
 
         assert first == [(mirror.read_bytes(), logo.read_bytes()) for mirror in mirrors]
-        for mirror, skill in zip(mirrors, canonical):
+        for mirror, skill in zip(mirrors[: len(canonical)], canonical):
             assert mirror.read_bytes() == skill.read_bytes()
+        for mirror, reference in zip(mirrors[len(canonical):], references):
+            assert mirror.read_bytes() == reference.read_bytes()
+        assert len(mirrors) == len(canonical) + len(references)
         assert sorted(path.name for path in (package / "plugins/springbrand/skills").glob("*")) == [
             skill.parent.name for skill in canonical
         ]
