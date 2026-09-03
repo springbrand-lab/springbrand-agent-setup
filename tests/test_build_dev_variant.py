@@ -21,7 +21,7 @@ COPIED = (
     "plugins",
     "scripts",
 )
-DEV_VERSION = "1.2.0-beta.7-dev.1"
+DEV_VERSION = (ROOT / "VERSION").read_text().strip()
 DEV_URL = "https://devconnector.springbrand.ai/mcp"
 DEV_ENTRY = "springbrand-dev"
 DEV_DESCRIPTION = "Discover and use SpringBrand Plugins through the development connector. Internal testing only."
