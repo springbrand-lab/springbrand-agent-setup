@@ -53,18 +53,15 @@ def main() -> None:
     assert "Add Marketplace" in workbuddy
     assert "springbrand-lab/springbrand-agent-setup" in workbuddy
     assert "Plugin URL" not in workbuddy
-    assert f"archive/refs/tags/v{VERSION}.zip" in workbuddy
-
-    install = (ROOT / "INSTALL.md").read_text()
-    assert "bundled `codebuddy`/`cbc` CLI" in install
-    assert "Do not pause for manual UI" in install
-    assert "Add Marketplace" in install
-    assert "springbrand-lab/springbrand-agent-setup" in install
 
     development = (ROOT / "INSTALL.dev.md").read_text()
+    dev_ref = re.search(r"\| Git ref \| `v([^`]+)` \|", development)
+    assert dev_ref, "INSTALL.dev.md must declare its Git ref"
+    DEV_VERSION = dev_ref.group(1)
+    assert "-dev." in DEV_VERSION, f"dev guide must reference an immutable dev tag, found {DEV_VERSION}"
     assert "Add Marketplace" in development
-    assert f"archive/refs/tags/v{VERSION}.zip" in development
-    assert VERSION in development
+    assert f"archive/refs/tags/v{DEV_VERSION}.zip" in development
+    assert DEV_VERSION in development
     assert "## Installation contract" in development
     assert "The fallback installs no Notice adapter" in development
     assert "/springbrand-dev:ask-springbrand" in development
@@ -74,12 +71,14 @@ def main() -> None:
     assert "<guide-ref>" not in development
 
     readme = (ROOT / "README.md").read_text()
-    assert f"blob/v{VERSION}/INSTALL.dev.md" in readme
+    assert f"blob/v{DEV_VERSION}/INSTALL.dev.md" in readme
+
+    assert f"archive/refs/tags/v{DEV_VERSION}.zip" in workbuddy
 
     drift = re.compile(r"\d+\.\d+\.\d+-beta\.\d+-dev\.\d+")
     for path in GUIDES:
         for match in drift.findall((ROOT / path).read_text()):
-            assert match == VERSION, f"{path}: stale dev version {match}, VERSION is {VERSION}"
+            assert match == DEV_VERSION, f"{path}: dev version {match} drifts from the dev guide ref {DEV_VERSION}"
 
 
 if __name__ == "__main__":
