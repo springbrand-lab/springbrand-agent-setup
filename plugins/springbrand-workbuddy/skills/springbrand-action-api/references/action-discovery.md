@@ -236,29 +236,12 @@ For the match path:
   `normalized_intent`. The scorer's term extraction cannot rely on them.
 - Detect the request locale and send it in `locale`.
 
-Use this small canonical alias table when the user's wording names one of
-these platforms:
-
-| User wording | Canonical form |
-| --- | --- |
-| `xhs` / `小红书` / `RedNote` / `little red book` | `Xiaohongshu` |
-| `twitter` / `推特` | `X` |
-| `抖音` | `Douyin` |
-
-Alias matching is case-insensitive. Emit one canonical form; do not stuff all
-aliases into `normalized_intent` and do not fan out multiple Match calls.
-
-```json
-{
-  "fixture": "alias_cases",
-  "cases": [
-    {"input": "xhs", "canonical": "Xiaohongshu", "normalized_intent": "Xiaohongshu Note Search"},
-    {"input": "XHS", "canonical": "Xiaohongshu", "normalized_intent": "Xiaohongshu Note Search"},
-    {"input": "小红书", "canonical": "Xiaohongshu", "normalized_intent": "Xiaohongshu Note Search"},
-    {"input": "RedNote", "canonical": "Xiaohongshu", "normalized_intent": "Xiaohongshu Note Search"}
-  ]
-}
-```
+When the request uses an alias, abbreviation, alternative spelling, or
+non-English name for a supplier, platform/product, model, object, or
+operation, read [action-aliases.md](action-aliases.md) before building
+`normalized_intent`. That inventory-audited map defines the canonical forms,
+ambiguity guards, and maintenance boundary for this temporary Agent-side
+fix. Apply one canonical form without adding unstated constraints.
 
 ## Empty results
 

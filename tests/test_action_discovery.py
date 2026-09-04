@@ -14,6 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills/springbrand-action-api/SKILL.md"
 REFERENCE = ROOT / "skills/springbrand-action-api/references/action-discovery.md"
+ALIASES = ROOT / "skills/springbrand-action-api/references/action-aliases.md"
 ROUTING_CORPUS = ROOT / "docs/routing-evaluation-corpus.md"
 CURSOR_MIRROR = ROOT / "plugins/springbrand/skills/springbrand-action-api"
 WORKBUDDY_MIRROR = ROOT / "plugins/springbrand-workbuddy/skills/springbrand-action-api"
@@ -32,6 +33,28 @@ def json_blocks(text: str) -> list:
     return [json.loads(block) for block in re.findall(r"```json\n(.*?)```", text, re.DOTALL)]
 
 
+def markdown_section(text: str, heading: str) -> str:
+    marker = f"## {heading}\n"
+    assert marker in text, f"missing Markdown section: {heading}"
+    section = text.partition(marker)[2]
+    return section.partition("\n## ")[0]
+
+
+def alias_rows(heading: str) -> dict[str, dict[str, set[str]]]:
+    section = markdown_section(ALIASES.read_text(), heading)
+    rows = {}
+    for line in section.splitlines():
+        if not line.startswith("| `"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        canonical = re.findall(r"`([^`]+)`", cells[0])[0]
+        rows[canonical] = {
+            "aliases": set(re.findall(r"`([^`]+)`", cells[1])),
+            "scope": set(re.findall(r"`([^`]+)`", cells[2])),
+        }
+    return rows
+
+
 def validate_match_input(body: dict) -> None:
     assert isinstance(body, dict)
     assert set(body) <= {"intent", "normalized_intent", "locale"}, body
@@ -48,14 +71,21 @@ def validate_match_input(body: dict) -> None:
 def test_mirrors_are_byte_equivalent() -> None:
     canonical_skill = SKILL.read_bytes()
     canonical_reference = REFERENCE.read_bytes()
+    canonical_aliases = ALIASES.read_bytes()
     for mirror in (CURSOR_MIRROR, WORKBUDDY_MIRROR):
         assert (mirror / "SKILL.md").read_bytes() == canonical_skill
         assert (mirror / "references/action-discovery.md").read_bytes() == canonical_reference
+        assert (mirror / "references/action-aliases.md").read_bytes() == canonical_aliases
 
 
 def test_skill_points_to_reference_before_any_body() -> None:
     skill = normalized(SKILL)
     assert "Before constructing any match body, read [references/action-discovery.md](references/action-discovery.md)" in skill
+    assert "supplier, platform/product, model, object, or operation alias" in skill
+    alias_pointer = "[references/action-aliases.md](references/action-aliases.md)"
+    first_match_body = "For a clear task, call `action_match_capabilities` once"
+    assert alias_pointer in skill
+    assert skill.index(alias_pointer) < skill.index(first_match_body)
 
 
 def test_chinese_intent_produces_one_normalized_match_body() -> None:
@@ -105,21 +135,100 @@ def test_xhs_request_uses_catalog_facing_discovery_terms() -> None:
         assert excluded not in normalized_intent
 
 
-def test_platform_aliases_emit_one_canonical_form() -> None:
-    fixtures = [body for body in json_blocks(REFERENCE.read_text()) if body.get("fixture") == "alias_cases"]
-    assert len(fixtures) == 1
-    cases = fixtures[0]["cases"]
-    assert {case["input"]: case["canonical"] for case in cases} == {
-        "xhs": "Xiaohongshu",
-        "XHS": "Xiaohongshu",
-        "小红书": "Xiaohongshu",
-        "RedNote": "Xiaohongshu",
+def test_alias_inventory_snapshot_is_complete_and_honest() -> None:
+    aliases = normalized(ALIASES)
+    assert "2026-09-05" in aliases
+    assert "52" in aliases and "complete: true" in aliases
+    assert "public Action Inventory fields" in aliases
+    assert "does not expose private aliases or tags" in aliases
+    assert "temporary Agent-side" in aliases
+
+    coverage = markdown_section(ALIASES.read_text(), "Inventory coverage")
+    counts = {
+        match.group(1): int(match.group(2))
+        for match in re.finditer(r"\| `([^`]+)` \| (\d+) \|", coverage)
     }
-    for case in cases:
-        assert case["normalized_intent"] == "Xiaohongshu Note Search"
-    reference = normalized(REFERENCE).lower()
-    assert "emit one canonical form" in reference
-    assert "do not fan out multiple match calls" in reference
+    assert counts == {
+        "supplier.frank.apify": 9,
+        "supplier.frank.apollo-io": 2,
+        "supplier.frank.elevenlabs": 1,
+        "supplier.frank.exa": 2,
+        "supplier.frank.firecrawl": 3,
+        "supplier.frank.kie-ai-image": 5,
+        "supplier.frank.kie-ai-video": 3,
+        "supplier.frank.people-data-labs": 2,
+        "supplier.frank.serper": 5,
+        "supplier.frank.tikhub": 20,
+    }
+    assert sum(counts.values()) == 52
+
+
+def test_alias_table_covers_every_current_service_family() -> None:
+    rows = alias_rows("Service and supplier aliases")
+    supplier_ids = set().union(*(row["scope"] for row in rows.values()))
+    assert supplier_ids == {
+        "supplier.frank.apify",
+        "supplier.frank.apollo-io",
+        "supplier.frank.elevenlabs",
+        "supplier.frank.exa",
+        "supplier.frank.firecrawl",
+        "supplier.frank.kie-ai-image",
+        "supplier.frank.kie-ai-video",
+        "supplier.frank.people-data-labs",
+        "supplier.frank.serper",
+        "supplier.frank.tikhub",
+    }
+    assert rows["Apollo"]["aliases"] >= {"Apollo.io", "Apollo IO"}
+    assert rows["ElevenLabs"]["aliases"] >= {"Eleven Labs", "11Labs"}
+    assert rows["People Data Labs"]["aliases"] >= {"PDL", "PeopleDataLabs"}
+    assert rows["TikHub"]["aliases"] >= {"Tik Hub"}
+
+
+def test_platform_aliases_emit_catalogue_canonical_forms() -> None:
+    rows = alias_rows("Platform and product aliases")
+    assert rows["Xiaohongshu"]["aliases"] >= {
+        "xhs",
+        "小红书",
+        "RedNote",
+        "Red Note",
+        "little red book",
+    }
+    assert rows["X"]["aliases"] >= {"Twitter", "推特", "X.com"}
+    assert rows["Instagram"]["aliases"] >= {"IG", "Insta"}
+    assert rows["YouTube"]["aliases"] >= {"YT", "油管"}
+    assert rows["Google Maps"]["aliases"] >= {"Google Map", "GMaps", "谷歌地图"}
+
+
+def test_douyin_and_tiktok_are_not_collapsed() -> None:
+    rows = alias_rows("Platform and product aliases")
+    assert "抖音" in rows["Douyin"]["aliases"]
+    assert "抖音" not in rows["TikTok"]["aliases"]
+    assert "抖音国际版" in rows["TikTok"]["aliases"]
+    aliases = normalized(ALIASES)
+    assert "no dedicated Douyin Action" in aliases
+    assert "never silently rewrite `douyin` to `tiktok`" in aliases.lower()
+
+
+def test_model_and_operation_aliases_cover_current_modalities() -> None:
+    models = alias_rows("Model and vendor aliases")
+    assert models["Seedream"]["aliases"] >= {"即梦", "即梦AI"}
+    assert models["Seedream 5 Lite"]["aliases"] >= {"Seedream5 Lite"}
+    assert models["Nano Banana 2"]["aliases"] >= {"NanoBanana2", "Nano Banana"}
+    assert models["GPT Image 2"]["aliases"] >= {"GPT-Image-2", "GPT Image2"}
+    assert models["Seedance 2.0"]["aliases"] >= {"Seedance 2", "Seedance2"}
+
+    vocabulary = alias_rows("Object, modality, and operation aliases")
+    assert vocabulary["Text to Speech"]["aliases"] >= {"TTS", "text2speech", "文本转语音"}
+    assert vocabulary["Text to Image"]["aliases"] >= {"T2I", "txt2img", "文生图"}
+    assert vocabulary["Image to Image"]["aliases"] >= {"I2I", "img2img", "图生图"}
+    assert vocabulary["Text to Video"]["aliases"] >= {"T2V", "txt2vid", "文生视频"}
+    assert vocabulary["Image to Video"]["aliases"] >= {"I2V", "img2vid", "图生视频"}
+    assert vocabulary["Search"]["aliases"] >= {"find", "lookup", "搜索", "检索"}
+
+    aliases = normalized(ALIASES).lower()
+    assert "emit one canonical form" in aliases
+    assert "do not fan out multiple match calls" in aliases
+    assert "longest, most specific alias" in aliases
 
 
 def test_candidate_selection_uses_hard_compatibility_constraints() -> None:
@@ -240,7 +349,11 @@ def main() -> None:
     test_chinese_intent_produces_one_normalized_match_body()
     test_field_name_is_snake_case_not_camel_case()
     test_xhs_request_uses_catalog_facing_discovery_terms()
-    test_platform_aliases_emit_one_canonical_form()
+    test_alias_inventory_snapshot_is_complete_and_honest()
+    test_alias_table_covers_every_current_service_family()
+    test_platform_aliases_emit_catalogue_canonical_forms()
+    test_douyin_and_tiktok_are_not_collapsed()
+    test_model_and_operation_aliases_cover_current_modalities()
     test_candidate_selection_uses_hard_compatibility_constraints()
     test_list_contract_and_bounded_inventory_recovery_are_pinned()
     test_skill_routes_every_discovery_entry_and_recovery_outcome()

@@ -88,6 +88,10 @@ Before constructing any match body, read
 [references/action-discovery.md](references/action-discovery.md) — the exact
 Match and List schemas, discovery-intent construction, hard compatibility
 constraints, and bounded recovery semantics live there.
+If the request contains a supplier, platform/product, model, object, or
+operation alias, abbreviation, alternative spelling, or non-English name,
+also read [references/action-aliases.md](references/action-aliases.md) before
+constructing the body.
 
 For a clear task, call `action_match_capabilities` once with the cleaned,
 faithful task-level `intent`, compact English catalogue label in
