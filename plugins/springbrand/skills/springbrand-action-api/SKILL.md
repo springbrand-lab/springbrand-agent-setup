@@ -49,12 +49,29 @@ work before discovering anything new. Reuse beats rediscovery; never rematch
 unless the intended outcome materially changes or the user asks to start
 fresh.
 
+Use this discovery decision tree:
+
+- existing execution ID → `action_get_execution`
+- exact Action ID → `action_get_capability`
+- explicit inventory browsing → `action_list_capabilities`
+- clear task → one `action_match_capabilities` call
+  - compatible candidate → exact Get
+  - malformed non-English body → repair and rematch once
+  - tool or provider failure → report the failure
+  - well-formed `no_match` or no compatible candidate → one bounded
+    inventory-recovery traversal
+
+List recovery ends at the first compatible inventory entry or at complete
+inventory traversal. It never authorizes execution.
+
 ## The five-step trunk
 
 ### Step 1 — Clarify the intent
 
-Restate the user's goal in one sentence and keep it faithful. The match is
-only as good as the intent: do not broaden, narrow, or embellish it.
+Restate the user's task-level goal in one sentence and keep it faithful. Do
+not broaden, narrow, or embellish the requested outcome. Step 2 turns this
+goal into catalogue-facing discovery text without changing its business
+meaning.
 
 - If the user is **continuing an earlier Action execution**, do not rematch.
   Follow [Continuing an earlier execution](#continuing-an-earlier-execution).
@@ -69,37 +86,45 @@ only as good as the intent: do not broaden, narrow, or embellish it.
 
 Before constructing any match body, read
 [references/action-discovery.md](references/action-discovery.md) — the exact
-input and output schemas, the English normalized-intent construction, and the
-empty-result semantics live there.
+Match and List schemas, discovery-intent construction, hard compatibility
+constraints, and bounded recovery semantics live there.
 
-Call `action_match_capabilities`, passing
-the faithful restatement from Step 1 unchanged in `intent` — not a
-paraphrase, not an embellished version — plus the English search form in
-`normalized_intent` and the detected `locale`. Rules that are not optional:
+For a clear task, call `action_match_capabilities` once with the cleaned,
+faithful task-level `intent`, compact English catalogue label in
+`normalized_intent`, and detected `locale` defined by the reference. Rules
+that are not optional:
 
 - A non-English intent **always** carries an English `normalized_intent`
-  (one verb-first English phrase, for example `generate comic image from
-  text`; never the brand word). A match body without it is malformed for
-  matching purposes and produces false empty results.
-- The match returns **API Service candidates only**. There is nothing else to
-  filter in this domain.
-- **Preserve the returned order exactly.** Never rerank, never re-sort, never
-  apply a second threshold of your own.
+  (for example `Xiaohongshu Note Search` or `Text to Image`; never the brand
+  word). A match body without it is malformed for matching purposes and
+  produces false empty results.
+- The match returns **API Service candidates only**. Apply the hard
+  compatibility constraints within that candidate kind.
+- **Preserve the returned order exactly.** Derive the user's explicit
+  supplier, platform/product, operation, and object/modality constraints;
+  recommend the first candidate in that order satisfying all applicable
+  constraints. Never invent another score, rerank, re-sort, or apply a second
+  threshold.
 - An empty result from a body lacking an English `normalized_intent` is a
   **malformed body, not a no-match**: fix the body and rematch once. Only a
-  well-formed body's empty result may be reported as "nothing fits".
-- If the response says the result may be incomplete (`complete: false`), say
-  so honestly — "these are the best matches, there may be more" — and never
-  treat it as a definitive no-match.
+  repaired, well-formed Match may proceed to compatibility evaluation.
+- A compatible candidate prevents List recovery even when `complete: false`.
+  Continue to exact Get and disclose only that additional alternatives may
+  exist.
+- A well-formed `no_match`, or a result with no compatible candidate, enters
+  the reference's single bounded `action_list_capabilities` recovery only
+  when the request has enough hard-constraint signal for safe inspection.
 - An error is **not** a no-match. If the call fails, report the failure and
-  stop or retry; never tell the user "nothing fits" because a call errored.
-- `action_list_capabilities` is for **explicit browsing only** — when the user wants
-  to see what is available rather than get a task done. It is not a fallback
-  for a failed or empty match.
+  stop or retry; transport, OAuth, permission, schema, and provider failures
+  never enter List recovery.
+- For explicit inventory browsing, use `action_list_capabilities` directly;
+  do not Match first.
 
-Present the candidates to the user in plain language: what each service does,
-and which one you recommend. Let the user pick, or confirm your
-recommendation, before going further.
+Present compatible candidates to the user in their returned order and plain
+language: what each service does, and which one you recommend. Let the user
+pick, or confirm your recommendation, before going further. Every selected
+candidate, including one found through inventory recovery, goes through exact
+Get before execution is proposed.
 
 ### Step 3 — Read the contract
 
