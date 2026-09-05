@@ -259,6 +259,39 @@ survived the handoff, the prior workflow ended, the target domain did not
 duplicate discovery already done (duplicate-discovery rate), and exactly one
 executor ran at a time.
 
+## ACTION_DISCOVERY: catalogue terms, compatibility, and bounded recovery
+
+1. `SpringBrand 用xhs有关的api给我查查人机恋最近一个月比较火的在讨论什么，总结`
+
+Expected: one Match uses the cleaned intent `用XHS搜索最近一个月关于人机恋的热门笔记`,
+`normalized_intent: "Xiaohongshu Note Search"`, and `locale: "zh-CN"`.
+The normalized form excludes the invocation wrapper, generic API wording,
+topic, time range, summarization, and filler such as `by keyword`. `xhs`,
+`XHS`, `小红书`, and `RedNote` all emit the single canonical platform term
+`Xiaohongshu`. A higher-ranked incompatible TikTok, X, generic keyword,
+Profile, Comments, or Details candidate is skipped; the recommendation is
+`action.tikhub.xhs-search-notes`. Candidate presentation preserves returned
+Match order and invents no score.
+
+2. The well-formed Match returns `no_match`, or returns candidates but none
+   satisfies the explicit supplier/platform/operation/object constraints.
+
+Expected: one bounded Action Inventory recovery traversal starts with
+`action_list_capabilities({ limit: 100 })` and follows exact `next_cursor`
+pages until it finds the first compatible entry or `complete: true`. A found
+entry retains its exact IDs and receives exact Get before execution is
+proposed. List entries are neither merged into the Match ranking nor assigned
+scores. Complete traversal without a fit is reported honestly.
+
+3. Match returns a compatible candidate with `complete: false`; repeat with a
+   malformed non-English body and with each discovery error class.
+
+Expected: a compatible candidate prevents List recovery; only possible
+additional alternatives are disclosed. Malformed normalization repairs Match
+once; transport, OAuth, permission, schema, and provider errors never trigger
+List and are reported as failures. Existing Action/execution pointers still
+bypass discovery, and explicit browsing still goes directly to List.
+
 ## NO_FIT: genuine no-match, continue natively
 
 Use plausible domain-shaped tasks for which the current dev supply has nothing
@@ -269,12 +302,12 @@ fitting.
 3. `把我的 Slack 频道消息同步到 SpringBrand。`
 
 Expected: the domain Skill's discovery runs once and returns a genuine
-no-match. In the Platform domain only, one `springbrand.plugins.list`
-search fallback may then run before telling the user nothing fits. The
-Agent continues natively — no error report, no scanning beyond the rules,
-no second match round. Action API has no List fallback: an empty or
-incomplete result is reported as-is. Connector case 3 is a special
-no-fit: SpringBrand does not connect to Slack in version one; say so
+no-match. Platform may run its one scoped `springbrand.plugins.list` search
+fallback. Action API may run its one bounded inventory traversal when the
+request has enough hard-constraint signal; it reports no fit only after the
+inventory is complete. The Agent continues natively — no error report, no
+scanning beyond the rules, no second semantic Match. Connector case 3 is a
+special no-fit: SpringBrand does not connect to Slack in version one; say so
 plainly and never attempt an unpublished connector (an empty authorized
 inventory means "connect the service first", not "nothing fits").
 
