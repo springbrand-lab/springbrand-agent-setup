@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+PLUGIN_ENTRY = "springbrand-dev" if "-dev." in (ROOT / "VERSION").read_text() else "springbrand"
 
 SKILL_PHRASES = {
     "ask-springbrand": (
@@ -152,7 +153,7 @@ def main() -> None:
         for phrase in RETIRED_PHRASES:
             assert phrase not in context, phrase
     assert "$ask-springbrand" in codex_context
-    assert "/springbrand:ask-springbrand" in claude_context
+    assert f"/{PLUGIN_ENTRY}:ask-springbrand" in claude_context
 
     rule = (ROOT / "plugins/springbrand/rules/springbrand-preflight.mdc").read_text()
     normalized_rule = " ".join(rule.split())

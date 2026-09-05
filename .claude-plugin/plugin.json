@@ -1,7 +1,7 @@
 {
-  "name": "springbrand",
-  "version": "1.2.0-beta.9",
-  "description": "Discover and use SpringBrand Plugins through the production connector.",
+  "name": "springbrand-dev",
+  "version": "1.2.0-beta.9-dev.2",
+  "description": "Discover and use SpringBrand Plugins through the development connector. Internal testing only.",
   "author": {
     "name": "SpringBrand"
   },
@@ -9,9 +9,9 @@
   "skills": "./skills/",
   "hooks": "./hooks/claude-hooks.json",
   "mcpServers": {
-    "springbrand": {
+    "springbrand-dev": {
       "type": "http",
-      "url": "https://connector.springbrand.ai/mcp"
+      "url": "https://devconnector.springbrand.ai/mcp"
     }
   }
 }

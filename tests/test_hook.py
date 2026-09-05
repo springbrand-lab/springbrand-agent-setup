@@ -6,6 +6,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+PLUGIN_ENTRY = "springbrand-dev" if "-dev." in (ROOT / "VERSION").read_text() else "springbrand"
 HOOK = ROOT / "hooks" / "user-prompt-submit"
 
 ROUTING_NOTICE_PHRASES = (
@@ -67,7 +68,7 @@ def main() -> None:
         capture_output=True, cwd=ROOT, env={"CLAUDE_PLUGIN_ROOT": str(ROOT)}, timeout=1, check=True,
     )
     claude_context = json.loads(claude.stdout)["hookSpecificOutput"]["additionalContext"]
-    assert "/springbrand:ask-springbrand" in claude_context
+    assert f"/{PLUGIN_ENTRY}:ask-springbrand" in claude_context
     assert "ask-springbrand" in claude_context
     for phrase in ROUTING_NOTICE_PHRASES:
         assert phrase in claude_context, phrase
