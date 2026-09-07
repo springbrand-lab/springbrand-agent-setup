@@ -137,9 +137,9 @@ selected Action. Read three things before proposing execution:
 
 - **`risk`** — how consequential the Action is. A `high` risk Action must be
   disclosed to the user before any confirmation is requested (see Step 4).
-- **`input_schema`** — what the Action needs. Build the input strictly to
+- **`inputSchema`** — what the Action needs. Build the input strictly to
   this schema; every required field present, no invented fields.
-- **`output_schema`** — what comes back, so you can deliver the result in
+- **`outputSchema`** — what comes back, so you can deliver the result in
   the user's terms later.
 
 The revision information in the response is informational only. Never invent
