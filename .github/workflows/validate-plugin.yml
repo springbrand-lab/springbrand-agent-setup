@@ -26,6 +26,7 @@ jobs:
           python3 tests/test_routing_policy.py
           python3 tests/test_upload_recipe.py
           python3 tests/test_install_guidance.py
+          python3 tests/test_release_package.py
 
   native-cli-smoke:
     runs-on: macos-14
