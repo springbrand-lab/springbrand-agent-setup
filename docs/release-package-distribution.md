@@ -107,3 +107,34 @@ simulate upgrades. A same-version refresh is not upgrade evidence.
 - Only after acceptance, change INSTALL.workbuddy.md and the unified entry;
   remove GitHub/raw preflight from the ordinary user path, keep developer
   instructions separate, and automate subsequent accepted production releases.
+
+
+## GitHub-source migration validation
+
+The isolated native probe has passed with both enabled and disabled old
+user-scope GitHub installations. See the dated Native Evidence document for
+exact results and limitations. Reproduce on macOS with WorkBuddy installed:
+
+```sh
+python3 scripts/build_release_package.py --tag v1.2.0-beta.10 --output /tmp/springbrand-migration-release
+python3 scripts/smoke_workbuddy_migration.py \
+  --config /tmp/springbrand-migration-new \
+  --manifest /tmp/springbrand-migration-release/manifest.json \
+  --url https://plugin.springbrand.ai/releases/v1.2.0-beta.10/workbuddy/springbrand-workbuddy.zip
+```
+
+Use another fresh config directory and add `--disabled` for the disabled case.
+The probe refuses existing directories and paths inside the real user config.
+It needs GitHub only to create the old installation; the migration itself blocks
+GitHub. It installs synthetic unrelated-state/credential fixtures for preservation
+checks, never copies real OAuth data, and is **not a user migration installer**.
+
+The verified native sequence is disable (when enabled), uninstall, remove old
+marketplace, add R2 ZIP, install, then restore prior enabled state. Real migration
+requires explicit consent, recoverable pre-migration state and destination
+verification before removal. It is not atomic: on failure, stop and diagnose,
+never silently rewrite OAuth or fall back to GitHub. Same-name custom sources,
+non-user scopes and legacy aggregate-MCP releases need separate preflight.
+
+Synthetic credential bytes survived both tests; live post-migration OAuth refresh
+is still unverified. The production switch remains a separate authorized step.

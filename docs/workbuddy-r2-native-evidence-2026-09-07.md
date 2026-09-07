@@ -1,6 +1,6 @@
 # WorkBuddy R2 Native Evidence — September 7, 2026
 
-Status: **CLI distribution lifecycle passed; authenticated business call passed per user-supplied WorkBuddy evidence; Hook acceptance waived by user; migration acceptance pending.**
+Status: **CLI distribution lifecycle passed; authenticated business call passed per user-supplied WorkBuddy evidence; Hook acceptance waived by user; isolated GitHub-source migration passed; live migrated OAuth remains unverified.**
 This supplements, and does not replace, the historical runtime evidence.
 
 ## Environment and source
@@ -146,3 +146,57 @@ pending-Hook gate statements in this chronological record are superseded by this
 amendment. Existing Hook files and package integrity tests are retained; no user
 plugin configuration was changed. Legacy migration and the other release gates
 are not waived. No production promotion was performed by this amendment.
+
+## GitHub-origin native migration — September 7, 2026
+
+**Passed for enabled and disabled user-scope installations on this macOS host.**
+Reproducible probe: `scripts/smoke_workbuddy_migration.py`; safety regression:
+`tests/test_workbuddy_migration.py`.
+
+Both independent runs:
+
+1. Used the unmodified native CLI to add the real GitHub repository source and
+   install `springbrand@springbrand`. Verified source type `github`, repository
+   `springbrand-lab/springbrand-agent-setup`, installed beta.10 and Git commit
+   `578b19615b972415e6b5997d9981404ff4a7273f`. The second run disabled it.
+2. Added explicitly synthetic preservation fixtures for an unrelated plugin
+   registry/cache/marketplace, settings, empty global MCP, approval file and
+   credentials file. No real user credential or config was copied.
+3. Blocked GitHub/raw/API/codeload and direct Internet bypass using the existing
+   OS sandbox and allowlisted test proxy. Negative controls failed as required;
+   the R2 destination was reachable. Native vendor bootstrap remained allowed.
+4. Through native CLI only: disable if needed, uninstall SpringBrand, remove its
+   GitHub marketplace, add immutable R2 ZIP, install, restore prior enabled state.
+5. Verified exactly one SpringBrand plugin at beta.10, the marketplace type `zip`
+   with the exact immutable R2 URL, all installed package hashes, and original
+   enabled/disabled state. Unrelated fixture registry/settings/market entries,
+   control plugin files, approval and credential file fingerprints were unchanged.
+
+Evidence directories (local, not committed):
+
+- `/private/tmp/springbrand-r2-migration-enabled-final/`
+- `/private/tmp/springbrand-r2-migration-disabled-final/`
+
+Each contains `migration-before.json`, `migration-after.json`, and
+`migration-evidence.json` (`passed: true`, commands, exit codes, proxy events).
+The first exploratory native GitHub install remains separately under
+`/private/tmp/springbrand-r2-migration-20260907/`; it is not counted as a completed
+migration run. No live user WorkBuddy config was modified.
+
+### Scope and limitations
+
+- This is same-version source migration, not an additional upgrade claim. The
+  prior beta.9 -> beta.10 native upgrade evidence remains separate.
+- Credential **file preservation** uses synthetic sentinels, not a real OAuth
+  session. Post-migration OAuth usability/refresh in a real user installation is
+  not established; the user's separately accepted R2 installation and real
+  authenticated call do not establish that property for a migrated installation.
+- Migration is a non-atomic native uninstall/reinstall sequence. Obtain explicit
+  user consent and preserve recoverable pre-migration state before doing it on a
+  real installation. Stop on failure; do not silently fall back to GitHub or
+  modify credentials. Do not begin a new task until prior enabled state is restored.
+- Only the documented user-scope GitHub source on this WorkBuddy/macOS version
+  was tested. Other scopes, custom marketplace names, older aggregate-MCP releases,
+  Windows and other Hosts are not covered by these two runs.
+- Hook gate is waived by user. Remaining routing acceptance and real migrated
+  OAuth acceptance are not marked passed. PR submission does not enable production.

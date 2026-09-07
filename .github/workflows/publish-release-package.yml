@@ -5,6 +5,9 @@ on:
     paths:
       - 'scripts/*release_package.py'
       - 'scripts/smoke_workbuddy_r2.py'
+      - 'scripts/smoke_workbuddy_migration.py'
+      - 'tests/fixtures/r2_proxy.cjs'
+      - 'tests/test_workbuddy_migration.py'
       - 'tests/test_release_package.py'
       - '.github/workflows/publish-release-package.yml'
   workflow_dispatch:
@@ -35,6 +38,7 @@ jobs:
           python3 tests/validate_plugin.py
           python3 tests/test_release_identity.py
           python3 tests/test_release_package.py
+          python3 tests/test_workbuddy_migration.py
 
   publish:
     needs: validate
