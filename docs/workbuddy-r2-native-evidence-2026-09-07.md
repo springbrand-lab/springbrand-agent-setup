@@ -1,6 +1,6 @@
 # WorkBuddy R2 Native Evidence — September 7, 2026
 
-Status: **CLI distribution lifecycle passed; desktop runtime/OAuth pending.**
+Status: **CLI distribution lifecycle passed; authenticated business call passed per user-supplied WorkBuddy evidence; Hook execution and migration acceptance pending.**
 This supplements, and does not replace, the historical runtime evidence.
 
 ## Environment and source
@@ -110,3 +110,28 @@ previous anonymous discovery successes do not establish authenticated access.
 Hook dispatch/execution also remains unverified. No credentials were read and
 no user configuration was changed during this follow-up. Production promotion
 remains gated on the remaining acceptance checks above.
+
+
+## Authenticated business call — user-supplied acceptance evidence
+
+After restarting WorkBuddy and using a new session, the user supplied a successful
+read-only call report on September 7, 2026:
+
+- Tool: `mcp__springbrand__platform_execute_capability`.
+- Name: `platform:springbrand@0:springbrand.plugins.list`.
+- Body: `{"view":"marketplace","page":1,"pageSize":30}`.
+- Execution ID: `de9b1ddf-ac67-4263-b619-d3478105dc8c`.
+- Status: `succeeded`; total 26; page/page_size 1/30; risk `none`.
+- User reports no reinstall, reauthorization, config edits, or manual OAuth.
+
+This supersedes the pending authenticated-call finding above, based on the
+user-supplied runtime evidence; it is not an independently retrieved server trace.
+The same report records an initial request with an extra `idempotency_key`
+rejected as `invalid_arguments`, with the explicit message
+`idempotency_key is supported only for Creation upload`. Do not attribute that
+rejection to session expiration. The earlier failures' complete causes remain
+unconfirmed; restart and corrected arguments are not isolated experiments.
+
+Hook actual dispatch/execution, routing acceptance, legacy GitHub-source migration,
+and production promotion remain pending. No production alias or public installation
+instructions were changed by recording this result.
