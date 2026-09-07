@@ -71,7 +71,11 @@ python3 scripts/smoke_workbuddy_r2.py \
 
 The config directory must be new or owned by this probe. The script never uses
 `~/.workbuddy-ai`. `sandbox-exec` denies direct Internet networking; a local
-CONNECT proxy only allows `plugin.springbrand.ai:443`. Negative controls verify
+CONNECT proxy allows only `plugin.springbrand.ai:443` and the native WorkBuddy
+bootstrap service `www.workbuddy.ai:443`. The test-only Node HTTPS transport
+bridge in `tests/fixtures/r2_proxy.cjs` routes the native ZIP downloader through
+that proxy because the downloader ignores HTTPS_PROXY. TLS remains end-to-end
+with certificate verification enabled. This fixture is not part of user packages. Negative controls verify
 GitHub/raw/API/codeload and direct public-IP connections fail. The native CLI
 then adds/updates the ZIP Marketplace, installs/enables the Plugin, and checks
 its registry entry and every installed asset hash, including Hook executable
@@ -82,7 +86,9 @@ No prompts, credentials, OAuth state, or model requests are part of this probe.
 To test actual upgrade, use a dedicated **non-production** validation ZIP URL:
 serve the older immutable package, run the probe, replace that validation
 object with the newer package, and rerun with the newer expected manifest in
-the same isolated config. Do not mutate immutable releases or production to
+the same isolated config. After marketplace refresh, query the installed version
+first: CLI 2.132.0 may already have upgraded it, and an unnecessary second
+`plugin update` can fail with "cache in use". Do not mutate immutable releases or production to
 simulate upgrades. A same-version refresh is not upgrade evidence.
 
 ## Remaining desktop acceptance / migration

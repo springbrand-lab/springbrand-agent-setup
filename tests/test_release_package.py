@@ -12,16 +12,46 @@ import zipfile
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import build_release_package as builder
 import publish_release_package as publisher
+import smoke_workbuddy_r2 as smoke
+from types import SimpleNamespace
 
 
 class ReleaseTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tag = 'v' + (builder.ROOT / 'VERSION').read_text().strip()
+        if '-dev.' in cls.tag:
+            raise unittest.SkipTest('Production fixture unavailable in a dev-rewritten checkout')
         cls.files = {p.relative_to(builder.ROOT).as_posix(): (p.read_bytes(), p.stat().st_mode)
                      for base in ['skills', 'hooks', 'plugins/springbrand-workbuddy', '.codebuddy-plugin']
                      for p in (builder.ROOT / base).rglob('*') if p.is_file()}
         cls.files['VERSION'] = ((builder.ROOT / 'VERSION').read_bytes(), 0o644)
+
+
+    def test_native_auto_upgrade_skips_redundant_update(self):
+        calls = []
+        def run(cmd):
+            calls.append(cmd)
+            if cmd[1:] == ['plugin', 'marketplace', 'list']:
+                return SimpleNamespace(stdout='[{"name":"springbrand"}]')
+            if cmd[1:] == ['plugin', 'list', '--json']:
+                return SimpleNamespace(stdout='[{"id":"springbrand@springbrand","version":"1.2.0-beta.10"}]')
+            return SimpleNamespace(stdout='')
+        smoke.install_or_refresh(run, 'cli', 'https://plugin.springbrand.ai/test.zip', '1.2.0-beta.10')
+        self.assertIn(['cli','plugin','marketplace','update','springbrand'], calls)
+        self.assertNotIn(['cli','plugin','update','springbrand@springbrand','--scope','user'], calls)
+
+    def test_native_stale_plugin_gets_explicit_update(self):
+        calls = []
+        def run(cmd):
+            calls.append(cmd)
+            if cmd[1:] == ['plugin', 'marketplace', 'list']:
+                return SimpleNamespace(stdout='[{"name":"springbrand"}]')
+            if cmd[1:] == ['plugin', 'list', '--json']:
+                return SimpleNamespace(stdout='[{"id":"springbrand@springbrand","version":"1.2.0-beta.9"}]')
+            return SimpleNamespace(stdout='')
+        smoke.install_or_refresh(run, 'cli', 'https://plugin.springbrand.ai/test.zip', '1.2.0-beta.10')
+        self.assertIn(['cli','plugin','update','springbrand@springbrand','--scope','user'], calls)
 
     def test_production_tag_only(self):
         for tag in ('main', '../x', 'v1.2.0-beta.10-dev.1', 'v1.2.0-dev.1', 'v1.2.0;pwd'):

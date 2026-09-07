@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""macOS native ZIP lifecycle probe: only the R2 distribution host is reachable.
+"""macOS native ZIP lifecycle probe: GitHub is unreachable; R2 and native vendor services are allowlisted.
 
 Runs in an explicitly isolated config, not the user's WorkBuddy config. The
-sandbox blocks direct networking; an allowlisted CONNECT proxy permits only R2.
+sandbox blocks direct networking; an allowlisted CONNECT proxy permits R2 and the native vendor bootstrap host.
 No OAuth or model request is performed. A zero exit requires registry + assets,
 not merely the CLI's success text.
 """
@@ -19,12 +19,13 @@ import threading
 from urllib.parse import urlsplit
 
 HOST = 'plugin.springbrand.ai'
+ALLOWED_HOSTS = {HOST, 'www.workbuddy.ai'}
 CLI_PATHS = [Path('/Applications/WorkBuddy AI.app/Contents') / part / 'app.asar.unpacked/cli/bin/codebuddy'
              for part in ('Resources', 'Plugins')]
 PROFILE = '''(version 1)
 (allow default)
-(deny network*)
-(allow network-outbound (remote ip "127.0.0.1:*"))
+(deny network-outbound)
+(allow network-outbound (remote ip "localhost:*"))
 (allow network* (local unix-socket) (remote unix-socket))
 '''
 
@@ -33,12 +34,13 @@ class Proxy(BaseHTTPRequestHandler):
     events = []
     def log_message(self, *args): pass
     def do_CONNECT(self):
-        allowed = self.path.lower() == f'{HOST}:443'
+        host, _, port = self.path.lower().rpartition(':')
+        allowed = host in ALLOWED_HOSTS and port == '443'
         self.events.append({'target': self.path, 'allowed': allowed})
         if not allowed:
-            self.send_error(403, 'Only the R2 distribution host is allowed'); return
+            self.send_error(403, 'Host is not on the test allowlist'); return
         try:
-            with socket.create_connection((HOST, 443), timeout=20) as upstream:
+            with socket.create_connection((host, 443), timeout=20) as upstream:
                 self.send_response(200, 'Connection established'); self.end_headers()
                 sockets = [self.connection, upstream]
                 while True:
@@ -50,6 +52,25 @@ class Proxy(BaseHTTPRequestHandler):
                         (upstream if src is self.connection else self.connection).sendall(data)
         except (OSError, TimeoutError):
             return
+
+
+def install_or_refresh(run, cli, url, expected_version):
+    existing = json.loads(run([cli, 'plugin', 'marketplace', 'list']).stdout)
+    if any(m['name'] == 'springbrand' for m in existing):
+        run([cli, 'plugin', 'marketplace', 'update', 'springbrand'])
+        # Marketplace refresh may already upgrade enabled plugins. A second
+        # same-version update can fail with 'cache in use' in CLI 2.132.0.
+        refreshed = json.loads(run([cli, 'plugin', 'list', '--json']).stdout)
+        current = [p for p in refreshed if p['id'] == 'springbrand@springbrand']
+        if not current:
+            run([cli, 'plugin', 'install', 'springbrand@springbrand', '--scope', 'user'])
+        elif len(current) != 1:
+            raise AssertionError(f'Duplicate Plugin entries: {current}')
+        elif current[0]['version'] != expected_version:
+            run([cli, 'plugin', 'update', 'springbrand@springbrand', '--scope', 'user'])
+    else:
+        run([cli, 'plugin', 'marketplace', 'add', url])
+        run([cli, 'plugin', 'install', 'springbrand@springbrand', '--scope', 'user'])
 
 
 def main():
@@ -77,6 +98,8 @@ def main():
     for name in ('NO_PROXY', 'no_proxy'): env[name] = ''
     env['CODEBUDDY_CONFIG_DIR'] = str(config)
     env['DISABLE_TELEMETRY'] = '1'
+    bridge = Path(__file__).resolve().parents[1] / 'tests/fixtures/r2_proxy.cjs'
+    env['NODE_OPTIONS'] = f'--require={bridge}'
     sandbox = ['/usr/bin/sandbox-exec', '-p', PROFILE]
     transcript = []
 
@@ -86,7 +109,7 @@ def main():
         transcript.append({'command': list(map(str, cmd)), 'exit': result.returncode,
                            'stdout': result.stdout, 'stderr': result.stderr})
         print(result.stdout.strip())
-        if success and result.returncode:
+        if success and (result.returncode or '✘' in result.stdout):
             raise RuntimeError(f'Command failed: {cmd}; {result.stderr[-1500:]}')
         return result
 
@@ -98,13 +121,7 @@ def main():
         result = run(['/usr/bin/curl', '--silent', '--max-time', '3', '--noproxy', '*', 'https://1.1.1.1'], success=False)
         if result.returncode == 0: raise AssertionError('Direct network bypass succeeded')
         run(['/usr/bin/curl', '--fail', '--silent', '--show-error', '--head', '--max-time', '30', '--proxy', proxy, args.url])
-        existing = json.loads(run([cli, 'plugin', 'marketplace', 'list']).stdout)
-        if any(m['name'] == 'springbrand' for m in existing):
-            run([cli, 'plugin', 'marketplace', 'update', 'springbrand'])
-            run([cli, 'plugin', 'update', 'springbrand@springbrand', '--scope', 'user'])
-        else:
-            run([cli, 'plugin', 'marketplace', 'add', args.url])
-            run([cli, 'plugin', 'install', 'springbrand@springbrand', '--scope', 'user'])
+        install_or_refresh(run, cli, args.url, manifest['version'])
         run([cli, 'plugin', 'enable', 'springbrand@springbrand', '--scope', 'user'])
         listed = json.loads(run([cli, 'plugin', 'list', '--json']).stdout)
         plugins = [p for p in listed if p['id'] == 'springbrand@springbrand']
@@ -124,6 +141,8 @@ def main():
             listed = json.loads(run([cli, 'plugin', 'list', '--json']).stdout)
             assert not any(p['id']=='springbrand@springbrand' for p in listed), listed
             run([cli, 'plugin', 'marketplace', 'remove', 'springbrand'])
+            markets = json.loads(run([cli, 'plugin', 'marketplace', 'list']).stdout)
+            assert not any(m['name'] == 'springbrand' for m in markets), markets
         print('PASS: GitHub blocked; native R2 lifecycle and installed asset hashes verified.')
     finally:
         server.shutdown()
