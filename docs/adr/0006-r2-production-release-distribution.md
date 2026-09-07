@@ -31,7 +31,7 @@ verified adapters before their installation instructions change.
 ## Rollout boundary
 
 Do not change public INSTALL documents or enable the production channel until
-WorkBuddy desktop OAuth, Skill/Hook runtime behavior, update, uninstall, and
+WorkBuddy desktop OAuth, Skill runtime behavior, update, uninstall, and
 legacy source migration have Native Evidence. Initial delivery permits immutable
 release publication and isolated CLI tests only. Production promotion requires
 an explicit Actions dispatch on main and the repository variable
@@ -41,3 +41,12 @@ Existing GitHub installations are not silently rewritten. Ask before replacing
 an existing SpringBrand Marketplace or removing a conflicting legacy entry.
 Unrelated configuration and OAuth state must remain intact. No extra global MCP
 is introduced. Dev builds never change main's production identity.
+
+
+## Acceptance amendment — September 7, 2026
+
+The user explicitly waived Hook installation/runtime success as a release gate.
+Skills and authenticated MCP remain the required runtime path. This waiver is
+not evidence that Hook execution passed, and does not authorize deleting Hooks
+or weakening package integrity checks. Legacy migration and other rollout gates
+remain unchanged.

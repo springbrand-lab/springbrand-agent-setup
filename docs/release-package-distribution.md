@@ -94,7 +94,10 @@ simulate upgrades. A same-version refresh is not upgrade evidence.
 ## Remaining desktop acceptance / migration
 
 - User's real WorkBuddy loads exactly one enabled SpringBrand Plugin.
-- Four Skills and the native Hook load after restart/new task.
+- Four Skills load after restart/new task.
+- Per user decision on 2026-09-07, Hook installation/runtime success is not a
+  release acceptance gate. Preserve existing packaged Hooks and integrity checks;
+  unverified runtime behavior must not be reported as passed.
 - User completes native browser OAuth; actual domain-prefixed MCP call succeeds.
 - Covered task invokes appropriate discovery; ordinary local task does not.
 - Existing GitHub-origin installation migrates through the native lifecycle,

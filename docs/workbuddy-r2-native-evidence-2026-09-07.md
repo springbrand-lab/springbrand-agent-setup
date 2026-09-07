@@ -1,6 +1,6 @@
 # WorkBuddy R2 Native Evidence — September 7, 2026
 
-Status: **CLI distribution lifecycle passed; authenticated business call passed per user-supplied WorkBuddy evidence; Hook execution and migration acceptance pending.**
+Status: **CLI distribution lifecycle passed; authenticated business call passed per user-supplied WorkBuddy evidence; Hook acceptance waived by user; migration acceptance pending.**
 This supplements, and does not replace, the historical runtime evidence.
 
 ## Environment and source
@@ -135,3 +135,14 @@ unconfirmed; restart and corrected arguments are not isolated experiments.
 Hook actual dispatch/execution, routing acceptance, legacy GitHub-source migration,
 and production promotion remain pending. No production alias or public installation
 instructions were changed by recording this result.
+
+
+## User acceptance scope amendment — September 7, 2026
+
+User explicitly directed that Hook installation/execution is non-blocking because
+Skills are sufficient for the intended workflow. Hook runtime remains unverified,
+not failed or passed, and is removed from the production acceptance gate. Earlier
+pending-Hook gate statements in this chronological record are superseded by this
+amendment. Existing Hook files and package integrity tests are retained; no user
+plugin configuration was changed. Legacy migration and the other release gates
+are not waived. No production promotion was performed by this amendment.
