@@ -200,3 +200,34 @@ migration run. No live user WorkBuddy config was modified.
   Windows and other Hosts are not covered by these two runs.
 - Hook gate is waived by user. Remaining routing acceptance and real migrated
   OAuth acceptance are not marked passed. PR submission does not enable production.
+
+
+## beta.11 release verification and guide selection (2026-09-07)
+
+- Production tag: `v1.2.0-beta.11`, source commit
+  `86fa8a013e8d094b7cdf18e773c8b43d22af67ac` (PR #90).
+- R2 publish workflow run: `34132782157`, successful, `promote=false`.
+- Immutable package:
+  `https://plugin.springbrand.ai/releases/v1.2.0-beta.11/workbuddy/springbrand-workbuddy.zip`.
+- Package size: 101071 bytes; SHA-256:
+  `a0ce515ddba6f84480cd52f27d7b059b0d512c90c9070dd801de430eec9fe9a9`.
+- Public manifest and ZIP matched the locally built tagged artifacts byte for
+  byte. The beta.10 objects were not overwritten.
+- The isolated native WorkBuddy/macOS lifecycle passed: fresh install, enable,
+  installed version and asset-hash verification, disable, uninstall, and
+  marketplace removal. Final plugin and marketplace lists were empty.
+- The existing test-only sandbox/proxy harness blocked GitHub, raw, API,
+  codeload and direct outbound bypass; only R2 and required WorkBuddy vendor
+  bootstrap were allowlisted. This harness is not part of the shipped plugin.
+- Local evidence: `/private/tmp/springbrand-beta11-native-release/r2-smoke-evidence.json`.
+
+Following this successful check, the universal and WorkBuddy installation guides
+select the pinned beta.11 R2 package for new WorkBuddy installs. Other Hosts
+retain their existing GitHub routing. No moving production channel or automatic
+Release-to-R2 trigger is enabled by this guide change.
+
+The real user's WorkBuddy installation and OAuth credentials were not modified.
+This run does not establish beta.11 desktop OAuth, authenticated business calls,
+or beta.10-to-beta.11 upgrade behavior; earlier beta.10 user acceptance remains
+separate. Existing pinned installations do not automatically switch versions.
+Hook runtime remains non-blocking by user decision.
