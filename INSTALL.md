@@ -1,8 +1,11 @@
 # SpringBrand production installation protocol
 
-Install or update SpringBrand Production from the repository default branch
-`main`. `main` is the sole rolling production installation channel. Do not use
-the legacy `stable` branch, a dev tag, or the `springbrand-dev` Plugin.
+Identify the Host before any network preflight. WorkBuddy installs the published
+production release from R2. Codex, Claude Code, Cursor and the other-Agent
+fallback retain their existing GitHub `main` paths until separately adapted.
+Do not use the legacy `stable` branch, a dev tag, or the `springbrand-dev` Plugin.
+The public entry is https://plugin.springbrand.ai/INSTALL.md; a document hosted
+on R2 does not imply that every Host's package is already distributed by R2.
 
 SpringBrand ships four Canonical Skills and one MCP entry. The entry's tools carry frozen domain prefixes, so each Domain Skill is served by its own tool namespace:
 
@@ -19,9 +22,28 @@ The MCP entry is:
 | --- | --- |
 | `springbrand` | `https://connector.springbrand.ai/mcp` |
 
+## Identify the Agent
+
+Select exactly one Host path before testing connectivity:
+
+| Host | Current installation source | Guide |
+| --- | --- | --- |
+| WorkBuddy on macOS | Published R2 release ZIP; no GitHub preflight | [WorkBuddy](./INSTALL.workbuddy.md) |
+| Codex CLI / Desktop | GitHub `main` | Codex section below |
+| Claude Code / Desktop Code | GitHub `main` | [Claude](./INSTALL.claude.md) |
+| Cursor | GitHub `main` | [Cursor](./INSTALL.cursor.md) |
+| Other Agents | GitHub Skill files plus native MCP | Fallback section below |
+
+For WorkBuddy, go directly to its guide. Do not run another Host's commands,
+fetch raw Skill files, or silently fall back to GitHub when R2 is unavailable.
+
 ## Preflight
 
-Before installing, verify the Skill URLs and MCP URL are reachable.
+**WorkBuddy: skip the GitHub Skill URL checks** and use only the R2/MCP
+preflight in its guide. The checks below apply only to the retained GitHub
+installation paths for the other Hosts.
+
+For those Hosts, verify the Skill URLs and MCP URL are reachable.
 
 ```text
 Skill URLs:
@@ -40,12 +62,6 @@ Check each with a five-second timeout. If a request fails:
 - stop and report after the retry or on a non-retryable error.
 
 Do not start a long clone or unbounded diagnosis.
-
-## Identify the Agent
-
-Identify the current Agent and use exactly one path below. Prefer the native
-Plugin/Marketplace lifecycle when supported; use the fallback only for other
-Agents.
 
 ## Codex CLI and Desktop
 
@@ -102,19 +118,21 @@ springbrand-lab/springbrand-agent-setup
 
 ## WorkBuddy Desktop
 
-Follow [`INSTALL.workbuddy.md`](./INSTALL.workbuddy.md). A WorkBuddy Agent must
-use its bundled `codebuddy`/`cbc` CLI to add or update the repository Marketplace
-and install or update `springbrand@springbrand`. Do not pause for manual UI
-installation when that CLI is available.
-
-The manual **Add Marketplace** fallback uses:
+Follow [INSTALL.workbuddy.md](./INSTALL.workbuddy.md), using the bundled native
+CLI and this published, immutable R2 production source:
 
 ```text
-springbrand-lab/springbrand-agent-setup
+https://plugin.springbrand.ai/releases/v1.2.0-beta.10/workbuddy/springbrand-workbuddy.zip
 ```
 
-WorkBuddy reads the production Plugin from repository `main`. OAuth remains a
-native browser step when WorkBuddy prompts the user.
+Expected version: `1.2.0-beta.10`. The package already contains all four Skills
+and the production MCP declaration. Do not fetch individual Skills or run a
+GitHub connectivity check. Prefer the native CLI; the guide documents the
+manual fallback's limitations. OAuth remains a native browser step.
+
+This source is pinned, not a moving production channel. It does not automatically
+follow new releases or repository commits. Use only the source published in the
+current guide; never guess a future version or channel URL.
 
 ## Other Agents: Skill-plus-MCP fallback
 
@@ -177,8 +195,10 @@ production release switches the `/mcp` slot to the unified endpoint
 Upgrading to the current single-entry Plugin with domain-prefixed tools is
 voluntary — there is no automatic sunset.
 
-To upgrade, install or update the production Plugin from `main` as described
-above. The new Plugin bundles the same single `springbrand` entry, now serving
+To upgrade, follow the selected Host guide above: WorkBuddy uses its published
+R2 release; the other Hosts retain GitHub `main`. Obtain approval before any
+source replacement or conflicting legacy entry removal. The new Plugin bundles
+the same single `springbrand` entry, now serving
 the unified endpoint's `platform_`- / `action_`- / `connector_`-prefixed
 tools, plus the four Skills. The entry name and URL are unchanged, so the
 upgrade replaces the toolset in place; no second SpringBrand entry is created.

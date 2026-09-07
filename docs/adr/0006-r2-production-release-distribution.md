@@ -50,3 +50,20 @@ Skills and authenticated MCP remain the required runtime path. This waiver is
 not evidence that Hook execution passed, and does not authorize deleting Hooks
 or weakening package integrity checks. Legacy migration and other rollout gates
 remain unchanged.
+
+
+## Initial public-guide rollout amendment — September 7, 2026
+
+The user confirmed there are no legacy users and authorized the public INSTALL
+routing change before the next release. WorkBuddy's new-user guide now selects
+the already-published and accepted immutable beta.10 R2 package; other Hosts
+retain their GitHub main paths. This supersedes the blanket prohibition on
+changing public INSTALL documents above for this bounded new-user rollout.
+Legacy OAuth migration is not a prerequisite for this audience and is not
+claimed verified. Existing-source conflicts still require explicit consent.
+
+This documentation change does not enable the moving production channel,
+promote any package, or automate Release publication. The current pinned URL
+must not be described as following main or future releases. A future production
+channel activation remains separate. Hook runtime remains non-blocking by the
+prior user decision; no additional routing runtime evidence is claimed here.

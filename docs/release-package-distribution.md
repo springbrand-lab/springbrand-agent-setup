@@ -138,3 +138,20 @@ non-user scopes and legacy aggregate-MCP releases need separate preflight.
 
 Synthetic credential bytes survived both tests; live post-migration OAuth refresh
 is still unverified. The production switch remains a separate authorized step.
+
+
+## Public installation routing — September 7, 2026
+
+By explicit user direction, INSTALL and README now route new WorkBuddy users to
+the already-published immutable `v1.2.0-beta.10` R2 ZIP, while Codex, Claude Code,
+Cursor and the other-Agent fallback retain GitHub installation. The user reports
+no legacy users; old-source migration is not a new-user rollout blocker. Conflict
+preflight remains mandatory; no existing installation is silently migrated.
+
+This supersedes earlier statements that the public INSTALL switch is wholly
+pending. The production-channel alias and automatic release publication are
+still pending. Before selecting a new release in the guides, publish and verify
+its immutable R2 package first, then update both INSTALL documents together.
+Never point the guide at an unpublished version or pretend a pinned URL updates
+itself. README uses the R2-hosted universal guide so WorkBuddy need not open
+GitHub just to read the installation instructions.

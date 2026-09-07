@@ -1,6 +1,6 @@
 # SpringBrand Agent Setup
 
-Install SpringBrand Production from the repository `main` branch through each supported Host's native Plugin lifecycle, or use the documented Skill-plus-MCP fallback on other Agents.
+Install SpringBrand Production through the matching native Host guide: WorkBuddy uses a published R2 release; Codex, Claude Code and Cursor retain GitHub `main`. Other Agents use the documented Skill-plus-MCP fallback.
 
 SpringBrand ships four Canonical Skills and one MCP entry per environment. The entry's tools carry frozen domain prefixes, so each Domain Skill is served by its own tool namespace:
 
@@ -17,9 +17,9 @@ SpringBrand has two environments. Pick the one you need and paste the matching p
 
 ### Production
 
-> Install or update SpringBrand Production by following https://github.com/springbrand-lab/springbrand-agent-setup/blob/main/INSTALL.md. Identify this Agent, use the matching Host guide, detect whether SpringBrand is already installed, refresh the existing Marketplace/Plugin in place when updating, prefer native OAuth, preserve existing configuration, and pause only for UI or OAuth steps I must complete.
+> Install or update SpringBrand Production by following https://plugin.springbrand.ai/INSTALL.md. Identify this Agent, use the matching Host guide, detect whether SpringBrand is already installed, refresh the existing Marketplace/Plugin in place when updating, prefer native OAuth, preserve existing configuration, and pause only for UI or OAuth steps I must complete.
 
-[`INSTALL.md`](./INSTALL.md) is the universal production protocol. `main` is the sole rolling production installation channel; production users should not use the legacy `stable` branch or a version tag. The production MCP entry requires Host-native OAuth — one consent per Surface (a single authorization covers all three domains).
+[`INSTALL.md`](./INSTALL.md) is the universal production protocol. It routes WorkBuddy to the published R2 release and other Hosts to their existing GitHub paths. Do not use the legacy `stable` branch or guess an unpublished version. The production MCP entry requires Host-native OAuth — one consent per Surface (a single authorization covers all three domains).
 
 ### Development
 
@@ -60,12 +60,14 @@ Both MCP environments require native OAuth before normal use. No Plugin contains
 
 | Environment | Installation channel |
 | --- | --- |
-| Production | `https://github.com/springbrand-lab/springbrand-agent-setup` (`main`) |
+| Production — WorkBuddy | Published R2 release selected in `INSTALL.workbuddy.md` (currently pinned) |
+| Production — other Hosts | `https://github.com/springbrand-lab/springbrand-agent-setup` (`main`) |
 | Development | `springbrand-lab/springbrand-agent-setup@v1.2.0-beta.9-dev.1` |
 
-Production always follows `main`. Immutable production tags remain release and
-evidence records, not the default installation channel. Development Plugins
-are published only as immutable dev tags and are never merged into `main`.
+WorkBuddy installs an immutable production-tag package from R2, not a live mirror
+of `main`; the current URL does not automatically advance. Other Hosts still
+follow `main`. Release-to-R2 publication is currently manually triggered.
+Development Plugins remain immutable dev tags and are never merged into `main`.
 
 ## Repository layout
 
