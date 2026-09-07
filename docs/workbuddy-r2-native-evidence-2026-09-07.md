@@ -88,3 +88,25 @@ migrate its source deliberately to the validated production-channel URL.
 
 Only fingerprints, not copied OAuth values, were used for config preservation
 checks. Raw evidence stays local; this document contains no secrets.
+
+## OAuth follow-up — September 7, 2026
+
+User reports completing native OAuth after the initial acceptance report.
+Read-only local log verification found:
+
+- Session process 30539 reports `springbrand:connected`, present in the connected
+  server cache at 17:30:28 and again at 17:38:27 (session log
+  `2026-09-07-17-22-05__a331f083fe4e10de818eb85a23e6cade.log`, lines
+  22289 and 22443). This corroborates a connected session after authorization.
+- Existing CLI host process 30571 still reports `springbrand:unauthorized` at
+  17:38:27 (host log
+  `__workbuddy_cli_host__-0-63810d60__ca2ad55ab0295c36575225eb8578de5c.log`,
+  line 2431). Do not treat all processes as refreshed or infer the cause.
+- The session's original loader entries independently confirm 4 Skills,
+  2 Hooks, and 1 MCP server (lines 498 and 980).
+
+An authenticated read-only business-tool success remains unverified. The user's
+previous anonymous discovery successes do not establish authenticated access.
+Hook dispatch/execution also remains unverified. No credentials were read and
+no user configuration was changed during this follow-up. Production promotion
+remains gated on the remaining acceptance checks above.
