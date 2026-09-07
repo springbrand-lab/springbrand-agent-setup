@@ -1,0 +1,61 @@
+name: Publish installation documents
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'INSTALL*.md'
+      - 'scripts/publish_install_docs.py'
+      - 'tests/**'
+      - '.github/workflows/publish-install-docs.yml'
+  pull_request:
+    paths:
+      - 'INSTALL*.md'
+      - 'scripts/publish_install_docs.py'
+      - 'tests/**'
+      - '.github/workflows/publish-install-docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate production documents and package
+        run: |
+          python3 tests/validate_plugin.py
+          python3 tests/test_release_identity.py
+          python3 tests/test_install_guidance.py
+          python3 tests/test_publish_install_docs.py
+          python3 scripts/publish_install_docs.py
+
+  publish:
+    needs: validate
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'push' && vars.INSTALL_DOCS_AUTO_PUBLISH == 'true'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: installation-docs-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Check AWS CLI supplied by runner
+        run: aws --version
+      - name: Publish and verify public documents
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_EC2_METADATA_DISABLED: 'true'
+        run: python3 scripts/publish_install_docs.py --publish

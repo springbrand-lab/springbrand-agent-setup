@@ -306,3 +306,38 @@ Tell the user, in plain text:
 - **Do not** put any credentials, tokens, or secrets into Skill files, Agent configuration, logs, URLs, or error messages.
 - **Do not** declare success unless Step 4 verification passes.
 - If you are uncertain which Agent you are, or where its Skill directory or MCP configuration lives, **stop and ask the user**. Do not guess.
+
+## WorkBuddy development CLI installation
+
+Do not enable the complete production and development Plugins together.
+WorkBuddy does not accept `owner/repo@tag`, so use the immutable dev ZIP as the
+Marketplace source.
+
+Locate the bundled `codebuddy`/`cbc` CLI as described in `INSTALL.workbuddy.md`,
+then set `WORKBUDDY_CLI` to its executable path:
+
+```sh
+export CODEBUDDY_CONFIG_DIR="${CODEBUDDY_CONFIG_DIR:-$HOME/.workbuddy-ai}"
+
+if "$WORKBUDDY_CLI" plugin marketplace list | grep -q '"name": "springbrand-dev"'; then
+  "$WORKBUDDY_CLI" plugin marketplace update springbrand-dev
+else
+  "$WORKBUDDY_CLI" plugin marketplace add \
+    https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.9-dev.1.zip
+fi
+
+if "$WORKBUDDY_CLI" plugin list --json | grep -q '"id": "springbrand-dev@springbrand-dev"'; then
+  "$WORKBUDDY_CLI" plugin update springbrand-dev@springbrand-dev --scope user
+else
+  "$WORKBUDDY_CLI" plugin install springbrand-dev@springbrand-dev --scope user
+fi
+
+"$WORKBUDDY_CLI" plugin enable springbrand-dev@springbrand-dev --scope user
+```
+
+For manual development installation, paste the same ZIP into **Add
+Marketplace**, install **SpringBrand Dev**, and complete OAuth for the
+bundled `springbrand-dev` MCP entry. After reload, verify version
+`1.2.0-beta.9-dev.1`, the four Canonical Skills, one Plugin-level Notice Hook,
+one bundled `springbrand-dev` MCP entry, and exact discovery of
+`springbrand.plugins.match` through the `platform_` tools.

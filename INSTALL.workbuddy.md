@@ -91,40 +91,6 @@ wants to install manually:
 The repository default branch `main` is the rolling production source. Do not
 add trailing punctuation to the Marketplace source.
 
-## Development install
-
-Do not enable the complete production and development Plugins together.
-WorkBuddy does not accept `owner/repo@tag`, so use the immutable dev ZIP as the
-Marketplace source.
-
-With the CLI located above:
-
-```sh
-export CODEBUDDY_CONFIG_DIR="${CODEBUDDY_CONFIG_DIR:-$HOME/.workbuddy-ai}"
-
-if "$WORKBUDDY_CLI" plugin marketplace list | grep -q '"name": "springbrand-dev"'; then
-  "$WORKBUDDY_CLI" plugin marketplace update springbrand-dev
-else
-  "$WORKBUDDY_CLI" plugin marketplace add \
-    https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.9-dev.1.zip
-fi
-
-if "$WORKBUDDY_CLI" plugin list --json | grep -q '"id": "springbrand-dev@springbrand-dev"'; then
-  "$WORKBUDDY_CLI" plugin update springbrand-dev@springbrand-dev --scope user
-else
-  "$WORKBUDDY_CLI" plugin install springbrand-dev@springbrand-dev --scope user
-fi
-
-"$WORKBUDDY_CLI" plugin enable springbrand-dev@springbrand-dev --scope user
-```
-
-For manual development installation, paste the same ZIP into **Add
-Marketplace**, install **SpringBrand Dev**, and complete OAuth for the
-bundled `springbrand-dev` MCP entry. After reload, verify version
-`1.2.0-beta.9-dev.1`, the four Canonical Skills, one Plugin-level Notice Hook,
-one bundled `springbrand-dev` MCP entry, and exact discovery of
-`springbrand.plugins.match` through the `platform_` tools.
-
 ## Security and verification
 
 Do not add a second global MCP server, local bridge, token, authorization

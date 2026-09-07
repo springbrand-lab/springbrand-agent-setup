@@ -73,7 +73,8 @@ def main() -> None:
     readme = (ROOT / "README.md").read_text()
     assert f"blob/v{DEV_VERSION}/INSTALL.dev.md" in readme
 
-    assert f"archive/refs/tags/v{DEV_VERSION}.zip" in workbuddy
+    assert "archive/refs/tags/" not in workbuddy
+    assert "## WorkBuddy development CLI installation" in development
 
     drift = re.compile(r"\d+\.\d+\.\d+-beta\.\d+-dev\.\d+")
     for path in GUIDES:
