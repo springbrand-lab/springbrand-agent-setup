@@ -1,0 +1,69 @@
+name: Publish WorkBuddy release package
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/*release_package.py'
+      - 'scripts/smoke_workbuddy_r2.py'
+      - 'scripts/smoke_workbuddy_migration.py'
+      - 'tests/fixtures/r2_proxy.cjs'
+      - 'tests/test_workbuddy_migration.py'
+      - 'tests/test_release_package.py'
+      - '.github/workflows/publish-release-package.yml'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing production tag, e.g. v1.2.0-beta.10 (never a dev tag)'
+        required: true
+        type: string
+      promote:
+        description: 'Switch WorkBuddy production ZIP (requires Native Evidence gate)'
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: |
+          python3 tests/validate_plugin.py
+          python3 tests/test_release_identity.py
+          python3 tests/test_release_package.py
+          python3 tests/test_workbuddy_migration.py
+
+  publish:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: workbuddy-r2-release
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Publish tagged package and verify public bytes
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          PROMOTE: ${{ inputs.promote }}
+          WORKBUDDY_R2_PRODUCTION_ENABLED: ${{ vars.WORKBUDDY_R2_PRODUCTION_ENABLED }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_EC2_METADATA_DISABLED: 'true'
+        run: |
+          args=(--tag "$RELEASE_TAG" --publish)
+          if [ "$PROMOTE" = true ]; then args+=(--promote); fi
+          python3 scripts/publish_release_package.py "${args[@]}"
