@@ -54,7 +54,12 @@ def verify(output):
         expected = (output / name).read_bytes()
         for attempt in range(5):
             try:
-                request = Request(f'{ORIGIN}/{name}', headers={'Cache-Control': 'no-cache'})
+                request = Request(f'{ORIGIN}/{name}', headers={
+                    'Cache-Control': 'no-cache',
+                    # Identify the public verifier honestly; the default Python
+                    # user agent receives Cloudflare 1010 on this domain.
+                    'User-Agent': 'SpringBrand-Install-Docs-Verifier/1.0',
+                })
                 with urlopen(request, timeout=20) as response:
                     if response.read() != expected:
                         raise ValueError(f'Published content mismatch: {name}')
