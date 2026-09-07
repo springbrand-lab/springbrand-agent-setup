@@ -22,12 +22,13 @@ def main() -> None:
         "blob/stable",
         "refs/heads/stable",
         "v1.1.1",
-        "v1.2.0-beta.1",
         "tony/multi-host-planning-docs",
         "--ref <guide-ref>",
         "update-stable.yml",
     ):
         assert stale not in text, stale
+
+    assert not re.search(r"v1\.2\.0-beta\.1(?![0-9])", text)
 
     assert not (ROOT / ".github/workflows/update-stable.yml").exists()
     workflow = (ROOT / ".github/workflows/validate-plugin.yml").read_text()
@@ -45,13 +46,28 @@ def main() -> None:
     workbuddy = (ROOT / "INSTALL.workbuddy.md").read_text()
     assert "command -v codebuddy" in workbuddy
     assert "CODEBUDDY_CONFIG_DIR" in workbuddy
-    assert "plugin marketplace add springbrand-lab/springbrand-agent-setup" in workbuddy
+    assert 'plugin marketplace add "$WORKBUDDY_SOURCE"' in workbuddy
+    assert "plugin marketplace add springbrand-lab/springbrand-agent-setup" not in workbuddy
+    assert "raw.githubusercontent.com" not in workbuddy
+    assert "Contents/Resources/app.asar.unpacked/cli/bin/codebuddy" in workbuddy
+    assert "not follow future releases automatically" in workbuddy
+    assert "Do not run a redundant" in workbuddy
+    assert "Hook execution is not an installation acceptance gate" in " ".join(workbuddy.split())
+    source = re.search(r'WORKBUDDY_SOURCE="(https://plugin\.springbrand\.ai/releases/[^" ]+/workbuddy/springbrand-workbuddy\.zip)"', workbuddy)
+    assert source, "WorkBuddy must name an immutable R2 release source"
+    assert source.group(1) in install
+    assert "channels/production/workbuddy.zip" not in workbuddy
+    assert install.index("## Identify the Agent") < install.index("## Preflight")
+    assert "WorkBuddy: skip the GitHub Skill URL checks" in install
+    section = install.split("## WorkBuddy Desktop", 1)[1].split("## Other Agents", 1)[0]
+    assert "springbrand-lab/springbrand-agent-setup" not in section
+    assert "repository `main`" not in section
     assert "plugin install springbrand@springbrand --scope user" in workbuddy
     assert "plugin marketplace update springbrand" in workbuddy
     assert "plugin update springbrand@springbrand --scope user" in workbuddy
     assert "Manual UI fallback" in workbuddy
     assert "Add Marketplace" in workbuddy
-    assert "springbrand-lab/springbrand-agent-setup" in workbuddy
+
     assert "Plugin URL" not in workbuddy
 
     development = (ROOT / "INSTALL.dev.md").read_text()
