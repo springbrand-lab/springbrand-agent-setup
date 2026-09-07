@@ -63,6 +63,23 @@ class PublishingTests(unittest.TestCase):
             self.assertIn(required, workflow)
         self.assertNotIn('pull_request_target:', workflow)
 
+    def test_verifier_identifies_itself_and_checks_all_bytes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / 'out'
+            publisher.build(ROOT, output, 'a' * 40)
+            def respond(request, timeout):
+                self.assertEqual(request.get_header('User-agent'),
+                                 'SpringBrand-Install-Docs-Verifier/1.0')
+                self.assertEqual(timeout, 20)
+                from unittest.mock import MagicMock
+                response = MagicMock()
+                response.__enter__.return_value.read.return_value = (
+                    output / request.full_url.rsplit('/', 1)[-1]).read_bytes()
+                return response
+            with patch.object(publisher, 'urlopen', side_effect=respond) as fetch, patch.object(publisher.time, 'sleep'):
+                publisher.verify(output)
+                self.assertEqual(fetch.call_count, 5)
+
     def test_public_mismatch_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp) / 'out'
