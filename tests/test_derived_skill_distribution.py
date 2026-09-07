@@ -23,12 +23,19 @@ def test_platform_uses_platform_rendered_mcp_skill_package() -> None:
         "bundle-level `instructions`",
         "Skill `entrypoint`",
         "never perform a second marker replacement",
+        "end this Platform Domain Skill workflow",
         "return to the packaged business Skill",
     ):
         assert phrase in normalized, phrase
 
     assert "stop this workflow and hand over" not in skill
     assert "permanently switch the combined task" not in skill
+
+    context = (ROOT / "CONTEXT.md").read_text()
+    design = (ROOT / "docs/platform-workflow-design.md").read_text()
+    assert "**Generated Business Skill**" in context
+    assert "The Platform Domain Skill ends before this Skill activates" in context
+    assert "Amendment (2026-09-07)" in design
 
 
 def test_action_get_contract_uses_current_camel_case_fields() -> None:

@@ -89,8 +89,9 @@ Five stages, each ending in a plain-language checkpoint; the user confirms/choos
 
 ### D11 ✅ Plugin distribution action components → Domain Transition (Q14)
 
-- When `get_distribution` returns components with `kind: "action"` and `usageMode: "gateway_action"`, the Platform Skill performs an explicit Domain Transition to the Action API Skill, which executes them as `action:springbrand@0:<id>` references. The Platform Skill never executes them itself (the Platform executor rejects `action:` references with `capability_domain_mismatch`) and never leaves the user to figure it out.
-- The Gateway-side materialization of distribution-driven action references is not yet implemented (action-component-gateway planning); the Skill text for this path stays unfrozen until mcp-gateway Issue 10 real-OAuth E2E lands and must be marked accordingly for #56.
+- Amendment (2026-09-07): `get_distribution` explicitly requests `target: "mcp"`. sp-platform renders exact Action identities and execution rules into a Generated Business Skill before packaging; Gateway and the client do not transform the body.
+- The Platform Domain Skill downloads and validates the target package, reads its bundle instructions, then ends before activating the Generated Business Skill. That Skill is not a Domain Skill: it owns the Plugin's business workflow, may call the Action namespace only for its rendered exact IDs, and resumes the business workflow after each successful dependency.
+- A Plugin containing Actions but no Skill still performs an explicit Domain Transition to the Action API Skill with the exact Action ID. The Platform Skill never calls `action_` tools itself and never sends an `action:` reference to the Platform executor.
 
 ### D14 ✅ Skill authoring standard (Q15)
 

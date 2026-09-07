@@ -180,13 +180,15 @@ that and report that the package was downloaded for this task, not persistently
 installed. A downloaded ZIP alone, a disconnected SpringBrand MCP entry, or an
 unsupported Extension never counts as "installed and executable".
 
-When the packaged business Skill references an Action, follow the Action rules
-already rendered into that Skill: Get the exact ID, execute the returned
-reference, track the original execution ID, then return to the packaged
-business Skill and continue its next business step. Do not permanently switch
-the combined task into generic API exploration. A Plugin containing Actions
-but no Skill may transition to the Action API Skill with the exact Action ID;
-do not claim that a nonexistent Skill was installed.
+Once the package is ready, end this Platform Domain Skill workflow before
+activating the packaged business Skill. The packaged Skill is not a Domain
+Skill: it owns the Plugin's business workflow and may use the `action_` tools
+only for the exact IDs and execution rules already rendered into its body. It
+Gets the exact ID, executes the returned reference, tracks the original
+execution ID, then returns to its business steps. Do not permanently switch the
+combined task into generic API exploration. A Plugin containing Actions but no
+Skill may transition to the Action API Skill with the exact Action ID; do not
+claim that a nonexistent Skill was installed.
 
 Optionally, `springbrand.plugins.get_use_case` (input: a `useCaseId` from
 `get`'s `use_cases[]`) returns a guided conversation for the Plugin — fetch
@@ -487,9 +489,10 @@ is this Skill's job, never Ask's.
 
 When `springbrand.plugins.get_distribution` returns components with
 `kind: "action"` and `usageMode: "gateway_action"`, they are executable
-dynamic Actions. The generated MCP Skill names each exact Action ID and owns
-the Get, Execute, status, and continuation rules. Its Action reference is used
-only with `action_` tools; never send it to a `platform_` executor.
+dynamic Actions. End this Platform workflow before activating a generated MCP
+Skill. That business Skill names each exact Action ID and owns the Get, Execute,
+status, and continuation rules. Its Action reference is used only with
+`action_` tools; never send it to a `platform_` executor.
 
 Activate and follow the packaged Skill. After each Action dependency reaches
 `succeeded`, return to the packaged business Skill and continue the workflow.
