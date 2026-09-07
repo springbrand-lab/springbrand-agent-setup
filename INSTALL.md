@@ -122,10 +122,10 @@ Follow [INSTALL.workbuddy.md](./INSTALL.workbuddy.md), using the bundled native
 CLI and this published, immutable R2 production source:
 
 ```text
-https://plugin.springbrand.ai/releases/v1.2.0-beta.10/workbuddy/springbrand-workbuddy.zip
+https://plugin.springbrand.ai/releases/v1.2.0-beta.11/workbuddy/springbrand-workbuddy.zip
 ```
 
-Expected version: `1.2.0-beta.10`. The package already contains all four Skills
+Expected version: `1.2.0-beta.11`. The package already contains all four Skills
 and the production MCP declaration. Do not fetch individual Skills or run a
 GitHub connectivity check. Prefer the native CLI; the guide documents the
 manual fallback's limitations. OAuth remains a native browser step.
