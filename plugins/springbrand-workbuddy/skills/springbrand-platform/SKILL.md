@@ -160,18 +160,43 @@ retry in a loop, and never describe waiting on the user as a failure.
 
 ### Step 4 — Get the distribution and use it
 
-`springbrand.plugins.get_distribution` returns the Plugin's `components[]`
-and its `package` (`format`, `version`, `url`, `expires_at`). This is what
-"using" a Plugin means: reading its distribution and turning it into
-guidance for the work at hand.
+Call `springbrand.plugins.get_distribution` with the exact Plugin ID and
+`target: "mcp"`. It returns the Plugin's `components[]` and a generated
+`package` (`format`, `version`, `render_version`, `url`, `expires_at`). Require
+`format: "mcp-skill-package-v1"`; another format is not an MCP installation
+and must not be silently accepted as one.
+
+Download the package URL before it expires, extract it with the Host's normal
+archive tools, and read `distribution.json` first. Treat Resource ID, Resource
+version, and render version as the installation identity: an update is current
+only when all three still match. Read the bundle-level `instructions`, then use
+each Skill `entrypoint` named by the manifest. The entrypoint is the generated
+Skill for this target; never perform a second marker replacement and never
+append another Action execution guide.
+
+Use the Host's native persistent Skill installation mechanism when it has one.
+If the Host can only extract and read files for the current task, do exactly
+that and report that the package was downloaded for this task, not persistently
+installed. A downloaded ZIP alone, a disconnected SpringBrand MCP entry, or an
+unsupported Extension never counts as "installed and executable".
+
+Once the package is ready, end this Platform Domain Skill workflow before
+activating the packaged business Skill. The packaged Skill is not a Domain
+Skill: it owns the Plugin's business workflow and may use the `action_` tools
+only for the exact IDs and execution rules already rendered into its body. It
+Gets the exact ID, executes the returned reference, tracks the original
+execution ID, then returns to its business steps. Do not permanently switch the
+combined task into generic API exploration. A Plugin containing Actions but no
+Skill may transition to the Action API Skill with the exact Action ID; do not
+claim that a nonexistent Skill was installed.
 
 Optionally, `springbrand.plugins.get_use_case` (input: a `useCaseId` from
 `get`'s `use_cases[]`) returns a guided conversation for the Plugin — fetch
 it after adoption, before generation, when its guidance would help (see
 [Stage 3](#stage-3--generate-the-artifact)).
 
-If a distribution component carries an executable Action rather than static
-content, stop this workflow and hand over — see
+Distribution Action components describe execution prerequisites. The generated
+Skill remains the workflow owner when one is present; see
 [Distribution Action Components](#distribution-action-components).
 
 ### Maintenance: remove and rate
@@ -464,22 +489,19 @@ is this Skill's job, never Ask's.
 
 When `springbrand.plugins.get_distribution` returns components with
 `kind: "action"` and `usageMode: "gateway_action"`, they are executable
-dynamic Actions — and they execute **only through the Action API domain**.
-The `platform_` tools reject `action:` references with
-`capability_domain_mismatch`, and the user is never left to run them by
-hand.
+dynamic Actions. End this Platform workflow before activating a generated MCP
+Skill. That business Skill names each exact Action ID and owns the Get, Execute,
+status, and continuation rules. Its Action reference is used only with
+`action_` tools; never send it to a `platform_` executor.
 
-Perform an explicit Domain Transition to the `springbrand-action-api` Skill:
-announce it in plain language, preserve the component's exact Action ID —
-which the Action API Skill executes as an `action:springbrand@0:<id>`
-reference — plus the task state, end the Platform workflow, and hand back
-through Ask SpringBrand, which selects Action API and hands off. The Action
-API Skill skips matching and goes straight to contract → execute.
-
-<!-- UNFROZEN (mcp-gateway Issue 10 real-OAuth E2E): the gateway_action
-     handoff path additionally awaits Gateway implementation of
-     distribution-driven action references; the exact payload handed over
-     may adjust when both land. -->
+Activate and follow the packaged Skill. After each Action dependency reaches
+`succeeded`, return to the packaged business Skill and continue the workflow.
+For `running`, query the original execution ID; for a lookup failure or
+`outcome_unknown`, preserve the uncertainty and do not resubmit. Only a pure
+Action Plugin with no Skill uses an explicit Domain Transition to
+`springbrand-action-api` with the exact ID. Its Get returns the
+`action:springbrand@0:<id>` reference used for execution; never construct that
+reference from the ID.
 
 ## Domain boundaries
 

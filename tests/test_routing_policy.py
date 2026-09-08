@@ -62,6 +62,12 @@ SKILL_PHRASES = {
         "springbrand-state.md",
         "Never present an update as an in-place revision.",
         "never pay or complete an acquisition on the user's behalf",
+        'target: "mcp"',
+        "mcp-skill-package-v1",
+        "render_version",
+        "distribution.json",
+        "never perform a second marker replacement",
+        "end this Platform Domain Skill workflow",
     ),
     "springbrand-action-api": (
         "name: springbrand-action-api",
@@ -83,6 +89,8 @@ SKILL_PHRASES = {
         "capability_domain_mismatch",
         "Domain Transition",
         "handed back through Ask SpringBrand",
+        "`inputSchema`",
+        "`outputSchema`",
     ),
     "springbrand-connector": (
         "name: springbrand-connector",
@@ -162,6 +170,15 @@ def main() -> None:
         assert phrase in normalized_rule, phrase
     for phrase in RETIRED_PHRASES:
         assert phrase not in normalized_rule, phrase
+
+    context = (ROOT / "CONTEXT.md").read_text()
+    design = (ROOT / "docs/platform-workflow-design.md").read_text()
+    assert "**Generated Business Skill**" in context
+    assert "The Platform Domain Skill ends before this Skill activates" in context
+    assert "Amendment (2026-09-07)" in design
+    action = (ROOT / "skills/springbrand-action-api/SKILL.md").read_text()
+    assert "**`input_schema`**" not in action
+    assert "**`output_schema`**" not in action
 
 
 if __name__ == "__main__":
