@@ -12,6 +12,7 @@ See AGENTS.md ("Release identity: dev vs production").
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+IS_DEV = "-dev." in (ROOT / "VERSION").read_text()
 
 PROD_MCP_ENTRY = "springbrand"
 PROD_MCP_URL = "https://connector.springbrand.ai/mcp"
@@ -49,12 +50,21 @@ def main() -> None:
     failures = []
     for rel in PACKAGING_MANIFESTS:
         text = (ROOT / rel).read_text()
+        if IS_DEV:
+            continue
         for marker in DEV_MARKERS:
             if marker in text:
                 failures.append(f"{rel}: contains dev identity marker {marker!r}")
     for rel in INLINE_MCP_MANIFESTS:
-        if PROD_MCP_URL not in (ROOT / rel).read_text():
-            failures.append(f"{rel}: MCP manifest does not point at {PROD_MCP_URL}")
+        expected = "https://devconnector.springbrand.ai/mcp" if IS_DEV else PROD_MCP_URL
+        wrong = PROD_MCP_URL if IS_DEV else "https://devconnector.springbrand.ai/mcp"
+        text = (ROOT / rel).read_text()
+        if expected not in text or wrong in text:
+            failures.append(f"{rel}: MCP manifest does not exclusively point at {expected}")
+    if IS_DEV:
+        for rel in (".agents/plugins/marketplace.json", ".claude-plugin/marketplace.json", ".codebuddy-plugin/marketplace.json"):
+            if '"springbrand-dev"' not in (ROOT / rel).read_text():
+                failures.append(f"{rel}: missing dev identity")
 
     if failures:
         for failure in failures:
