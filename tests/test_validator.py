@@ -87,6 +87,16 @@ def _add_legacy_skill(root: Path) -> None:
 
 
 def main() -> None:
+    skill_path = "skills/springbrand-action-api/SKILL.md"
+    expect_failure(
+        lambda root: (root / skill_path).write_text(
+            (root / skill_path).read_text().replace(
+                f'  version: "{(root / "VERSION").read_text().strip()}"',
+                '  version: "0.0.0"',
+            )
+        ),
+        "metadata.version must match VERSION",
+    )
     for token in (
         b"sk-" + b"proj-123456789012",
         b"ghp_" + b"123456789012",

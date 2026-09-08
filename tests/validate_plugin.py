@@ -155,6 +155,9 @@ def validate_canonical_package(root: Path) -> str:
             re.search(rf"^name:\s*{re.escape(name)}\s*$", frontmatter, re.MULTILINE),
             f"Canonical Skill {name} frontmatter name must match its directory",
         )
+        metadata = re.search(r"^metadata:\n((?:[ \t]+[^\n]*\n?|\n)*)", frontmatter, re.MULTILINE)
+        versions = re.findall(r'^  version: "([^"\n]+)"$', metadata.group(1), re.MULTILINE) if metadata else []
+        require(versions == [version], f"Canonical Skill {name} metadata.version must match VERSION ({version})")
 
     validate_routing_hook(root / "hooks/user-prompt-submit", identity["entry"])
     return version

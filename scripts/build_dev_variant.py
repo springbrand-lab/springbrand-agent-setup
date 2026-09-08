@@ -12,6 +12,7 @@ pattern is missing.
 import argparse
 import json
 from pathlib import Path
+from sync_skill_versions import sync as sync_skill_versions
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -223,6 +224,7 @@ def main() -> None:
         rewrite_hook(ROOT / name)
     rewrite_workflow(ROOT / ".github/workflows/validate-plugin.yml")
     (ROOT / "VERSION").write_text(args.version + "\n")
+    sync_skill_versions(ROOT)
 
 
 if __name__ == "__main__":

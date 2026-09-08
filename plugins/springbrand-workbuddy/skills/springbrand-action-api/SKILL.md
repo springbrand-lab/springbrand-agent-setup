@@ -7,9 +7,24 @@ description: >
   Use for "use an available API to do X" tasks and for continuing an earlier
   Action execution. Do not use for Platform artifact or Plugin work, or
   third-party system connections.
+metadata:
+  version: "1.2.0-beta.11-dev.3"
 ---
 
 # SpringBrand Action API
+
+## Version and environment check
+
+Read this Skill's `metadata.version` as its installed release. A `-dev.N`
+marker identifies the development distribution; otherwise it is production.
+Use the user's explicit environment choice, or the installed distribution
+when no choice was given; never silently switch between MCP environments.
+If local package `VERSION`, Plugin version, or sibling Skill versions are
+available, check that they agree. Report a mismatch and recommend reinstalling
+the intended release before executing capabilities. A standalone Skill need
+not have a package manifest. This is a local consistency check: do not call
+MCP or fetch remote releases just to check versions, and do not infer the MCP
+server version or automatically reinstall from this metadata.
 
 SpringBrand Action API is the Domain Skill for having an available API service
 do a task for the user. It owns one workflow: understand what the user wants,

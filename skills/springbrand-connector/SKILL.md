@@ -6,9 +6,24 @@ description: >
   `connector_`-prefixed tools of the SpringBrand MCP entry. Use when the task
   names a third-party system such as GitHub. Do not use for Platform artifact
   or Plugin work, or dynamic API services.
+metadata:
+  version: "1.2.0-beta.11-dev.3"
 ---
 
 # SpringBrand Connector
+
+## Version and environment check
+
+Read this Skill's `metadata.version` as its installed release. A `-dev.N`
+marker identifies the development distribution; otherwise it is production.
+Use the user's explicit environment choice, or the installed distribution
+when no choice was given; never silently switch between MCP environments.
+If local package `VERSION`, Plugin version, or sibling Skill versions are
+available, check that they agree. Report a mismatch and recommend reinstalling
+the intended release before executing capabilities. A standalone Skill need
+not have a package manifest. This is a local consistency check: do not call
+MCP or fetch remote releases just to check versions, and do not infer the MCP
+server version or automatically reinstall from this metadata.
 
 SpringBrand Connector is the Domain Skill for working directly with a
 third-party system the user names — GitHub in version one. It owns one small
