@@ -7,7 +7,7 @@ description: >
   names a third-party system such as GitHub. Do not use for Platform artifact
   or Plugin work, or dynamic API services.
 metadata:
-  version: "1.2.0-beta.12"
+  version: "1.2.0-beta.12-dev.2"
 ---
 
 # SpringBrand Connector
