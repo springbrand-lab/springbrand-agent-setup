@@ -31,6 +31,13 @@ separate signature/trust root. Native ZIP downloads use HTTPS/native host trust.
 
 ## Publication
 
+For a new production version, update `VERSION` and the package manifest versions
+in a same-repository PR targeting `main`. The validation workflow automatically
+stamps Skill metadata and commits Distribution Mirrors to the PR branch, then
+dispatches checks for the synchronized commit. Review and merge that PR before
+creating the immutable production tag. Fork PRs cannot receive bot commits and
+must run `scripts/sync_skill_versions.py` locally. Existing tags remain untouched.
+
 After merge, dispatch **Publish WorkBuddy release package** on main with an
 existing prod `tag` and `promote=false`. Credentials reuse the dedicated
 bucket-scoped Actions Secrets described in `install-docs-publishing.md`.

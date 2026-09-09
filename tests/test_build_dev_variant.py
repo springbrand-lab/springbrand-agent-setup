@@ -20,8 +20,9 @@ COPIED = (
     "hooks",
     "plugins",
     "scripts",
+    "skills",
 )
-DEV_VERSION = (ROOT / "VERSION").read_text().strip()
+DEV_VERSION = "9.8.7-beta.6-dev.5"
 DEV_URL = "https://devconnector.springbrand.ai/mcp"
 DEV_ENTRY = "springbrand-dev"
 DEV_DESCRIPTION = "Discover and use SpringBrand Plugins through the development connector. Internal testing only."
@@ -42,6 +43,10 @@ def main() -> None:
         assert snapshot == {path: path.read_bytes() for path in package.rglob("*") if path.is_file()}
 
         assert (package / "VERSION").read_text() == DEV_VERSION + "\n"
+        for skill in (package / "skills").glob("*/SKILL.md"):
+            assert f'  version: "{DEV_VERSION}"' in skill.read_text().split("\n---\n", 1)[0]
+            for mirror in ("plugins/springbrand/skills", "plugins/springbrand-workbuddy/skills"):
+                assert (package / mirror / skill.parent.name / "SKILL.md").read_bytes() == skill.read_bytes()
 
         for name in (".mcp.json", "plugins/springbrand/mcp.json"):
             servers = json.loads((package / name).read_text())["mcpServers"]

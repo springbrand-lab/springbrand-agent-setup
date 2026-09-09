@@ -343,6 +343,22 @@ def test_capability_label_and_modality_guidance_is_present() -> None:
     assert "compatibility filtering, not a new ranking" in reference
 
 
+def test_image_delivery_prioritizes_mcp_ui_then_attachment_then_markdown() -> None:
+    skill = normalized(SKILL)
+    lower_skill = skill.lower()
+    priorities = (
+        "call `action_render_execution_image` exactly once",
+        "refer to that already-rendered image as the attachment above",
+        "Only when neither the MCP App UI nor an `image` content block is available",
+    )
+    for priority in priorities:
+        assert priority in skill
+    assert skill.index(priorities[0]) < skill.index(priorities[1]) < skill.index(priorities[2])
+    assert "never print base64" in lower_skill
+    assert "do not add a duplicate markdown image" in lower_skill
+    assert "does not execute or charge the action again" in lower_skill
+
+
 def main() -> None:
     test_mirrors_are_byte_equivalent()
     test_skill_points_to_reference_before_any_body()
@@ -362,6 +378,7 @@ def main() -> None:
     test_complete_semantics_are_documented()
     test_output_contract_is_exact()
     test_capability_label_and_modality_guidance_is_present()
+    test_image_delivery_prioritizes_mcp_ui_then_attachment_then_markdown()
     print("action discovery fixtures: ok")
 
 

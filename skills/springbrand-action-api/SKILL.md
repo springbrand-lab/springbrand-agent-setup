@@ -7,9 +7,24 @@ description: >
   Use for "use an available API to do X" tasks and for continuing an earlier
   Action execution. Do not use for Platform artifact or Plugin work, or
   third-party system connections.
+metadata:
+  version: "1.2.0-beta.12"
 ---
 
 # SpringBrand Action API
+
+## Version and environment check
+
+Read this Skill's `metadata.version` as its installed release. A `-dev.N`
+marker identifies the development distribution; otherwise it is production.
+Use the user's explicit environment choice, or the installed distribution
+when no choice was given; never silently switch between MCP environments.
+If local package `VERSION`, Plugin version, or sibling Skill versions are
+available, check that they agree. Report a mismatch and recommend reinstalling
+the intended release before executing capabilities. A standalone Skill need
+not have a package manifest. This is a local consistency check: do not call
+MCP or fetch remote releases just to check versions, and do not infer the MCP
+server version or automatically reinstall from this metadata.
 
 SpringBrand Action API is the Domain Skill for having an available API service
 do a task for the user. It owns one workflow: understand what the user wants,
@@ -19,8 +34,9 @@ explicit confirmation, and report the result honestly.
 Everything runs through the single SpringBrand MCP entry. Use only the
 Action-API-prefixed tools — `action_match_capabilities`,
 `action_list_capabilities`, `action_get_capability`,
-`action_execute_capability`, `action_get_execution` — and always name the
-`action_` prefix in instructions. The same entry also exposes the
+`action_execute_capability`, `action_get_execution`,
+`action_render_execution_image` — and always name the `action_` prefix in
+instructions. The same entry also exposes the
 `platform_`- and `connector_`-prefixed tools of the other domains: never call
 them, never infer a tool by its name alone. A cross-domain need is an
 explicit Domain Transition (see [Domain boundaries](#domain-boundaries)),
@@ -172,9 +188,10 @@ means a new execution; never generate one on retry.
 An execution is not done because it was sent. It is done only when its
 status says so.
 
-- **`succeeded`** — the only status that counts as complete. Deliver the
-  result by its type — JSON, text, or a file URL — as the output schema
-  describes it, wrapped in plain language the user can act on.
+- **`succeeded`** — the only status that counts as complete. Deliver JSON and
+  text in plain language. For an image result, follow
+  [Image result presentation](#image-result-presentation); for another file,
+  provide its usable file URL as the output schema describes it.
 - **`running`** — poll `action_get_execution` until it finishes. Tell the
   user it is in progress.
 - **`failed`** — retry only when the failure is marked retryable, and only a
@@ -187,6 +204,29 @@ status says so.
 - A **`action_get_execution` tool error is a lookup failure, not a status.**
   It says nothing about whether the execution succeeded. Never report an
   execution as failed because the status lookup itself errored.
+
+### Image result presentation
+
+After `action_get_execution` verifies a successful image result, use this
+presentation order without starting another Action execution:
+
+1. **MCP App UI first.** When `action_render_execution_image` is available,
+   call `action_render_execution_image` exactly once with the verified
+   `executionId`. It rereads the existing execution and does not execute or
+   charge the Action again. Its MCP App UI is the preferred presentation.
+2. **Existing image attachment second.** The status or render result may also
+   carry an `image` content block. When the host does not render the MCP App
+   UI, refer to that already-rendered image as the attachment above. Never
+   print base64, and do not add a duplicate Markdown image when an `image`
+   content block is present.
+3. **Markdown URL last.** Only when neither the MCP App UI nor an `image`
+   content block is available, embed the exact saved preview URL as a Markdown
+   image. If there is no preview URL, use the exact original image URL. Keep
+   the original file URL as a normal download link when one exists.
+
+A render-tool lookup error does not change the already verified execution
+status. Fall back to the existing attachment or URL; never re-execute the
+Action to repair presentation.
 
 ## Continuing an earlier execution
 
@@ -260,6 +300,9 @@ developer.
   rematch once, never report it as "nothing fits".
 - `outcome_unknown` is never auto-retried; a status-lookup error is never
   reported as an execution failure.
+- A successful image uses MCP App UI, then its existing image attachment, then
+  Markdown URL fallback in that order. Presentation failure never authorizes
+  another Action execution.
 - Cross-domain work is an explicit Domain Transition — announced and
   state-preserving, handed back through Ask SpringBrand, one executor at a
   time — never another domain's prefixed tool.

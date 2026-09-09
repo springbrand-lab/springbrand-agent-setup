@@ -7,9 +7,24 @@ description: >
   MCP entry. Use for explicit SpringBrand Platform requests, artifact creation
   or publication, and Plugin lifecycle tasks. Do not use for dynamic API
   services (Action API) or third-party systems (Connector).
+metadata:
+  version: "1.2.0-beta.12"
 ---
 
 # SpringBrand Platform
+
+## Version and environment check
+
+Read this Skill's `metadata.version` as its installed release. A `-dev.N`
+marker identifies the development distribution; otherwise it is production.
+Use the user's explicit environment choice, or the installed distribution
+when no choice was given; never silently switch between MCP environments.
+If local package `VERSION`, Plugin version, or sibling Skill versions are
+available, check that they agree. Report a mismatch and recommend reinstalling
+the intended release before executing capabilities. A standalone Skill need
+not have a package manifest. This is a local consistency check: do not call
+MCP or fetch remote releases just to check versions, and do not infer the MCP
+server version or automatically reinstall from this metadata.
 
 SpringBrand Platform is the Domain Skill for two jobs: taking an Artifact
 from idea to a published Creation (create → upload → publish), and managing

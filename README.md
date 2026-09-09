@@ -24,10 +24,10 @@ SpringBrand has two environments. Pick the one you need and paste the matching p
 ### Development
 
 > Follow the official SpringBrand development installation guide to complete setup:
-> https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.2.0-beta.9-dev.1/INSTALL.dev.md
+> https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.2.0-beta.11-dev.3/INSTALL.dev.md
 > Use the native `springbrand-dev` Plugin on Codex, Claude Code/Desktop Code, Cursor, or WorkBuddy. Use the documented Skill-plus-MCP fallback only on unsupported hosts. Preserve unrelated configuration, complete native OAuth once, verify the installation, and tell me whether I need to restart.
 
-The native development Plugin is the immutable prerelease [`v1.2.0-beta.9-dev.1`](https://github.com/springbrand-lab/springbrand-agent-setup/releases/tag/v1.2.0-beta.9-dev.1). It is identified as `springbrand-dev`, displays as **SpringBrand Dev**, and bundles a single `springbrand-dev` MCP entry at `https://devconnector.springbrand.ai/mcp`. Authentication is host-native OAuth — one consent per Surface (a single authorization covers all three domains).
+The native development Plugin is the immutable prerelease [`v1.2.0-beta.11-dev.3`](https://github.com/springbrand-lab/springbrand-agent-setup/releases/tag/v1.2.0-beta.11-dev.3). It is identified as `springbrand-dev`, displays as **SpringBrand Dev**, and bundles a single `springbrand-dev` MCP entry at `https://devconnector.springbrand.ai/mcp`. Authentication is host-native OAuth — one consent per Surface (a single authorization covers all three domains).
 
 Disable or uninstall the full production `springbrand` Plugin before enabling the full development Plugin. Both package the same four Canonical Skills and three-domain routing behavior, so enabling both can duplicate routing and make connector selection ambiguous. The manual fallback remains available for unsupported hosts and may coexist with production because it shares the same Skill files and adds only the separately named `springbrand-dev` MCP entry.
 
@@ -62,7 +62,7 @@ Both MCP environments require native OAuth before normal use. No Plugin contains
 | --- | --- |
 | Production — WorkBuddy | Published R2 release selected in `INSTALL.workbuddy.md` (currently pinned) |
 | Production — other Hosts | `https://github.com/springbrand-lab/springbrand-agent-setup` (`main`) |
-| Development | `springbrand-lab/springbrand-agent-setup@v1.2.0-beta.9-dev.1` |
+| Development | `springbrand-lab/springbrand-agent-setup@v1.2.0-beta.11-dev.3` |
 
 WorkBuddy installs an immutable production-tag package from R2, not a live mirror
 of `main`; the current URL does not automatically advance. Other Hosts still
@@ -70,6 +70,35 @@ follow `main`. Release-to-R2 publication is currently manually triggered.
 Development Plugins remain immutable dev tags and are never merged into `main`.
 
 ## Repository layout
+
+Each Canonical Skill declares the package release in YAML `metadata.version`.
+`VERSION` is the source of truth: production versions have no `-dev.N` marker;
+development releases include it. Keep `name` lowercase and stable across both
+channels. This identifies the installed Skill release, not the MCP server version.
+
+Production synchronization runs automatically on same-repository pull requests
+targeting `main`. After the release author updates `VERSION` and the package
+manifests, CI stamps the four Skills, updates Cursor/WorkBuddy Distribution
+Mirrors, and commits generated changes to the PR branch. It then dispatches
+validation for that new commit. Merge the reviewed PR and create the production
+tag from the synchronized commit; no separate version-sync command is needed.
+The workflow never pushes to protected `main` directly or rewrites existing tags.
+
+Development releases synchronize automatically in
+`build_dev_variant.py --version ...`. For local previews or fork contributions
+(where CI cannot write to the source branch), the same operation is available:
+
+```sh
+python3 scripts/sync_skill_versions.py
+python3 scripts/sync_skill_versions.py --check
+python3 tests/validate_plugin.py
+```
+
+CI rejects mismatched versions or mirrors on main, tags, and validation dispatches.
+Automatic PR synchronization uses job-scoped `contents: write` and `actions: write`
+permissions; validation jobs remain read-only. Version metadata does not itself
+check remote releases or update an installed Skill; upgrades still use the
+documented installation flow for the intended channel.
 
 ```
 springbrand-agent-setup/

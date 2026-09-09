@@ -7,9 +7,24 @@ description: >
   SpringBrand can do, is new to SpringBrand, is unsure which domain fits, or
   is lost mid-workflow. It never discovers or executes capabilities; it
   recommends exactly one domain Skill and stops.
+metadata:
+  version: "1.2.0-beta.12"
 ---
 
 # Ask SpringBrand
+
+## Version and environment check
+
+Read this Skill's `metadata.version` as its installed release. A `-dev.N`
+marker identifies the development distribution; otherwise it is production.
+Use the user's explicit environment choice, or the installed distribution
+when no choice was given; never silently switch between MCP environments.
+If local package `VERSION`, Plugin version, or sibling Skill versions are
+available, check that they agree. Report a mismatch and recommend reinstalling
+the intended release before executing capabilities. A standalone Skill need
+not have a package manifest. This is a local consistency check: do not call
+MCP or fetch remote releases just to check versions, and do not infer the MCP
+server version or automatically reinstall from this metadata.
 
 Ask SpringBrand is the guide for the installed SpringBrand Plugin. It does one
 job: work out which of the three capability domains fits the user's situation
