@@ -37,6 +37,9 @@ def main():
         root = Path(directory)
         for rel in ("skills", *MIRRORS):
             shutil.copytree(ROOT / rel, root / rel)
+        # Keep the starting fixture independent of the checkout's release.
+        for path in root.rglob("SKILL.md"):
+            path.write_text(stamp_version(path.read_text(), "0.0.0"))
         for version in ("1.2.0-beta.12", "1.2.0-beta.12-dev.1", "1.2.0-beta.13"):
             (root / "VERSION").write_text(version + "\n")
             before = {p: p.read_bytes() for p in root.rglob("SKILL.md")}

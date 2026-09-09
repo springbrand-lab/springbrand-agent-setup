@@ -8,7 +8,7 @@ description: >
   or publication, and Plugin lifecycle tasks. Do not use for dynamic API
   services (Action API) or third-party systems (Connector).
 metadata:
-  version: "1.2.0-beta.11-dev.3"
+  version: "1.2.0-beta.12"
 ---
 
 # SpringBrand Platform

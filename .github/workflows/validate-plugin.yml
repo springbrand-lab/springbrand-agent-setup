@@ -22,6 +22,23 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Reject development packages on the production channel
+        env:
+          CHANNEL_EVENT: ${{ github.event_name }}
+          CHANNEL_REF: ${{ github.ref }}
+          CHANNEL_BASE: ${{ github.event.pull_request.base.ref }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          targets_main = (
+              os.environ["CHANNEL_REF"] == "refs/heads/main"
+              or (os.environ["CHANNEL_EVENT"] == "pull_request"
+                  and os.environ["CHANNEL_BASE"] == "main")
+          )
+          if targets_main and "-dev." in Path("VERSION").read_text().strip():
+              raise SystemExit("Development releases must not be merged into main")
+          PY
       - name: Synchronize production Skills before merge
         id: synchronize
         if: >-
@@ -66,6 +83,9 @@ jobs:
           python3 scripts/sync_skill_versions.py --check
           python3 tests/test_skill_versions.py
           python3 tests/test_production_skill_sync.py
+          python3 tests/test_production_channel.py
+          python3 tests/test_release_identity.py
+          python3 tests/test_action_discovery.py
           python3 tests/validate_plugin.py
           python3 tests/test_validator.py
           python3 tests/test_repair_cursor_plugin.py
@@ -102,20 +122,20 @@ jobs:
 
           added = json.loads(Path("marketplace-add.json").read_text())
           listed = json.loads(Path("marketplace-list.json").read_text())
-          assert added["marketplaceName"] == "springbrand-dev", added
-          assert any(item["name"] == "springbrand-dev" for item in listed["marketplaces"]), listed
+          assert added["marketplaceName"] == "springbrand", added
+          assert any(item["name"] == "springbrand" for item in listed["marketplaces"]), listed
           PY
       - name: Install the Plugin through Codex
         env:
           HOME: ${{ runner.temp }}/codex-home
         run: |
-          codex plugin add springbrand-dev --marketplace springbrand-dev --json > plugin-add.json
+          codex plugin add springbrand --marketplace springbrand --json > plugin-add.json
           python3 - <<'PY'
           import json
           from pathlib import Path
 
           installed = json.loads(Path("plugin-add.json").read_text())
-          assert installed["name"] == "springbrand-dev", installed
-          assert installed["marketplaceName"] == "springbrand-dev", installed
+          assert installed["name"] == "springbrand", installed
+          assert installed["marketplaceName"] == "springbrand", installed
           assert installed["version"] == Path("VERSION").read_text().strip(), installed
           PY
