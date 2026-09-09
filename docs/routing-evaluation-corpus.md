@@ -263,7 +263,7 @@ executor ran at a time.
 
 1. `SpringBrand 用xhs有关的api给我查查人机恋最近一个月比较火的在讨论什么，总结`
 
-Expected: one Match uses the cleaned intent `用XHS搜索最近一个月关于人机恋的热门笔记`,
+Expected: one Match uses the keyword intent `Xiaohongshu note search`,
 `normalized_intent: "Xiaohongshu Note Search"`, and `locale: "zh-CN"`.
 The normalized form excludes the invocation wrapper, generic API wording,
 topic, time range, summarization, and filler such as `by keyword`. `xhs`,
@@ -306,7 +306,7 @@ no-match. Platform may run its one scoped `springbrand.plugins.list` search
 fallback. Action API may run its one bounded inventory traversal when the
 request has enough hard-constraint signal; it reports no fit only after the
 inventory is complete. The Agent continues natively — no error report, no
-scanning beyond the rules, no second semantic Match. Connector case 3 is a
+scanning beyond the rules, no second keyword Match. Connector case 3 is a
 special no-fit: SpringBrand does not connect to Slack in version one; say so
 plainly and never attempt an unpublished connector (an empty authorized
 inventory means "connect the service first", not "nothing fits").

@@ -109,15 +109,23 @@ operation alias, abbreviation, alternative spelling, or non-English name,
 also read [references/action-aliases.md](references/action-aliases.md) before
 constructing the body.
 
-For a clear task, call `action_match_capabilities` once with the cleaned,
-faithful task-level `intent`, compact English catalogue label in
-`normalized_intent`, and detected `locale` defined by the reference. Rules
-that are not optional:
+Action Match uses keyword matching, not semantic understanding. Translate
+the complete task into English and resolve relevant aliases before extracting
+capability keywords. For a clear task, call `action_match_capabilities` once
+with English capability keywords in `intent`, the canonical catalogue label
+in `normalized_intent`, and the user's original `locale`. Keep the complete
+business requirement in `intent_spec`; search wording does not replace it.
+Rules that are not optional:
 
 - A non-English intent **always** carries an English `normalized_intent`
-  (for example `Xiaohongshu Note Search` or `Text to Image`; never the brand
-  word). A match body without it is malformed for matching purposes and
+  (for example `Xiaohongshu Note Search` or `Text to Image`). New calls use
+  English in both search fields. A legacy non-English match body without an
+  English label is malformed for matching purposes and
   produces false empty results.
+- Strip unrelated invocation brands, environment names, and sentence filler,
+  while retaining business platforms, explicit suppliers, model variants,
+  operations, and modalities. Preserve canonical names such as `Text to Image`
+  and `Image to Video` intact: their `to` expresses direction, not filler.
 - The match returns **API Service candidates only**. Apply the hard
   compatibility constraints within that candidate kind.
 - **Preserve the returned order exactly.** Derive the user's explicit
@@ -139,9 +147,21 @@ that are not optional:
   never enter List recovery.
 - For explicit inventory browsing, use `action_list_capabilities` directly;
   do not Match first.
+- When the tool's declared input schema exposes `observation`, attach it at
+  the top level of the Match input — a sibling of the match fields, never
+  inside them. It is the structured requirement context for this discovery:
+  `schema_version: 1`, the task's `task_id`, and an `intent_spec` stating
+  the user's task goal, expected output, material types, explicit
+  constraints, and what is still undecided (material types only; never
+  content, transcripts, or credentials). Keep the returned
+  `observation.discovery_id` with the task state — Step 4 associates the
+  execution with it. The field never changes the match: same body rules,
+  same returned order, no extra call because of it.
 
 Present compatible candidates to the user in their returned order and plain
-language: what each service does, and which one you recommend. Let the user
+language: what each service does, which requirements remain unverified, and
+which one you recommend. Scores measure keyword matching, not task-success
+probability; hard compatibility checks still apply even to the highest score. Let the user
 pick, or confirm your recommendation, before going further. Every selected
 candidate, including one found through inventory recovery, goes through exact
 Get before execution is proposed.
@@ -176,12 +196,18 @@ the user's explicit confirmation for this specific run.
    reference from memory or from a match summary alone.
 3. **Send schema-valid input** built in Step 3, plus an **idempotency key**
    so an accidental duplicate cannot run the Action twice.
-4. Call `action_execute_capability`.
+4. **Associate the discovery.** If the Match that produced this Action
+   returned an `observation.discovery_id`, pass
+   `observation: { schema_version: 1, discovery_id, api_service_id }` at the
+   top level of the execute call — a sibling of `name` and `body`, never
+   inside the Action input. Without a discovery ID in hand, send no
+   `observation` and never invent one. Field rules live in the reference.
+5. Call `action_execute_capability`.
 
 If a retry is safe and needed — for example a transport error where you know
 the request may not have been received — retry with **the same reference,
-the same input body, and the same idempotency key**. A new idempotency key
-means a new execution; never generate one on retry.
+the same input body, the same idempotency key, and the same `observation`**.
+A new idempotency key means a new execution; never generate one on retry.
 
 ### Step 5 — Track status and deliver
 
@@ -291,6 +317,10 @@ developer.
 - Never synthesize, edit, or guess an Action reference; use exactly what
   `action_get_capability` or a verified handoff provided.
 - Never invent or send `expectedRevision`.
+- Discovery context rides only the tool arguments the schema declares
+  (`observation` on Match and execute): never inside a match body, never
+  inside Action input, and never with an invented or borrowed
+  `discovery_id`.
 - Never rematch when an existing execution can be reused; never re-execute
   to check a status.
 - Errors are never no-matches; incomplete results are reported as

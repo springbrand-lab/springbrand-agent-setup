@@ -14,47 +14,50 @@ object rejects or ignores. Never carry the field name across domains.
 
 ## `action_match_capabilities`
 
-Send it once per user request with a faithful, catalogue-facing discovery
-intent.
+Send it once per user request with English capability keywords. Match is
+keyword-based; it does not semantically interpret the complete user task.
 
 ### Input (strict object)
 
 | Field | Type | Required | Rules |
 | --- | --- | --- | --- |
-| `intent` | string | yes | 1–4000 characters after trimming. A faithful task-level restatement cleaned for capability discovery (see [Discovery intent construction](#discovery-intent-construction)). |
+| `intent` | string | yes | 1–4000 characters after trimming. English capability keywords after translating the task and resolving aliases (see [Discovery intent construction](#discovery-intent-construction)). |
 | `normalized_intent` | string | no | 1–1000 characters after trimming. The compact English catalogue label (see [Discovery intent construction](#discovery-intent-construction)). |
 | `locale` | string | no | 2–35 characters after trimming. The detected locale of the request, for example `zh-CN` or `en`. |
+| `observation` | object | no | Optional structured requirement context at the top level of the tool input, a sibling of the match fields (see [Structured requirement context](#structured-requirement-context-observation)). |
 
-No other fields exist. In particular there is no threshold, no keyword list,
-and no per-keyword field.
+No other fields exist beyond the optional `observation`. In particular there
+is no threshold, no keyword list, and no per-keyword field.
 
 **Representative valid example** — the request `SpringBrand 用xhs有关的api给我查查人机恋最近一个月比较火的在讨论什么，总结`:
 
 ```json
 {
-  "intent": "用XHS搜索最近一个月关于人机恋的热门笔记",
+  "intent": "Xiaohongshu note search",
   "normalized_intent": "Xiaohongshu Note Search",
   "locale": "zh-CN"
 }
 ```
 
-The cleaned `intent` keeps the platform, search operation, note object, topic,
-time range, and popularity constraint. It removes only invocation scaffolding
-and downstream summarization. The compact `normalized_intent` names the
-catalogue capability rather than translating the whole task.
+Both search fields identify the canonical platform, operation, and object.
+The topic, time range, popularity requirement, and final summary remain in
+`intent_spec` and task state. These search fields are not the eventual Action
+input: inspect its exact contract before deciding how to supply or satisfy
+those requirements. Do not claim that the Action supports date/popularity
+filters merely because the discovery keywords match.
 
 **Valid example** — the QA request `用 springbrand 帮我生成土豆番茄大战的漫画` after
 removing the invocation wrapper and orchestration phrase:
 
 ```json
 {
-  "intent": "生成土豆番茄大战的漫画",
+  "intent": "comic text to image",
   "normalized_intent": "Text to Image",
   "locale": "zh-CN"
 }
 ```
 
-**Invalid example 1** — the same request without `normalized_intent`:
+**Invalid example 1** — a legacy Chinese request body without `normalized_intent`:
 
 ```json
 {
@@ -80,8 +83,9 @@ intent is not English (see [Empty results](#empty-results)).
 ```
 
 Rejected policy-wise: `springbrand` occurs in nearly every catalogue entry,
-so it inflates irrelevant candidates and buries the right one. Never include
-the brand word in `normalized_intent`.
+so it inflates irrelevant candidates and buries the right one. Omit
+SpringBrand when it merely names the invoking tool; business brands, explicit
+suppliers, platforms, and model names remain meaningful constraints.
 
 ### Output
 
@@ -116,6 +120,105 @@ Each item of `candidates[]`:
 | `billing` | object | Billing type, for example `{"type": "metered_credits"}`. |
 | `score` | number | 0–1. The service-returned relevance score. |
 | `matchedOn` | string[] | The terms that matched. |
+
+## Structured requirement context (`observation`)
+
+`observation` is the Agent's **structured requirement context**: a compact,
+structured statement of the user's task that travels with the discovery call
+and links the discovery to the task it serves. Fill it whenever the tool's
+declared input schema exposes `observation`, and build it strictly to the
+schema below — it is a strict object, and invented fields fail the call.
+
+On `action_match_capabilities`, `observation` sits at the top level of the
+tool input, a sibling of `intent`, `normalized_intent`, and `locale`. On
+`action_execute_capability`, `observation` is likewise a top-level tool
+argument — a sibling of `name` and `body` — and never enters the Action
+input `body`.
+
+| Field | Type | Required | Rules |
+| --- | --- | --- | --- |
+| `schema_version` | integer | yes, when `observation` is sent | Literal `1`. |
+| `task_id` | string (UUID) | no | The ID of the user task this discovery serves. |
+| `intent_spec` | object | no | The structured task summary (below). Strict object. |
+
+`intent_spec` fields:
+
+| Field | Type | Required | Rules |
+| --- | --- | --- | --- |
+| `task_goal` | string | yes | 1–1000 characters after trimming. The user's task goal, faithfully restated. |
+| `desired_output` | string | no | Up to 500 characters. What the finished result should be. |
+| `inputs` | string[] | no | Up to 10 items, each 1–200 characters. Material **types** only. |
+| `constraints` | string[] | no | Up to 10 items, each 1–200 characters. Constraints the user stated explicitly. |
+| `ambiguities` | string[] | no | Up to 10 items, each 1–200 characters. What is genuinely undecided yet. |
+
+Writing the fields:
+
+- `task_goal` states what the user wants done — the same task-level goal
+  Step 1 restates — not the shortened search keywords. `normalized_intent` remains the
+  compact catalogue label; `task_goal` carries the task behind it.
+- `desired_output`, `inputs`, `constraints`, and `ambiguities` record only
+  what the user expressed or what is genuinely open. Never add preferences
+  the user did not state.
+- `inputs` names material types only — "a text file", "a topic", "a date
+  range" — never pasted content, chat transcripts, execution inputs or
+  outputs, or credentials.
+
+`task_id` lifecycle: generate a UUID for each independent user task and
+reuse that same `task_id` for every discovery call serving the task; a new,
+independent task gets a new UUID. Never substitute a user identity, an
+account, or a session for it.
+
+**Valid example** — the top-level `observation` argument for the XHS request
+(the match fields themselves are unchanged from the example above):
+
+```json
+{
+  "observation": {
+    "schema_version": 1,
+    "task_id": "3f8a1c2e-64b7-4c3a-9a2e-5b1d0f6e8a90",
+    "intent_spec": {
+      "task_goal": "搜索小红书最近一个月关于人机恋的热门笔记",
+      "desired_output": "热门笔记列表及其讨论要点",
+      "inputs": ["主题关键词"],
+      "constraints": ["平台限定小红书", "时间范围最近一个月"],
+      "ambiguities": ["热门的具体衡量标准未说明"]
+    }
+  }
+}
+```
+
+### `discovery_id`: associating execution with its discovery
+
+A successful Match that carried `observation` returns
+`observation.discovery_id` — the discovery's own ID, generated per Match
+call. Keep it with the task state. A genuine `no_match` is still a
+successful Match and carries it; an error response keeps the existing error
+contract and carries none. A Match sent without `observation` succeeds as
+before and returns no discovery metadata.
+
+When you later execute an Action that this discovery produced, pass the
+discovery context on the execute call — top level, never inside the Action
+input `body`:
+
+```json
+{
+  "observation": {
+    "schema_version": 1,
+    "discovery_id": "9c2e5f40-1a83-4b6d-8e72-0c4f9a1d3b52",
+    "api_service_id": "apiServiceId from the matched candidate"
+  }
+}
+```
+
+- `discovery_id` is required and must be the exact ID the Match returned.
+  Without a discovery ID in hand, send no `observation` — never guess,
+  reuse another task's, or invent one.
+- `api_service_id` is the matched candidate's exact `apiServiceId`, when
+  applicable.
+- One discovery can precede several executions; each execution carries the
+  same `discovery_id`.
+- Status lookups (`action_get_execution`) take no `observation`, and a
+  retry of the same execution reuses the same association.
 
 ## Candidate compatibility
 
@@ -202,7 +305,7 @@ to inspect the inventory safely.
    execution.
 5. If complete traversal finds no compatible Action, report that honestly.
 
-This is one recovery traversal, not a second semantic Match, and it does not
+This is one recovery traversal, not a second keyword Match, and it does not
 authorize execution. Never enter it for a malformed non-English Match body;
 repair normalization and rematch once instead. A transport, OAuth, permission,
 schema, or provider error is reported as the actual failure. A compatible
@@ -212,36 +315,41 @@ discovery.
 
 ## Discovery intent construction
 
-For the match path:
+1. Translate the complete user task into English, preserving its meaning.
+   Resolve aliases, abbreviations, and non-English names using
+   [action-aliases.md](action-aliases.md) before constructing either search
+   field. The map defines canonical forms and ambiguity guards; it is a
+   curated aid, not live catalogue metadata. Do not invent a supplier, model
+   version, platform, operation, or input modality from an ambiguous alias.
+2. Build `intent` from English capability keywords: explicit supplier when
+   required, canonical platform/model, operation, and object/modality. Remove
+   host/environment names, generic API-selection requests, articles,
+   prepositions, and courtesy phrases that do not distinguish a capability.
+   Preserve words inside canonical names: `Text to Image` and `Image to Video`
+   keep `to`, and explicit model variants such as `Fast` or `Mini` stay intact.
+3. Build `normalized_intent` as a compact catalogue label, preferably
+   `[explicit supplier] + [canonical platform] + [object/modality] + [operation]`.
+   Examples: `Xiaohongshu Note Search`, `X User Profile`, `Text to Image`,
+   `Image to Video`. `TikHub Xiaohongshu Note Search` is appropriate only when
+   TikHub is explicitly required. Emit one canonical form, not a list of
+   synonyms or alternative queries. Both fields must use English keywords.
+4. Keep the full task goal, user topic, time range, desired summary, material
+   types, and explicit constraints in `intent_spec` and task state. Include
+   a qualifier in search text only when it distinguishes the needed capability.
+   Negations such as "not TikTok" are constraints for candidate evaluation,
+   not search text that should accidentally match TikTok. Workflow directions
+   such as "only search" still control the Agent, outside capability keywords.
+5. Set `locale` to the user's original locale. English discovery keywords
+   neither translate the requested output nor authorize a different output
+   language. Keep unresolved requirements explicit instead of filling guesses.
+6. Preserve hard compatibility checks and exact Get before execution. Keyword
+   scores are not probabilities and cannot prove support for all task constraints.
+   Build execution inputs from the selected Action's actual schema and full
+   user task, never from the shortened discovery keyword string alone.
 
-- Build `intent` as a faithful task-level restatement. Keep the requested
-  platform, operation, object, user topic, and business constraints. Remove
-  the `SpringBrand` invocation wrapper, generic API/service-selection wording,
-  courtesy or orchestration phrases such as `帮我`, `给我`, and `查查`, and
-  downstream work such as summarization or report formatting when it does not
-  distinguish the external Action. Cleaning scaffolding must not broaden,
-  narrow, or otherwise change the requested outcome.
-- Build `normalized_intent` as a compact catalogue label, preferably
-  `[explicit supplier] + [canonical platform] + [object/modality] + [operation]`.
-  Examples include `Xiaohongshu Note Search`, `Xiaohongshu Note Comments`,
-  `X User Profile`, `Text to Image`, and `Image to Video`. Include a supplier,
-  as in `TikHub Xiaohongshu Note Search`, only when the user explicitly requires
-  it.
-- Never include `springbrand` in `normalized_intent`. The brand word occurs
-  in nearly every catalogue entry and creates false positives.
-- Omit the user topic, time range, final summarization, generic `api`, and
-  filler such as `by keyword` unless a term genuinely distinguishes the
-  capability.
-- Never send Chinese or other non-English search keywords in
-  `normalized_intent`. The scorer's term extraction cannot rely on them.
-- Detect the request locale and send it in `locale`.
-
-When the request uses an alias, abbreviation, alternative spelling, or
-non-English name for a supplier, platform/product, model, object, or
-operation, read [action-aliases.md](action-aliases.md) before building
-`normalized_intent`. That inventory-audited map defines the canonical forms,
-ambiguity guards, and maintenance boundary for this temporary Agent-side
-fix. Apply one canonical form without adding unstated constraints.
+For the comic request, `comic text to image` identifies the capability; the
+potato-and-tomato story stays in the task summary and later generation prompt.
+The absence of an input image must not be rewritten as an image-to-image task.
 
 ## Empty results
 
@@ -253,7 +361,7 @@ Keep three outcomes distinct; never collapse one into another:
   construction](#discovery-intent-construction) and rematch **once**. Never
   tell the user nothing fits from a malformed body.
 - **Genuine no-match** — an empty `candidates[]` from a well-formed body
-  (cleaned faithful `intent`, English `normalized_intent`, `locale`). It is a
+  (English capability-keyword `intent`, canonical English `normalized_intent`, `locale`). It is a
   valid Match answer for that phrasing: proceed to bounded inventory recovery
   when the request carries enough hard-constraint signal. Report no fit only
   after that traversal is complete; otherwise explain that safe recovery lacks

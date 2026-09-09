@@ -84,7 +84,7 @@ def test_skill_points_to_reference_before_any_body() -> None:
 
 def test_chinese_brand_prefixed_intent_produces_one_match_body() -> None:
     blocks = json_blocks(REFERENCE.read_text())
-    qa_examples = [body for body in blocks if body.get("intent") == "用springbrand帮我做电子礼物"]
+    qa_examples = [body for body in blocks if body.get("intent") == "digital gift" and "normalizedIntent" in body]
     assert len(qa_examples) == 2, "one valid and one rejected body for the QA request"
     valid = [body for body in qa_examples if body.get("normalizedIntent") == "digital gift"]
     rejected = [body for body in qa_examples if body.get("normalizedIntent") == "电子礼物"]
@@ -99,8 +99,9 @@ def test_chinese_brand_prefixed_intent_produces_one_match_body() -> None:
     assert body["locale"] == "zh-CN"
     assert body["limit"] == 5
     skill = normalized(SKILL)
-    assert "intent` carries the user's request faithfully" in skill
-    assert "never the brand word, never untranslated Chinese" in skill
+    assert body["intent"] == "digital gift"
+    assert "springbrand" not in body["intent"].lower()
+    assert "first translate the complete user request into English, then distill" in skill
 
 
 def test_clear_english_request_produces_one_match_call() -> None:

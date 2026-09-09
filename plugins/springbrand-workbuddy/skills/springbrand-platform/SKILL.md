@@ -99,7 +99,7 @@ English keyword construction, and the mixed-Catalog Match boundary live
 there. Then pick exactly one path:
 
 - **Clear goal or named capability/Plugin:** issue exactly **one**
-  `springbrand.plugins.match` request with the complete task intent. Never
+  `springbrand.plugins.match` request with task-specific keywords. Never
   split the intent into multiple Match requests, never union or rerank the
   results, and never fire a second Match to try another keyword.
 - **Vague request or inspiration/browse:** use `springbrand.plugins.list` to
@@ -110,19 +110,36 @@ there. Then pick exactly one path:
   a mixed view whose semantics await correction upstream.
 - **Direct title/ID/category lookup:** use `springbrand.plugins.list` with
   the appropriate English `query`/`category` and preserve Platform order.
-  This is browsing/lookup, not a replacement for semantic Match.
+  This is browsing/lookup, not a replacement for keyword Match.
 
 A List result supplements a Match result only where this tree calls for user
 browsing; it never overrides Match order.
 
 ### Step 1 — Find Plugins (`springbrand.plugins.match`)
 
-Build the body exactly per the reference: `intent` carries the user's
-request faithfully — unchanged, not paraphrased or embellished — and
-`normalizedIntent` carries the English search form (one short English phrase
-or 1–3 English keywords, for example `digital gift`; never the brand word,
-never untranslated Chinese). `locale` carries the detected locale; `limit`
-defaults to 5, maximum 8. One request, no keyword fan-out.
+Plugin Match uses keyword matching, not semantic understanding. Build the
+body in two stages: first translate the complete user request into English,
+then distill business keywords into `intent`. Use a compact phrase naming the
+required output and capability, plus only distinguishing qualifiers. Remove
+articles, prepositions, polite wording, host/environment names, and workflow
+instructions. Keep brands when they are the task's actual subject.
+
+`normalizedIntent` uses the same core capability-and-output keywords; do not
+pad either field with broad terms or full sentences. Keep detailed requirements
+and exclusions in `intent_spec`, and use them to assess returned candidates.
+Do not add unstated requirements or encode exclusions as search keywords.
+`locale` preserves the user's original locale; `limit` defaults to 5, maximum
+8. One request, no keyword fan-out. Field rules and the complete call example
+live in the reference.
+
+When the tool's declared input schema exposes `observation`, attach it at the
+top level of the call — a sibling of `name` and `body`, never inside the
+Match body. It is the structured requirement context for this discovery:
+`schema_version: 1`, the task's `task_id`, and an `intent_spec` stating the
+user's task goal, expected output, material types, explicit constraints, and
+what is still undecided. Reuse one `task_id` per user task; keep the
+returned `observation.discovery_id` with the task state. Field rules and
+examples live in the reference.
 
 Rules that are not optional:
 
@@ -138,9 +155,16 @@ Rules that are not optional:
 - An **error is not a no-match.** Transport, OAuth, or service failures are
   reported as failures — never tell the user "nothing fits" because a call
   errored, and never trigger the List fallback for one.
+- `observation` never changes the search: same body rules, same returned
+  order, no extra Match or List call because of it. Plugin `add` and
+  `get_distribution` are not executions — they take no `observation` and
+  never claim a discovery association.
 
-Present the candidates in plain language and let the user pick, or confirm
-your recommendation, before going further.
+Present the candidates in their returned order and explain any gaps against
+the user's requirements. Scores measure keyword matching, not the probability
+that a Plugin can complete the task. A high score does not establish support
+for the requested output. Let the user pick, or confirm your recommendation,
+before going further.
 
 ### Step 2 — Read the Plugin (`springbrand.plugins.get`)
 

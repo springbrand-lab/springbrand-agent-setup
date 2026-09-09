@@ -3,7 +3,7 @@
 Use this map when a request names an API service, supplier, platform/product,
 model, object, or operation through an abbreviation, alternative spelling, or
 non-English name. It converts that wording into one catalogue-facing English
-form for `normalized_intent`; it does not choose or authorize an Action.
+form for `intent` and `normalized_intent`; it does not choose or authorize an Action.
 
 ## Inventory provenance and maintenance
 
@@ -46,7 +46,10 @@ replace the need for this maintained map.
 - Prefer the longest, most specific alias when forms overlap. Preserve explicit
   model variants such as `Fast` and `Mini`, and preserve every platform,
   supplier, operation, object, and modality constraint the user actually gave.
-- Emit one canonical form in `normalized_intent`. Do not stuff aliases into the
+- Preserve canonical phrases such as `Text to Image` and `Image to Video`
+  intact when extracting keywords; `to` defines the modality direction.
+- Emit one canonical form in `normalized_intent` and use the same resolved
+  concepts in the keyword `intent`. Do not stuff aliases into the
   body and do not fan out multiple Match calls.
 - An alias supplies only the concept in its row. A platform alias does not
   invent an operation or object, and a model-family alias does not invent a

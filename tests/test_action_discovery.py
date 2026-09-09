@@ -21,7 +21,7 @@ WORKBUDDY_MIRROR = ROOT / "plugins/springbrand-workbuddy/skills/springbrand-acti
 
 QA_INTENT = "生成土豆番茄大战的漫画"
 QA_NORMALIZED = "Text to Image"
-XHS_QA_INTENT = "用XHS搜索最近一个月关于人机恋的热门笔记"
+XHS_QA_INTENT = "Xiaohongshu note search"
 XHS_QA_NORMALIZED = "Xiaohongshu Note Search"
 
 
@@ -90,7 +90,7 @@ def test_skill_points_to_reference_before_any_body() -> None:
 
 def test_chinese_intent_produces_one_normalized_match_body() -> None:
     blocks = json_blocks(REFERENCE.read_text())
-    qa_examples = [body for body in blocks if body.get("intent") == QA_INTENT]
+    qa_examples = [body for body in blocks if body.get("intent") in (QA_INTENT, "comic text to image")]
     assert len(qa_examples) == 3, "one valid and two rejected bodies for the QA request"
     valid = [body for body in qa_examples if body.get("normalized_intent") == QA_NORMALIZED]
     rejected = [body for body in qa_examples if "normalized_intent" not in body]
@@ -104,8 +104,9 @@ def test_chinese_intent_produces_one_normalized_match_body() -> None:
     assert "springbrand" not in body["normalized_intent"].lower()
     assert body["locale"] == "zh-CN"
     skill = normalized(SKILL)
-    assert "cleaned, faithful task-level `intent`" in skill
-    assert "never the brand word" in skill
+    assert body["intent"] == "comic text to image"
+    assert "English capability keywords" in skill
+    assert "Text to Image" in body["normalized_intent"]
 
 
 def test_field_name_is_snake_case_not_camel_case() -> None:
@@ -316,7 +317,7 @@ def test_empty_result_semantics_are_pinned() -> None:
         assert outcome in reference, outcome
     assert "Never tell the user nothing fits from a malformed body" in reference
     assert "Exactly one well-formed rematch is the ceiling" in reference
-    assert "one recovery traversal, not a second semantic Match" in reference
+    assert "one recovery traversal, not a second keyword Match" in reference
     assert "stays browse-only" not in reference
     assert "proceed to bounded inventory recovery" in reference
 

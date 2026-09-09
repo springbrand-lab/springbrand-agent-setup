@@ -100,6 +100,20 @@ two modes:
 
 Rules that are not optional:
 
+- **A search with a query is a discovery.** When the tool's declared input
+  schema exposes `observation`, attach it at the top level of the call — a
+  sibling of `query`, `limit`, and `cursor`. It is the structured
+  requirement context for this search: `schema_version: 1`, the task's
+  `task_id`, and an `intent_spec` stating the user's task goal, expected
+  output, material types, explicit constraints, and what is still undecided
+  (material types only; never content, transcripts, or credentials). Reuse
+  one `task_id` per user task; a new, independent task gets a new UUID. A
+  plain no-query listing and cursor pagination are not discoveries and need
+  no `observation`. A successful search that carried `observation` returns
+  `observation.discovery_id` — keep it with the task state; Step 2
+  associates the execution with it. The field never changes the search:
+  same query behavior, same returned order, no extra call because of it.
+
 - The response carries `matches`, `total`, `complete`, and `next_cursor`.
   **Paginate through `next_cursor` until `complete` is true.** Only
   `complete: true` means you have seen everything; stopping at a page whose
@@ -147,7 +161,13 @@ without the user's explicit confirmation for this specific run.
 3. **Send no idempotency key.** Connector capabilities reject one
    (`invalid_arguments`). This is different from the Action API domain; do
    not carry that habit over.
-4. Call `connector_execute_capability`.
+4. **Associate the discovery.** If the search that returned this reference
+   carried `observation` and returned a `discovery_id`, pass
+   `observation: { schema_version: 1, discovery_id }` at the top level of
+   the execute call — a sibling of `name` and `body`, never inside the
+   capability input. Without a discovery ID in hand, send no `observation`
+   and never invent one.
+5. Call `connector_execute_capability`.
 
 Handle the outcome honestly:
 
@@ -212,6 +232,9 @@ developer.
 - Never execute without the user's explicit confirmation for this specific
   run; disclose `high` risk first.
 - Never send an idempotency key to a Connector capability.
+- Discovery context rides only the tool arguments the schema declares
+  (`observation` on a query search and on execute): never inside the
+  capability input, and never with an invented or borrowed `discovery_id`.
 - Errors are never no-matches; an empty authorized inventory means "connect
   the service first", not "nothing fits".
 - An unknown write outcome is never auto-retried.
