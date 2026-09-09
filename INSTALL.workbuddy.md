@@ -13,8 +13,8 @@ Its tool prefixes are `platform_`, `action_`, and `connector_`.
 ## 1. Select the published release and inspect existing state
 
 ```sh
-WORKBUDDY_SOURCE="https://plugin.springbrand.ai/releases/v1.2.0-beta.11/workbuddy/springbrand-workbuddy.zip"
-WORKBUDDY_VERSION="1.2.0-beta.11"
+WORKBUDDY_SOURCE="https://plugin.springbrand.ai/releases/v1.2.0-beta.12/workbuddy/springbrand-workbuddy.zip"
+WORKBUDDY_VERSION="1.2.0-beta.12"
 ```
 
 This immutable source does not follow future releases automatically. Do not
