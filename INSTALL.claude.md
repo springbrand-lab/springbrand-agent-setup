@@ -22,6 +22,10 @@ It contains no token, header, client secret, API key, or extra OAuth resource pa
 
 ## Before installing
 
+Before changing anything, determine whether this is a first installation or an
+update of an existing SpringBrand installation. Keep that classification for
+final reporting, including when verification continues in a new session.
+
 Check Claude for an existing global `springbrand` MCP entry or SpringBrand Skill and report duplicates before continuing. Do not delete or replace a legacy SpringBrand entry, OAuth state, or unrelated configuration without explicit user approval.
 
 A Legacy Plugin Release using a single `springbrand` entry at `https://connector.springbrand.ai/mcp` with the Gateway's legacy mixed contract continues to work until the production release switches the `/mcp` slot to the unified endpoint; upgrading to the current Plugin with domain-prefixed tools is voluntary and there is no automatic sunset.
@@ -43,6 +47,11 @@ claude mcp list
 ```
 
 Start a fresh session and verify that a covered request invokes `/springbrand:ask-springbrand` (the `ask-springbrand` Canonical Skill) before planning or production work. The Hook is local, static, deterministic, prompt-stateless, and network-free; it only injects the routing instruction. Discovery itself happens through the Domain Skills and their MCP entries.
+
+After installation verification succeeds on the selected Surface, read and
+follow [After installation](./INSTALL.md#after-installation) using the original
+first-install/update classification. Apply that section's welcome rules even
+when this guide was the direct entry point; do not repeat the installation steps.
 
 ## Reload, update, and uninstall
 

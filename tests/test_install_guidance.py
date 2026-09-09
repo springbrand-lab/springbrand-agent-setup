@@ -42,6 +42,26 @@ def main() -> None:
     assert "codex plugin marketplace upgrade springbrand" in install
     assert "`codex` has no separate `plugin update` command" in install
     assert "updates the installed Plugin in place" in install
+    assert "whether this is a first installation or an\nupdate" in install
+    assert "return to `After installation` below" in install
+
+    # Direct Host-guide entry points must reach the shared welcome contract too.
+    for name, install_heading in (
+        ("INSTALL.claude.md", "## Install and authenticate"),
+        ("INSTALL.cursor.md", "## Install and authenticate"),
+        ("INSTALL.workbuddy.md", "## 2. First install"),
+    ):
+        guide = (ROOT / name).read_text()
+        classification = "whether this is a first installation or an\nupdate"
+        assert classification in guide, name
+        assert guide.index(classification) < guide.index(install_heading), name
+        assert "including when verification continues in a new session" in guide, name
+        welcome_link = "[After installation](./INSTALL.md#after-installation)"
+        assert welcome_link in guide, name
+        assert guide.index(welcome_link) > guide.index(install_heading), name
+        assert "After installation verification succeeds" in guide, name
+        assert "## After installation\n" in install
+        assert "New Free accounts start" not in guide, name
 
     workbuddy = (ROOT / "INSTALL.workbuddy.md").read_text()
     assert "command -v codebuddy" in workbuddy
@@ -85,6 +105,28 @@ def main() -> None:
     assert "springbrand.plugins.match" in development
     assert "follow-ups reuse existing state" in development
     assert "<guide-ref>" not in development
+    assert "Keep that classification for final reporting" in development
+    development_flat = " ".join(development.split())
+    assert development_flat.count("Continue to `After installation` below") == 2
+    assert "Then continue to `After installation` below" in development
+
+    after_install_heading = "## After installation\n"
+    assert install.count(after_install_heading) == 1
+    assert development.count(after_install_heading) == 1
+    install_after = after_install_heading + install.split(after_install_heading, 1)[1]
+    development_after = after_install_heading + development.split(after_install_heading, 1)[1]
+    assert install_after == development_after
+    for expected in (
+        "After the first successful installation",
+        "Do not show the message after an ordinary update",
+        "do not check the website or a balance API",
+        "New Free accounts start with about $10 in free credits.",
+        "Research your market",
+        "Find customer signals",
+        "Find creators",
+        "Create campaign assets",
+    ):
+        assert expected in install_after
 
     readme = (ROOT / "README.md").read_text()
     assert f"blob/v{DEV_VERSION}/INSTALL.dev.md" in readme
