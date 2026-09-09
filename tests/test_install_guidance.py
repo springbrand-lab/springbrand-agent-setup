@@ -61,7 +61,7 @@ def main() -> None:
         assert guide.index(welcome_link) > guide.index(install_heading), name
         assert "After installation verification succeeds" in guide, name
         assert "## After installation\n" in install
-        assert "New Free accounts start" not in guide, name
+        assert "Try a task with free credits" not in guide, name
 
     workbuddy = (ROOT / "INSTALL.workbuddy.md").read_text()
     assert "command -v codebuddy" in workbuddy
@@ -119,14 +119,17 @@ def main() -> None:
     for expected in (
         "After the first successful installation",
         "Do not show the message after an ordinary update",
-        "do not check the website or a balance API",
-        "New Free accounts start with about $10 in free credits.",
+        "Do not check the website or a balance\nAPI",
+        "do not promise\nan amount, quantity, or validity period",
+        "Try a task with free credits—copy a prompt below.",
         "Research your market",
         "Find customer signals",
         "Find creators",
         "Create campaign assets",
     ):
         assert expected in install_after
+    for retired in ("$10", "New Free accounts start", "Copy a prompt to get started:"):
+        assert retired not in install_after, retired
 
     readme = (ROOT / "README.md").read_text()
     assert f"blob/v{DEV_VERSION}/INSTALL.dev.md" in readme

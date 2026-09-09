@@ -242,9 +242,9 @@ or new conversation is required, state that first. If the user already has a
 task underway, briefly confirm setup and continue that task instead.
 
 Do not show the message after an ordinary update or before installation
-verification succeeds. Treat the free-credit sentence as fixed policy copy:
-do not check the website or a balance API during installation, and do not
-present it as the user's current balance.
+verification succeeds. Keep the free-credit wording general: do not promise
+an amount, quantity, or validity period. Do not check the website or a balance
+API during installation, and do not present it as the user's current balance.
 
 ### Welcome message
 
@@ -253,9 +253,7 @@ present it as the user's current balance.
 GTM workflow Plugins and research, social-data, and media APIs—all through
 SpringBrand, in the Agent you already use.
 
-New Free accounts start with about $10 in free credits.
-
-Copy a prompt to get started:
+Try a task with free credits—copy a prompt below.
 
 - **Research your market**
   “Use SpringBrand to research my product's competitors, compare their
