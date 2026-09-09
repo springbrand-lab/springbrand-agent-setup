@@ -12,6 +12,12 @@ Its tool prefixes are `platform_`, `action_`, and `connector_`.
 
 ## 1. Select the published release and inspect existing state
 
+Before changing anything, determine whether this is a first installation or an
+update of an existing SpringBrand installation. Keep that classification for
+final reporting, including when verification continues in a new session.
+A registered marketplace alone does not mean the Plugin was already installed.
+For the manual UI fallback, inspect the existing installation in the UI.
+
 ```sh
 WORKBUDDY_SOURCE="https://plugin.springbrand.ai/releases/v1.2.0-beta.12/workbuddy/springbrand-workbuddy.zip"
 WORKBUDDY_VERSION="1.2.0-beta.12"
@@ -146,6 +152,11 @@ Never add tokens, authorization headers, client secrets, API keys, local MCP
 bridges or a second global MCP to work around installation/authentication.
 Never read or print token contents. Report version, source, Skills, OAuth,
 actual call result, changes made and any remaining reload requirement separately.
+
+After installation verification succeeds, read and follow
+[After installation](./INSTALL.md#after-installation) using the original
+first-install/update classification. Apply that section's welcome rules even
+when this guide was the direct entry point; do not repeat the installation steps.
 
 ## Manual UI fallback
 

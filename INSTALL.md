@@ -24,7 +24,10 @@ The MCP entry is:
 
 ## Identify the Agent
 
-Select exactly one Host path before testing connectivity:
+Before changing anything, determine whether this is a first installation or an
+update of an existing SpringBrand installation. Keep that classification for
+the final reporting step, then select exactly one Host path before testing
+connectivity:
 
 | Host | Current installation source | Guide |
 | --- | --- | --- |
@@ -36,6 +39,8 @@ Select exactly one Host path before testing connectivity:
 
 For WorkBuddy, go directly to its guide. Do not run another Host's commands,
 fetch raw Skill files, or silently fall back to GitHub when R2 is unavailable.
+When a linked Host guide completes its installation and verification steps,
+return to `After installation` below.
 
 ## Preflight
 
@@ -229,3 +234,38 @@ If any check fails, report the exact failure and do not declare success.
 Report the Agent and Surface, installation path, Plugin version, MCP status,
 OAuth status, conflicts found, changes made, and whether restart or a new
 session is required.
+
+## After installation
+
+After the first successful installation, show the message below. If a restart
+or new conversation is required, state that first. If the user already has a
+task underway, briefly confirm setup and continue that task instead.
+
+Do not show the message after an ordinary update or before installation
+verification succeeds. Treat the free-credit sentence as fixed policy copy:
+do not check the website or a balance API during installation, and do not
+present it as the user's current balance.
+
+### Welcome message
+
+**Everything your agent needs for go-to-market.**
+
+GTM workflow Plugins and research, social-data, and media APIs—all through
+SpringBrand, in the Agent you already use.
+
+New Free accounts start with about $10 in free credits.
+
+Copy a prompt to get started:
+
+- **Research your market**
+  “Use SpringBrand to research my product's competitors, compare their
+  positioning, and identify opportunities to stand out. Include sources.”
+- **Find customer signals**
+  “Use SpringBrand to find public discussions about the problem my product
+  solves. Summarize recurring pain points and buying signals, with links.”
+- **Find creators**
+  “Use SpringBrand to find creators who reach my target audience, explain
+  why they fit my product, and draft personalized outreach.”
+- **Create campaign assets**
+  “Use SpringBrand to develop three creative directions for my next campaign,
+  then turn my chosen direction into copy and visuals for the target channel.”

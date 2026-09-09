@@ -65,7 +65,8 @@ register extra dev MCP servers.
 ## Installation contract
 
 1. Identify the Agent product, runtime Surface, version, and whether this is a
-   first install or update. Do not guess unsupported paths or configuration.
+   first install or update. Keep that classification for final reporting. Do
+   not guess unsupported paths or configuration.
 2. Use the Host-native Plugin lifecycle when available. The native package must
    contain exactly four Canonical Skills, one Host Notice Hook or Rule, and
    one bundled `springbrand-dev` MCP entry.
@@ -169,7 +170,12 @@ Verify that the installed Plugin shows:
   eligible task uses `springbrand.plugins.match` once, and follow-ups reuse existing state without another match;
 - all unrelated configuration is intact.
 
-After testing, uninstall `springbrand-dev` through the host's native Plugin lifecycle and confirm its bundled components disappear while unrelated configuration remains intact. Re-enable production only after the full dev Plugin is removed. If this path succeeds, **stop here and do not run the fallback**.
+If this path succeeds, **do not run the fallback**. Continue to
+`After installation` below; return here afterward only when the user also
+requested removal testing. After testing, uninstall `springbrand-dev` through
+the host's native Plugin lifecycle and confirm its bundled components disappear
+while unrelated configuration remains intact. Re-enable production only after
+the full dev Plugin is removed.
 
 ## OAuth
 
@@ -291,6 +297,7 @@ Tell the user, in plain text:
 5. That they must **restart the Agent or open a new session** before the SpringBrand dev MCP server is available — the current session will not rediscover the newly installed configuration.
 6. That the `springbrand-dev` MCP server requires OAuth before it can be used normally. The user should complete authorization when the Agent prompts for it; the Agent decides when to trigger that flow.
 7. That this installed the **development** environment (`springbrand-dev`), which is for testing only and is separate from any production `springbrand` install. The manual fallback and production can coexist.
+8. Continue to `After installation` below.
 
 ### Fallback hard constraints
 
@@ -341,3 +348,40 @@ bundled `springbrand-dev` MCP entry. After reload, verify version
 `1.2.0-beta.11-dev.3`, the four Canonical Skills, one Plugin-level Notice Hook,
 one bundled `springbrand-dev` MCP entry, and exact discovery of
 `springbrand.plugins.match` through the `platform_` tools.
+
+Then continue to `After installation` below.
+
+## After installation
+
+After the first successful installation, show the message below. If a restart
+or new conversation is required, state that first. If the user already has a
+task underway, briefly confirm setup and continue that task instead.
+
+Do not show the message after an ordinary update or before installation
+verification succeeds. Treat the free-credit sentence as fixed policy copy:
+do not check the website or a balance API during installation, and do not
+present it as the user's current balance.
+
+### Welcome message
+
+**Everything your agent needs for go-to-market.**
+
+GTM workflow Plugins and research, social-data, and media APIs—all through
+SpringBrand, in the Agent you already use.
+
+New Free accounts start with about $10 in free credits.
+
+Copy a prompt to get started:
+
+- **Research your market**
+  “Use SpringBrand to research my product's competitors, compare their
+  positioning, and identify opportunities to stand out. Include sources.”
+- **Find customer signals**
+  “Use SpringBrand to find public discussions about the problem my product
+  solves. Summarize recurring pain points and buying signals, with links.”
+- **Find creators**
+  “Use SpringBrand to find creators who reach my target audience, explain
+  why they fit my product, and draft personalized outreach.”
+- **Create campaign assets**
+  “Use SpringBrand to develop three creative directions for my next campaign,
+  then turn my chosen direction into copy and visuals for the target channel.”
