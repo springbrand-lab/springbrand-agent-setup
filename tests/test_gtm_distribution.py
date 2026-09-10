@@ -34,6 +34,8 @@ def main():
         assert len(set(notices)) == 1, "The hook must not classify prompt content"
 
     guide = (ROOT / "INSTALL.dev.md").read_text()
+    assert "GitHub capabilities only" not in guide
+    assert "immutable older tag or ZIP does not select this release" in guide
     assert "/skills/springbrand-gtm/SKILL.md" in guide
     assert "<your user-level Skill directory>/springbrand-gtm/SKILL.md" in guide
     for adapter in ("plugins/springbrand", "plugins/springbrand-workbuddy"):

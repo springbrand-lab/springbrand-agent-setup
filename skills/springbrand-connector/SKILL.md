@@ -7,7 +7,7 @@ description: >
   system such as GitHub, Gmail, or Google Search Console. Do not use for
   Platform artifact or Plugin work, or dynamic API services.
 metadata:
-  version: "1.2.0-beta.12-dev.5"
+  version: "1.2.0-beta.12-dev.6"
 ---
 
 # SpringBrand Connector
