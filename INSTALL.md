@@ -1,5 +1,58 @@
 # SpringBrand production installation protocol
 
+## Initial installation response
+
+Before changing anything, determine whether this is a first installation or an
+update of an existing SpringBrand installation. Keep that classification for
+this installation conversation, including any handoff to another Host guide.
+
+Show the welcome message once at the first installation wrap-up or request
+for user action, regardless of setup status or an existing task. Do not wait
+for verification or a new conversation. Skip ordinary updates. Do not repeat
+it in later replies of the same installation conversation.
+
+This includes setup complete, waiting for OAuth, a required restart or new
+session, and installation failure or a blocker. State the actual setup status
+and next step first, then show the Welcome message and example tasks. Showing
+the Welcome message does not mean that installation succeeded; keep the normal
+verification requirements before reporting success.
+
+If setup is incomplete, replace the prompt introduction with:
+"Once setup is complete, try a task with free credits—copy a prompt below."
+
+If the user already has a task underway, still show the Welcome message once,
+then continue the parts of that task that can be performed. Use only the current
+conversation to avoid repeats; do not defer delivery to a new session, add a
+Skill, persist a welcome flag, or inject Welcome into a per-prompt Hook.
+
+Keep the free-credit wording general: do not promise an amount, quantity, or
+validity period. Do not check the website or a balance API during installation,
+and do not present the copy as the user's current balance.
+
+### Welcome message
+
+**Everything your agent needs for go-to-market.**
+
+GTM workflow Plugins and research, social-data, and media APIs—all through
+SpringBrand, in the Agent you already use.
+
+Try a task with free credits—copy a prompt below.
+
+- **Research your market**
+  “Use SpringBrand to research my product's competitors, compare their
+  positioning, and identify opportunities to stand out. Include sources.”
+- **Find customer signals**
+  “Use SpringBrand to find public discussions about the problem my product
+  solves. Summarize recurring pain points and buying signals, with links.”
+- **Find creators**
+  “Use SpringBrand to find creators who reach my target audience, explain
+  why they fit my product, and draft personalized outreach.”
+- **Create campaign assets**
+  “Use SpringBrand to develop three creative directions for my next campaign,
+  then turn my chosen direction into copy and visuals for the target channel.”
+
+## Installation overview
+
 Identify the Host before any network preflight. WorkBuddy installs the published
 production release from R2. Codex, Claude Code, Cursor and the other-Agent
 fallback retain their existing GitHub `main` paths until separately adapted.
@@ -24,10 +77,8 @@ The MCP entry is:
 
 ## Identify the Agent
 
-Before changing anything, determine whether this is a first installation or an
-update of an existing SpringBrand installation. Keep that classification for
-the final reporting step, then select exactly one Host path before testing
-connectivity:
+Use the first-install/update classification already established above and
+select exactly one Host path before testing connectivity:
 
 | Host | Current installation source | Guide |
 | --- | --- | --- |
@@ -39,8 +90,9 @@ connectivity:
 
 For WorkBuddy, go directly to its guide. Do not run another Host's commands,
 fetch raw Skill files, or silently fall back to GitHub when R2 is unavailable.
-When a linked Host guide completes its installation and verification steps,
-return to `After installation` below.
+The initial-response rule above applies at the first result report or request
+for user action, including when a linked Host guide blocks or asks for OAuth
+or a restart. Returning from a Host guide does not show Welcome a second time.
 
 ## Preflight
 
@@ -234,36 +286,3 @@ If any check fails, report the exact failure and do not declare success.
 Report the Agent and Surface, installation path, Plugin version, MCP status,
 OAuth status, conflicts found, changes made, and whether restart or a new
 session is required.
-
-## After installation
-
-After the first successful installation, show the message below. If a restart
-or new conversation is required, state that first. If the user already has a
-task underway, briefly confirm setup and continue that task instead.
-
-Do not show the message after an ordinary update or before installation
-verification succeeds. Keep the free-credit wording general: do not promise
-an amount, quantity, or validity period. Do not check the website or a balance
-API during installation, and do not present it as the user's current balance.
-
-### Welcome message
-
-**Everything your agent needs for go-to-market.**
-
-GTM workflow Plugins and research, social-data, and media APIs—all through
-SpringBrand, in the Agent you already use.
-
-Try a task with free credits—copy a prompt below.
-
-- **Research your market**
-  “Use SpringBrand to research my product's competitors, compare their
-  positioning, and identify opportunities to stand out. Include sources.”
-- **Find customer signals**
-  “Use SpringBrand to find public discussions about the problem my product
-  solves. Summarize recurring pain points and buying signals, with links.”
-- **Find creators**
-  “Use SpringBrand to find creators who reach my target audience, explain
-  why they fit my product, and draft personalized outreach.”
-- **Create campaign assets**
-  “Use SpringBrand to develop three creative directions for my next campaign,
-  then turn my chosen direction into copy and visuals for the target channel.”

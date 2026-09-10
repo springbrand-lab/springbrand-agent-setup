@@ -1,5 +1,58 @@
 # SpringBrand Agent installation protocol — Development
 
+## Initial installation response
+
+Before changing anything, determine whether this is a first installation or an
+update of an existing SpringBrand installation. Keep that classification for
+this installation conversation, including any handoff to another Host guide.
+
+Show the welcome message once at the first installation wrap-up or request
+for user action, regardless of setup status or an existing task. Do not wait
+for verification or a new conversation. Skip ordinary updates. Do not repeat
+it in later replies of the same installation conversation.
+
+This includes setup complete, waiting for OAuth, a required restart or new
+session, and installation failure or a blocker. State the actual setup status
+and next step first, then show the Welcome message and example tasks. Showing
+the Welcome message does not mean that installation succeeded; keep the normal
+verification requirements before reporting success.
+
+If setup is incomplete, replace the prompt introduction with:
+"Once setup is complete, try a task with free credits—copy a prompt below."
+
+If the user already has a task underway, still show the Welcome message once,
+then continue the parts of that task that can be performed. Use only the current
+conversation to avoid repeats; do not defer delivery to a new session, add a
+Skill, persist a welcome flag, or inject Welcome into a per-prompt Hook.
+
+Keep the free-credit wording general: do not promise an amount, quantity, or
+validity period. Do not check the website or a balance API during installation,
+and do not present the copy as the user's current balance.
+
+### Welcome message
+
+**Everything your agent needs for go-to-market.**
+
+GTM workflow Plugins and research, social-data, and media APIs—all through
+SpringBrand, in the Agent you already use.
+
+Try a task with free credits—copy a prompt below.
+
+- **Research your market**
+  “Use SpringBrand to research my product's competitors, compare their
+  positioning, and identify opportunities to stand out. Include sources.”
+- **Find customer signals**
+  “Use SpringBrand to find public discussions about the problem my product
+  solves. Summarize recurring pain points and buying signals, with links.”
+- **Find creators**
+  “Use SpringBrand to find creators who reach my target audience, explain
+  why they fit my product, and draft personalized outreach.”
+- **Create campaign assets**
+  “Use SpringBrand to develop three creative directions for my next campaign,
+  then turn my chosen direction into copy and visuals for the target channel.”
+
+## Installation overview
+
 You are an AI coding or productivity Agent. A user has asked you to install or update the **SpringBrand development** environment by following this document. Identify the host and use exactly one path below:
 
 1. **Native Plugin path** for Codex CLI/Desktop, Claude Code CLI/Desktop Code, Cursor desktop, or WorkBuddy desktop.
@@ -184,8 +237,9 @@ Verify that the installed Plugin shows:
   eligible task uses `springbrand.plugins.match` once, and follow-ups reuse existing state without another match;
 - all unrelated configuration is intact.
 
-If this path succeeds, **do not run the fallback**. Continue to
-`After installation` below; return here afterward only when the user also
+If this path succeeds, **do not run the fallback**. Apply the initial-response
+rule above if this is the first result report; do not repeat a Welcome message
+already shown at an earlier handoff. Continue here only when the user also
 requested removal testing. After testing, uninstall `springbrand-dev` through
 the host's native Plugin lifecycle and confirm its bundled components disappear
 while unrelated configuration remains intact. Re-enable production only after
@@ -313,7 +367,8 @@ Tell the user, in plain text:
 5. That they must **restart the Agent or open a new session** before the SpringBrand dev MCP server is available — the current session will not rediscover the newly installed configuration.
 6. That the `springbrand-dev` MCP server requires OAuth before it can be used normally. The user should complete authorization when the Agent prompts for it; the Agent decides when to trigger that flow.
 7. That this installed the **development** environment (`springbrand-dev`), which is for testing only and is separate from any production `springbrand` install. The manual fallback and production can coexist.
-8. Continue to `After installation` below.
+8. Apply the initial-response rule above if Welcome has not yet been shown in
+   this first-install conversation. Skip ordinary updates and later repeats.
 
 ### Fallback hard constraints
 
@@ -371,37 +426,5 @@ Verify `springbrand-gtm` enters Plugin discovery; use a direct GSC or Gmail
 account request to exercise the Connector path. See
 [the GTM dev evaluation cases](./docs/gtm-routing-evaluation.md).
 
-Then continue to `After installation` below.
-
-## After installation
-
-After the first successful installation, show the message below. If a restart
-or new conversation is required, state that first. If the user already has a
-task underway, briefly confirm setup and continue that task instead.
-
-Do not show the message after an ordinary update or before installation
-verification succeeds. Keep the free-credit wording general: do not promise
-an amount, quantity, or validity period. Do not check the website or a balance
-API during installation, and do not present it as the user's current balance.
-
-### Welcome message
-
-**Everything your agent needs for go-to-market.**
-
-GTM workflow Plugins and research, social-data, and media APIs—all through
-SpringBrand, in the Agent you already use.
-
-Try a task with free credits—copy a prompt below.
-
-- **Research your market**
-  “Use SpringBrand to research my product's competitors, compare their
-  positioning, and identify opportunities to stand out. Include sources.”
-- **Find customer signals**
-  “Use SpringBrand to find public discussions about the problem my product
-  solves. Summarize recurring pain points and buying signals, with links.”
-- **Find creators**
-  “Use SpringBrand to find creators who reach my target audience, explain
-  why they fit my product, and draft personalized outreach.”
-- **Create campaign assets**
-  “Use SpringBrand to develop three creative directions for my next campaign,
-  then turn my chosen direction into copy and visuals for the target channel.”
+Apply the initial-response rule above at the first result report or request
+for user action; do not repeat Welcome if it was already shown.
