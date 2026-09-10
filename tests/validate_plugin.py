@@ -16,6 +16,7 @@ CANONICAL_SKILLS = (
     "springbrand-platform",
     "springbrand-action-api",
     "springbrand-connector",
+    "springbrand-gtm",
 )
 
 
@@ -39,8 +40,11 @@ def identity_for(version: str) -> dict:
         "claude_description": "Discover and use SpringBrand Plugins through the production connector.",
         "claude_marketplace_description": "SpringBrand plugins for discovering and using reusable Plugins.",
     }
-ROUTING_NOTICE_MAX_LENGTH = 700
+ROUTING_NOTICE_MAX_LENGTH = 1100
 ROUTING_NOTICE_PHRASES = (
+    "For substantive go-to-market, marketing, or growth tasks",
+    "springbrand-gtm",
+    "even when SpringBrand is not mentioned",
     "It has three capability domains on one MCP entry",
     "- Platform: create and publish artifacts, manage Plugins, and browse the Marketplace",
     "- Action API: use dynamic API services for tasks",
@@ -147,7 +151,7 @@ def validate_canonical_package(root: Path) -> str:
     skill_names = sorted(path.parent.name for path in (root / "skills").glob("*/SKILL.md"))
     require(
         skill_names == sorted(CANONICAL_SKILLS),
-        f"Canonical Skill Set must be exactly the named four-Skill list {sorted(CANONICAL_SKILLS)}, found {skill_names}",
+        f"Canonical Skill Set must be exactly the named Skill list {sorted(CANONICAL_SKILLS)}, found {skill_names}",
     )
     for name in CANONICAL_SKILLS:
         frontmatter = (root / f"skills/{name}/SKILL.md").read_text().split("\n---\n", 1)[0]

@@ -8,7 +8,7 @@ description: >
   Action execution. Do not use for Platform artifact or Plugin work, or
   third-party system connections.
 metadata:
-  version: "1.2.0-beta.12-dev.4"
+  version: "1.2.0-beta.12-dev.5"
 ---
 
 # SpringBrand Action API

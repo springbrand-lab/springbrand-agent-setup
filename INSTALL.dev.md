@@ -7,8 +7,8 @@ You are an AI coding or productivity Agent. A user has asked you to install or u
 
 Do not run both paths. This document is the single source of truth for development installation.
 
-SpringBrand ships four Canonical Skills (`ask-springbrand`,
-`springbrand-platform`, `springbrand-action-api`, `springbrand-connector`) and
+SpringBrand ships five Canonical Skills (`ask-springbrand`,
+`springbrand-platform`, `springbrand-action-api`, `springbrand-connector`, `springbrand-gtm`) and
 one MCP entry per environment. The dev variant uses the single
 `springbrand-dev` entry against `devconnector.springbrand.ai`; its tools
 carry frozen domain prefixes (`platform_` / `action_` / `connector_`).
@@ -19,10 +19,11 @@ Before installing, verify the Skill URLs and MCP URL are reachable.
 
 ```text
 Skill URLs:
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.4/skills/ask-springbrand/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.4/skills/springbrand-platform/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.4/skills/springbrand-action-api/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.4/skills/springbrand-connector/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.5/skills/ask-springbrand/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.5/skills/springbrand-platform/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.5/skills/springbrand-action-api/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.5/skills/springbrand-connector/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.5/skills/springbrand-gtm/SKILL.md
 MCP URL:
   https://devconnector.springbrand.ai/mcp
 ```
@@ -49,15 +50,15 @@ The immutable internal-testing release is:
 | --- | --- |
 | Plugin / Marketplace ID | `springbrand-dev` |
 | Display name | SpringBrand Dev |
-| Version | `1.2.0-beta.12-dev.4` |
-| Git ref | `v1.2.0-beta.12-dev.4` |
+| Version | `1.2.0-beta.12-dev.5` |
+| Git ref | `v1.2.0-beta.12-dev.5` |
 | MCP entry | `springbrand-dev` |
 | MCP URL | `https://devconnector.springbrand.ai/mcp` |
 | Transport | Native remote HTTP / Streamable HTTP |
 | Authentication | Host-native OAuth (one consent per Surface) |
 
-The Plugin contains the same four Canonical Skills and three-domain routing
-behavior as production. **Disable or uninstall the full production
+This development release adds `springbrand-gtm` to the four existing Canonical
+Skills and retains three-domain routing. **Disable or uninstall the full production
 `springbrand` Plugin before enabling the full `springbrand-dev` Plugin.** Do
 not edit Plugin caches, override the bundled URL, add static credentials, or
 register extra dev MCP servers.
@@ -68,7 +69,7 @@ register extra dev MCP servers.
    first install or update. Keep that classification for final reporting. Do
    not guess unsupported paths or configuration.
 2. Use the Host-native Plugin lifecycle when available. The native package must
-   contain exactly four Canonical Skills, one Host Notice Hook or Rule, and
+   contain exactly five Canonical Skills, one Host Notice Hook or Rule, and
    one bundled `springbrand-dev` MCP entry.
 3. Use manual Skill-plus-MCP installation only when the Host has no native
    Plugin lifecycle. The fallback installs no Notice adapter. Never run both
@@ -97,7 +98,7 @@ Plugin invocation remain in the Skills.
 ### Codex CLI and Desktop
 
 ```sh
-codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.0-beta.12-dev.4
+codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.0-beta.12-dev.5
 codex plugin add springbrand-dev@springbrand-dev
 codex mcp login springbrand-dev
 ```
@@ -109,7 +110,7 @@ The Marketplace bootstrap also exposes **SpringBrand Dev** in the Codex desktop 
 CLI:
 
 ```sh
-claude plugin marketplace add springbrand-lab/springbrand-agent-setup@v1.2.0-beta.12-dev.4 --scope user
+claude plugin marketplace add springbrand-lab/springbrand-agent-setup@v1.2.0-beta.12-dev.5 --scope user
 claude plugin install springbrand-dev@springbrand-dev --scope user
 claude mcp login plugin:springbrand-dev:springbrand-dev
 ```
@@ -117,7 +118,7 @@ claude mcp login plugin:springbrand-dev:springbrand-dev
 Desktop Code: open **Plugin Browser → Add Marketplace** and enter:
 
 ```text
-springbrand-lab/springbrand-agent-setup@v1.2.0-beta.12-dev.4
+springbrand-lab/springbrand-agent-setup@v1.2.0-beta.12-dev.5
 ```
 
 Install **SpringBrand Dev**, complete the single OAuth consent, and open a new Code task. This does not apply to Claude Chat, Cowork, web sessions, or account-level Connectors.
@@ -127,7 +128,7 @@ Install **SpringBrand Dev**, complete the single OAuth consent, and open a new C
 Open **Customize → Browse Marketplace → Add Marketplace → Import from GitHub** and enter:
 
 ```text
-springbrand-lab/springbrand-agent-setup@v1.2.0-beta.12-dev.4
+springbrand-lab/springbrand-agent-setup@v1.2.0-beta.12-dev.5
 ```
 
 Install **SpringBrand Dev**, complete OAuth for the `springbrand-dev` entry, and open a new task.
@@ -140,7 +141,7 @@ ZIP Marketplace and install `springbrand-dev@springbrand-dev`; **Add Marketplace
 remains the manual fallback:
 
 ```text
-https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.12-dev.4.zip
+https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.12-dev.5.zip
 ```
 
 WorkBuddy does not accept the `owner/repo@tag` shorthand. OAuth remains a native
@@ -150,13 +151,13 @@ browser step when WorkBuddy prompts the user for the `springbrand-dev` entry.
 
 Verify that the installed Plugin shows:
 
-- Plugin ID `springbrand-dev` and version `1.2.0-beta.12-dev.4`;
+- Plugin ID `springbrand-dev` and version `1.2.0-beta.12-dev.5`;
 - exactly one bundled `springbrand-dev` MCP entry;
 - URL exactly `https://devconnector.springbrand.ai/mcp`;
 - the transport is native Streamable HTTP;
 - no duplicate `springbrand-dev` entry exists;
-- the four Canonical Skills (`ask-springbrand`, `springbrand-platform`,
-  `springbrand-action-api`, `springbrand-connector`);
+- the five Canonical Skills (`ask-springbrand`, `springbrand-platform`,
+  `springbrand-action-api`, `springbrand-connector`, `springbrand-gtm`);
 - exactly one host-appropriate Notice Hook or Rule;
 - `platform_list_capabilities` on the `springbrand-dev` entry resolves the
   Platform capability registry including `springbrand.plugins.match`;
@@ -199,12 +200,12 @@ Use this path only when the host cannot install the native Plugin. Unlike two co
 
 Two things, both user-level (not project-level):
 
-1. **The four SpringBrand Skills** — `SKILL.md` files that teach the Agent the
+1. **The five SpringBrand Skills** — `SKILL.md` files that teach the Agent the
    three-domain architecture: `ask-springbrand` (the guide), and the
    `springbrand-platform`, `springbrand-action-api`, and `springbrand-connector`
-   Domain Skills. These are the **same Skills** used by the production
-   environment; dev and production share the same Skill files and do not create
-   second copies.
+   Domain Skills, plus `springbrand-gtm` for substantive growth tasks.
+   Existing Skill names are shared with production; the new GTM Skill ships
+   in this development release. Install the dev-tag sources as one coherent set.
 2. **The SpringBrand dev MCP server** — a remote MCP server named
    `springbrand-dev` at a fixed dev URL, which exposes SpringBrand
    capabilities and connected providers in the development environment under
@@ -218,10 +219,11 @@ it intact.
 ### Inputs
 
 - **Skill sources:**
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.4/skills/ask-springbrand/SKILL.md`
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.4/skills/springbrand-platform/SKILL.md`
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.4/skills/springbrand-action-api/SKILL.md`
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.4/skills/springbrand-connector/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.5/skills/ask-springbrand/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.5/skills/springbrand-platform/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.5/skills/springbrand-action-api/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.5/skills/springbrand-connector/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.0-beta.12-dev.5/skills/springbrand-gtm/SKILL.md`
 - **MCP server name:** `springbrand-dev`
 - **MCP server URL (fixed):**
   - `https://devconnector.springbrand.ai/mcp`
@@ -241,7 +243,7 @@ If you cannot identify your Agent, or you do not know where its user-level Skill
 
 ### Fallback Step 2 — Install or update the SpringBrand Skills
 
-The development environment uses the **same four Skills** as production. Do not create second Skills, do not rename them, and do not copy their content into dev-specific files.
+Install all five Canonical Skills from the selected dev tag. Keep their canonical names and matching release versions; do not create dev-suffixed Skill copies or mix sources from different tags.
 
 1. Determine your Agent's **user-level** Skill directory. This is the per-user, cross-project location your Agent loads Skills from — not a project-local `.agents/skills/` or `.claude/skills/` folder. If your Agent only supports project-level Skills, use the project-level location and tell the user that in your final report.
 2. Fetch each Skill source from the raw URLs in "Inputs" above.
@@ -250,6 +252,7 @@ The development environment uses the **same four Skills** as production. Do not 
    - `<your user-level Skill directory>/springbrand-platform/SKILL.md`
    - `<your user-level Skill directory>/springbrand-action-api/SKILL.md`
    - `<your user-level Skill directory>/springbrand-connector/SKILL.md`
+   - `<your user-level Skill directory>/springbrand-gtm/SKILL.md`
 4. Compare each fetched content against any existing file at that path:
    - **Identical** → leave the file unchanged. Note it as "unchanged".
    - **Different** → tell the user you will replace it, and **wait for approval** before writing. After approval, overwrite with the fetched content. Note it as "replaced".
@@ -279,7 +282,7 @@ If your Agent does not support remote Streamable HTTP MCP servers with OAuth, re
 
 ### Fallback Step 4 — Verify
 
-1. **Skill files:** confirm each of the four files at `<Skill dir>/{ask-springbrand,springbrand-platform,springbrand-action-api,springbrand-connector}/SKILL.md` exists and its content matches the fetched Skill source.
+1. **Skill files:** confirm each of the five files at `<Skill dir>/{ask-springbrand,springbrand-platform,springbrand-action-api,springbrand-connector,springbrand-gtm}/SKILL.md` exists and its content matches the fetched Skill source.
 2. **MCP config:** re-read and parse the configuration. Confirm the `springbrand-dev` entry has its exact URL from "Inputs" above and uses native Streamable HTTP transport (not a stdio bridge, not a local command).
 3. Confirm no duplicate `springbrand-dev` entry exists.
 4. Confirm no other MCP server entries were removed or altered — including the production `springbrand` entry, which must remain untouched.
@@ -291,7 +294,7 @@ If your Agent does not support remote Streamable HTTP MCP servers with OAuth, re
 Tell the user, in plain text:
 
 1. Which Agent you identified yourself as.
-2. The Skill directory you used and whether each Skill file was created, replaced, or unchanged — with the full paths. Note that these are the shared Skills used by both production and development.
+2. The Skill directory you used and whether each Skill file was created, replaced, or unchanged — with the full paths. These Skill files belong to the selected dev release; preserve their canonical names.
 3. The MCP configuration location you used and whether the `springbrand-dev` entry was added, replaced, or unchanged.
 4. The full list of files you created or modified.
 5. That they must **restart the Agent or open a new session** before the SpringBrand dev MCP server is available — the current session will not rediscover the newly installed configuration.
@@ -307,7 +310,7 @@ Tell the user, in plain text:
 - **Do not** remove or alter any existing MCP server entry other than the `springbrand-dev` entry. In particular, do **not** delete or modify the production `springbrand` entry.
 - **Do not** add a second `springbrand-dev` entry if one already exists. Update the existing one in place.
 - **Do not** overwrite a JSON, TOML, or other structured config file without first parsing it and merging your change. Never blindly replace a config file.
-- **Do not** create second, dev-specific Skills. Dev and production share the same four Canonical Skills fetched from the official repository.
+- **Do not** create second, dev-specific Skills. Install all five Canonical Skills from the selected official dev tag, using their canonical names.
 - **Do not** silently overwrite a Skill whose content differs from the fetched source. Tell the user first and wait for approval.
 - **Do not** execute any external third-party script. This document is the only instruction you follow.
 - **Do not** put any credentials, tokens, or secrets into Skill files, Agent configuration, logs, URLs, or error messages.
@@ -330,7 +333,7 @@ if "$WORKBUDDY_CLI" plugin marketplace list | grep -q '"name": "springbrand-dev"
   "$WORKBUDDY_CLI" plugin marketplace update springbrand-dev
 else
   "$WORKBUDDY_CLI" plugin marketplace add \
-    https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.12-dev.4.zip
+    https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.0-beta.12-dev.5.zip
 fi
 
 if "$WORKBUDDY_CLI" plugin list --json | grep -q '"id": "springbrand-dev@springbrand-dev"'; then
@@ -345,9 +348,15 @@ fi
 For manual development installation, paste the same ZIP into **Add
 Marketplace**, install **SpringBrand Dev**, and complete OAuth for the
 bundled `springbrand-dev` MCP entry. After reload, verify version
-`1.2.0-beta.12-dev.4`, the four Canonical Skills, one Plugin-level Notice Hook,
+`1.2.0-beta.12-dev.5`, the five Canonical Skills, one Plugin-level Notice Hook,
 one bundled `springbrand-dev` MCP entry, and exact discovery of
 `springbrand.plugins.match` through the `platform_` tools.
+
+For GTM acceptance after restarting, use an unbranded growth request such as
+“Analyze competitors for my AI product and recommend a positioning strategy.”
+Verify `springbrand-gtm` enters Plugin discovery; use a direct GSC or Gmail
+account request to exercise the Connector path. See
+[the GTM dev evaluation cases](./docs/gtm-routing-evaluation.md).
 
 Then continue to `After installation` below.
 

@@ -10,6 +10,9 @@ PLUGIN_ENTRY = "springbrand-dev" if "-dev." in (ROOT / "VERSION").read_text() el
 HOOK = ROOT / "hooks" / "user-prompt-submit"
 
 ROUTING_NOTICE_PHRASES = (
+    "For substantive go-to-market, marketing, or growth tasks",
+    "springbrand-gtm",
+    "even when SpringBrand is not mentioned",
     "It has three capability domains on one MCP entry",
     "- Platform: create and publish artifacts, manage Plugins, and browse the Marketplace",
     "- Action API: use dynamic API services for tasks",
@@ -61,7 +64,7 @@ def main() -> None:
         assert phrase in context, phrase
     for phrase in RETIRED_PHRASES:
         assert phrase not in context, phrase
-    assert len(context) <= 700
+    assert len(context) <= 1100
 
     claude = subprocess.run(
         [HOOK], input=json.dumps({"prompt": "build a website"}), text=True,

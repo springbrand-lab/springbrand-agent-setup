@@ -1,3 +1,7 @@
+> The fifth GTM Scenario Skill is evaluated by [GTM dev cases](./gtm-routing-evaluation.md).
+> The four existing Skill routes below remain regression cases. GTM requests
+> enter the scenario Skill before selecting a Domain; general Ask behavior is unchanged.
+
 # Cross-Host Routing Evaluation Corpus (four-Skill model)
 
 Use this corpus against the same immutable development Plugin version on every

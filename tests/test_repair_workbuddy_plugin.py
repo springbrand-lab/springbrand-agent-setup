@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+from validate_plugin import CANONICAL_SKILLS
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -18,7 +19,7 @@ def main() -> None:
             shutil.copytree(source, target) if source.is_dir() else shutil.copy2(source, target)
 
         canonical = sorted((package / "skills").glob("*/SKILL.md"))
-        assert len(canonical) == 4, canonical
+        assert {path.parent.name for path in canonical} == set(CANONICAL_SKILLS), canonical
         references = sorted((package / "skills").glob("*/references/*.md"))
         mirrors = [
             package / "plugins/springbrand-workbuddy/skills" / skill.parent.name / "SKILL.md"
