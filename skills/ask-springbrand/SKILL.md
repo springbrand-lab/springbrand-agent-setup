@@ -8,7 +8,7 @@ description: >
   is lost mid-workflow. It never discovers or executes capabilities; it
   recommends exactly one domain Skill and stops.
 metadata:
-  version: "1.2.1"
+  version: "1.2.1-dev.1"
 ---
 
 # Ask SpringBrand

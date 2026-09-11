@@ -1,8 +1,8 @@
 #!/bin/sh
 
 if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-  reference='`/springbrand:ask-springbrand` Plugin Skill (Canonical Skill: `ask-springbrand`)'
-  gtm_reference='`/springbrand:springbrand-gtm` Plugin Skill'
+  reference='`/springbrand-dev:ask-springbrand` Plugin Skill (Canonical Skill: `ask-springbrand`)'
+  gtm_reference='`/springbrand-dev:springbrand-gtm` Plugin Skill'
 else
   reference='`$ask-springbrand` Skill'
   gtm_reference='`$springbrand-gtm` Skill'
