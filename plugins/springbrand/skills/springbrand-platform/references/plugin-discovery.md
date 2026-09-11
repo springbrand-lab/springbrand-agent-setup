@@ -26,26 +26,28 @@ fields. Unknown or extra fields make the whole call fail with
 
 ## `springbrand.plugins.match`
 
-Legacy **Plugin-only** semantic Match. Send it once per user request with the
-complete task intent.
+Legacy **Plugin-only** keyword Match. Send it once per user request with the
+task-specific business keywords.
 
 ### Input (strict object)
 
 | Field | Type | Required | Rules |
 | --- | --- | --- | --- |
-| `intent` | string | yes | 1–4000 characters after trimming. The user's request, faithful and unchanged — never paraphrased, translated, or embellished. |
-| `normalizedIntent` | string | no | 1–1000 characters after trimming. The English semantic search form of the intent (see [English keyword construction](#english-keyword-construction)). |
+| `intent` | string | yes | 1–4000 characters after trimming. Translate the complete request into English first, then extract a compact business-keyword phrase: required output, capability, and distinguishing qualifiers. Omit full sentences and unrelated terms. |
+| `normalizedIntent` | string | no | 1–1000 characters after trimming. The same core English capability-and-output keywords, without generic padding (see [English keyword construction](#english-keyword-construction)). |
 | `locale` | string | no | 2–35 characters after trimming. The detected locale of the request, for example `zh-CN` or `en`. |
 | `limit` | integer | no | 1–8, default 5. |
 
-No other fields exist. In particular there is no threshold, no keyword list,
-and no per-keyword field.
+No other fields exist in the Match body. In particular there is no threshold,
+no keyword list, and no per-keyword field. Discovery context is never carried
+in the body — it rides the separate top-level `observation` argument described
+below.
 
 **Valid example** — the QA request `用 springbrand 帮我做电子礼物`:
 
 ```json
 {
-  "intent": "用springbrand帮我做电子礼物",
+  "intent": "digital gift",
   "normalizedIntent": "digital gift",
   "locale": "zh-CN",
   "limit": 5
@@ -56,7 +58,7 @@ and no per-keyword field.
 
 ```json
 {
-  "intent": "用springbrand帮我做电子礼物",
+  "intent": "digital gift",
   "normalizedIntent": "电子礼物",
   "locale": "zh-CN"
 }
@@ -104,9 +106,95 @@ results by score, then catalogue order, then ID. **Preserve the returned order
 exactly** — never rerank, never re-sort, never apply a second threshold of
 your own, and never drop or reword an ID.
 
+## Structured requirement context (`observation`)
+
+`platform_execute_capability` accepts an optional top-level `observation`
+object — a sibling of `name` and `body`, never a field inside the Match body.
+It carries the Agent's **structured requirement context**: a compact,
+structured statement of the user's task that travels with the discovery call
+and links the discovery to the task it serves. Fill it proactively whenever
+the tool's declared input schema exposes `observation`, and build it strictly
+to the schema below — it is a strict object, and invented fields fail the
+call. The Gateway accepts `observation` for `springbrand.plugins.match`
+only; on any other capability it is rejected with `invalid_arguments`.
+
+| Field | Type | Required | Rules |
+| --- | --- | --- | --- |
+| `schema_version` | integer | yes, when `observation` is sent | Literal `1`. |
+| `task_id` | string (UUID) | no | The ID of the user task this discovery serves. |
+| `intent_spec` | object | no | The structured task summary (below). Strict object. |
+
+`intent_spec` fields:
+
+| Field | Type | Required | Rules |
+| --- | --- | --- | --- |
+| `task_goal` | string | yes | 1–1000 characters after trimming. The user's task goal, faithfully restated. |
+| `desired_output` | string | no | Up to 500 characters. What the finished result should be. |
+| `inputs` | string[] | no | Up to 10 items, each 1–200 characters. Material **types** only. |
+| `constraints` | string[] | no | Up to 10 items, each 1–200 characters. Constraints the user stated explicitly. |
+| `ambiguities` | string[] | no | Up to 10 items, each 1–200 characters. What is genuinely undecided yet. |
+
+Writing the fields:
+
+- `task_goal` states what the user wants done — the same goal you would
+  restate to them in plain language. It is the task itself, not the search
+  keywords: `normalizedIntent` remains the compact English search form,
+  while `task_goal` carries the task behind it.
+- `desired_output`, `inputs`, `constraints`, and `ambiguities` record only
+  what the user expressed or what is genuinely open. Never add preferences
+  the user did not state.
+- `inputs` names material types only — "chat messages", "photos", a
+  "spreadsheet" — never pasted content, chat transcripts, execution inputs
+  or outputs, or credentials.
+
+`task_id` lifecycle: generate a UUID for each independent user task and
+reuse that same `task_id` for every discovery call serving the task; a new,
+independent task gets a new UUID. Never substitute a user identity, an
+account, or a session for it.
+
+**Valid example** — the top-level argument, alongside `name` and `body`, for
+the QA request `用 springbrand 帮我做电子礼物`:
+
+```json
+{
+  "observation": {
+    "schema_version": 1,
+    "task_id": "3f8a1c2e-64b7-4c3a-9a2e-5b1d0f6e8a90",
+    "intent_spec": {
+      "task_goal": "制作一份电子礼物",
+      "ambiguities": ["收礼对象、礼物形式和可用素材尚未明确"]
+    }
+  }
+}
+```
+
+**Invalid placement** — `observation` inside the Match body: the body schema
+above is unchanged and strict, so an `observation` key there is an invented
+field and the call fails with `invalid_arguments`. Discovery context never
+enters `intent` or `normalizedIntent`.
+
+### `discovery_id`: keeping the discovery context
+
+A successful Match that carried `observation` returns
+`observation.discovery_id` — the discovery's own ID, generated per Match
+call. Keep it with the task state: it is the handle for associating later,
+supported steps with the discovery they rest on. A genuine `no_match` is
+still a successful Match and carries it; an error response keeps the
+existing error contract and carries none. A Match sent without
+`observation` succeeds as before and returns no discovery metadata.
+
+Plugin discovery has no execution association: `add` and
+`get_distribution` are not executions, take no `observation`, and never
+claim one.
+
+`observation` is processed separately from the search parameters: it changes
+nothing about the one-Match rule, the body contract, the returned order, or
+the results, and it never justifies an extra Match or List call. It is
+structured requirement context — not a matching or ranking mechanism.
+
 ## `springbrand.plugins.list`
 
-Browsing and lookup over real Plugins. Not a substitute for semantic Match.
+Browsing and lookup over real Plugins. Not a substitute for keyword Match.
 
 ### Input (strict object)
 
@@ -207,32 +295,85 @@ it uses the legacy Plugin-only capability.
 
 ## English keyword construction
 
-For the semantic Match path:
+Match is keyword-based: do not assume semantic understanding, negation
+handling, or a score calibrated to task success.
 
-- Keep `intent` faithful to the user's original request — that is the Gateway
-  contract, and the Platform reads it as the phrase-level signal.
-- Put the search representation in `normalizedIntent`: translate the intent to
-  English and reduce it to one short English phrase or 1–3 English keywords
-  (for example `digital gift`). The scorer weights title and tags highest, so
-  a compact noun phrase matches best.
-- Never include `springbrand` in `normalizedIntent`. The brand word occurs in
-  nearly every title and creates false positives.
-- Never send Chinese or other non-English search keywords in
-  `normalizedIntent`. Unsupported languages are translated before matching;
-  the scorer's term extraction cannot rely on them.
-- Detect the request locale and send it in `locale`.
+1. Translate the complete user request into English before extracting
+   keywords. Do this while preparing one call; no separate translation tool
+   or search is needed. `locale` stays the user's original locale.
+2. Build `intent` as a compact keyword phrase. Prioritize the required output
+   and capability, then add material or domain terms only when they distinguish
+   the needed capability. For this presentation request, use
+   `editable presentation slides`, not a full English instruction sentence.
+3. Strip articles and prepositions (such as `a`, `an`, `the`, `to`, `for`,
+   `from`), polite requests, environment names, and workflow instructions.
+   Remove SpringBrand when it only names the tool. Preserve brands or named
+   products when they are the business subject, such as a Shopify store.
+   Avoid broad padding such as `product`, `content`, or `generation` when it
+   adds no useful distinction; these can remain when central to the task.
+4. Use the same core capability-and-output keywords in `normalizedIntent`,
+   for example `editable presentation`. Do not expand into synonym lists,
+   split into multiple requests, or search again with alternative keywords.
+5. Keep full goals, material types, audience, length, language, and other
+   stated constraints in `intent_spec`; they may use the user's language.
+   Include a constraint in search text only when it distinguishes capabilities.
+   Record exclusions there and assess candidates against them: `no video`
+   must not become search terms that accidentally match video Plugins.
+   Environment selection and "only search" remain workflow controls.
+6. Add no unstated format, style, audience, or materials. In particular,
+   "editable presentation" does not authorize assuming PPTX or PowerPoint.
+   Put genuinely unresolved requirements in `ambiguities` when relevant.
+
+Preserve returned order and exact IDs when presenting results. Explain which
+requirements each candidate appears to support or miss based on its actual
+description. A high keyword score is not proof of suitability; avoid expressing
+it as a probability or claiming support the result does not establish.
+
+### Complete call example
+
+For the request "使用 SpringBrand dev，帮我找一个能把中文产品介绍制作成面向潜在客户、
+10 页以内的可编辑演示文稿的 Plugin。这次只查找并展示候选。", select the dev MCP
+entry and perform discovery only. After resolving the exact capability
+reference from the registry, send the following shape. Generate a fresh task
+UUID for an independent task; the UUID below is illustrative.
+
+```json
+{
+  "name": "platform:springbrand@0:springbrand.plugins.match",
+  "body": {
+    "intent": "editable presentation slides",
+    "normalizedIntent": "editable presentation",
+    "locale": "zh-CN",
+    "limit": 5
+  },
+  "observation": {
+    "schema_version": 1,
+    "task_id": "f48d3c69-5b82-4d91-a470-2ba143659fed",
+    "intent_spec": {
+      "task_goal": "将中文产品介绍制作成面向潜在客户的演示文稿",
+      "desired_output": "10 页以内的可编辑演示文稿",
+      "inputs": ["中文产品介绍"],
+      "constraints": ["面向潜在客户", "不超过 10 页", "输出可编辑"],
+      "ambiguities": ["演示文稿文件格式尚未指定"]
+    }
+  }
+}
+```
+
+The English `intent` does not imply English output. Here, Chinese describes
+the supplied material; the request does not explicitly choose the output
+language or file format. Keep those facts distinct.
 
 ## One request per Match
 
-Issue **exactly one** Match request per user request, with the complete task
-intent. Never split the intent into several Match calls to try different
+Issue **exactly one** Match request per user request, with task-specific
+keywords and structured requirement context when supported. Never split the intent into several Match calls to try different
 keywords, and never union, merge, or rerank the results of multiple calls.
 
-Why one complete request wins:
+Why one request is required:
 
-- The scorer evaluates the combined fields of one body — the phrase signal
-  from `intent` plus the term signals from `normalizedIntent` — in a single
-  pass with one threshold and one ordering.
+- Both search fields contribute to one keyword-matching request and one
+  returned ordering. The structured requirement context is handled separately.
 - Multiple calls add latency and return results under the same fixed threshold
   but different term sets, so their orders are not comparable.
 - There are no defined union semantics: nothing specifies how to merge two

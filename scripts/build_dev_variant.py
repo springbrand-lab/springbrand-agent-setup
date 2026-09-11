@@ -182,8 +182,8 @@ def rewrite_hook(path):
     text = path.read_text()
     if "`/springbrand:" in text:
         count = text.count("`/springbrand:")
-        if count != 1:
-            fail(f"{path}: expected exactly one Claude namespace reference, found {count}")
+        if count != 2:
+            fail(f"{path}: expected Ask and GTM Claude namespace references, found {count}")
         text = text.replace("`/springbrand:", "`/springbrand-dev:")
     elif "`/springbrand-dev:" not in text:
         fail(f"{path}: no Claude namespace reference found")

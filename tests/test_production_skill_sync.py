@@ -79,7 +79,8 @@ def main():
         assert git("rev-list", "--count", "HEAD") == "2"
         assert git("rev-parse", "HEAD") == git("rev-parse", "origin/production-release")
         changed = git("diff", "--name-only", "HEAD^", "HEAD").splitlines()
-        assert len(changed) == 12 and all(p.endswith("/SKILL.md") for p in changed), changed
+        expected = {p.relative_to(package).as_posix() for p in package.rglob("SKILL.md")}
+        assert set(changed) == expected, changed
         assert git("status", "--porcelain") == ""
 
         result = run()

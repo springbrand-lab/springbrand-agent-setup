@@ -1,8 +1,22 @@
 # SpringBrand Cursor Plugin
 
+Before validation, connectivity checks, installation commands or UI handoffs,
+read and follow [Initial installation response](./INSTALL.md#initial-installation-response).
+Determine first installation versus ordinary update before changing anything.
+In a first-install conversation, show actual setup status and the next step,
+then Welcome once at the first result report or request for user action. This
+includes OAuth, restart/new-session requests, failure/blockers and existing
+tasks; do not wait for verification or a new conversation. Skip ordinary
+updates and later repeats. Reuse the shared template and its incomplete-setup
+introduction; do not repeat installation steps when reading the shared rule.
+
 This guide tests the self-contained SpringBrand Host Adapter through Cursor desktop's native GitHub Marketplace flow on macOS. Package validation is not Native Evidence; the current evidence status is recorded in `docs/cursor-native-evidence.md`.
 
 ## Before installing
+
+Use the first-install/update classification established at entry. Keep it for
+accurate installation reporting, including later verification after a restart;
+Welcome must already have appeared at the first handoff in the original conversation.
 
 Check Cursor for an existing global SpringBrand Skill or `springbrand` MCP entry and report duplicates before continuing. Do not delete or replace a legacy SpringBrand entry, OAuth state, or unrelated configuration without explicit user approval.
 
@@ -13,7 +27,7 @@ A Legacy Plugin Release using a single `springbrand` entry at `https://connector
 1. Open **Customize → Browse Marketplace → Add Marketplace → Import from GitHub**.
 2. Import `springbrand-lab/springbrand-agent-setup` and confirm it indexes exactly one **SpringBrand** Plugin.
 3. Install and enable that Plugin, then restart Cursor if its components are not visible.
-4. Confirm the Plugin exposes the four Canonical Skills (`ask-springbrand`, `springbrand-platform`, `springbrand-action-api`, `springbrand-connector`), the always-applied SpringBrand preflight Rule, and one bundled MCP server:
+4. Confirm the Plugin exposes the five Canonical Skills (`ask-springbrand`, `springbrand-platform`, `springbrand-action-api`, `springbrand-connector`, `springbrand-gtm`), the always-applied SpringBrand preflight Rule, and one bundled MCP server:
    - `springbrand` → `https://connector.springbrand.ai/mcp`
 5. Authenticate the bundled MCP entry through Cursor's native browser OAuth flow. A single consent covers all three domains. Do not create a second global server or add a token, authorization header, client secret, API key, or local bridge.
 

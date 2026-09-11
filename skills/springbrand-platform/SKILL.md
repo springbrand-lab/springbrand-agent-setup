@@ -8,7 +8,7 @@ description: >
   or publication, and Plugin lifecycle tasks. Do not use for dynamic API
   services (Action API) or third-party systems (Connector).
 metadata:
-  version: "1.2.0-beta.12"
+  version: "1.2.1"
 ---
 
 # SpringBrand Platform
@@ -99,7 +99,7 @@ English keyword construction, and the mixed-Catalog Match boundary live
 there. Then pick exactly one path:
 
 - **Clear goal or named capability/Plugin:** issue exactly **one**
-  `springbrand.plugins.match` request with the complete task intent. Never
+  `springbrand.plugins.match` request with task-specific keywords. Never
   split the intent into multiple Match requests, never union or rerank the
   results, and never fire a second Match to try another keyword.
 - **Vague request or inspiration/browse:** use `springbrand.plugins.list` to
@@ -110,19 +110,36 @@ there. Then pick exactly one path:
   a mixed view whose semantics await correction upstream.
 - **Direct title/ID/category lookup:** use `springbrand.plugins.list` with
   the appropriate English `query`/`category` and preserve Platform order.
-  This is browsing/lookup, not a replacement for semantic Match.
+  This is browsing/lookup, not a replacement for keyword Match.
 
 A List result supplements a Match result only where this tree calls for user
 browsing; it never overrides Match order.
 
 ### Step 1 — Find Plugins (`springbrand.plugins.match`)
 
-Build the body exactly per the reference: `intent` carries the user's
-request faithfully — unchanged, not paraphrased or embellished — and
-`normalizedIntent` carries the English search form (one short English phrase
-or 1–3 English keywords, for example `digital gift`; never the brand word,
-never untranslated Chinese). `locale` carries the detected locale; `limit`
-defaults to 5, maximum 8. One request, no keyword fan-out.
+Plugin Match uses keyword matching, not semantic understanding. Build the
+body in two stages: first translate the complete user request into English,
+then distill business keywords into `intent`. Use a compact phrase naming the
+required output and capability, plus only distinguishing qualifiers. Remove
+articles, prepositions, polite wording, host/environment names, and workflow
+instructions. Keep brands when they are the task's actual subject.
+
+`normalizedIntent` uses the same core capability-and-output keywords; do not
+pad either field with broad terms or full sentences. Keep detailed requirements
+and exclusions in `intent_spec`, and use them to assess returned candidates.
+Do not add unstated requirements or encode exclusions as search keywords.
+`locale` preserves the user's original locale; `limit` defaults to 5, maximum
+8. One request, no keyword fan-out. Field rules and the complete call example
+live in the reference.
+
+When the tool's declared input schema exposes `observation`, attach it at the
+top level of the call — a sibling of `name` and `body`, never inside the
+Match body. It is the structured requirement context for this discovery:
+`schema_version: 1`, the task's `task_id`, and an `intent_spec` stating the
+user's task goal, expected output, material types, explicit constraints, and
+what is still undecided. Reuse one `task_id` per user task; keep the
+returned `observation.discovery_id` with the task state. Field rules and
+examples live in the reference.
 
 Rules that are not optional:
 
@@ -138,40 +155,66 @@ Rules that are not optional:
 - An **error is not a no-match.** Transport, OAuth, or service failures are
   reported as failures — never tell the user "nothing fits" because a call
   errored, and never trigger the List fallback for one.
+- `observation` never changes the search: same body rules, same returned
+  order, no extra Match or List call because of it. Plugin `add` and
+  `get_distribution` are not executions — they take no `observation` and
+  never claim a discovery association.
 
-Present the candidates in plain language and let the user pick, or confirm
-your recommendation, before going further.
+Present the candidates in their returned order and explain any gaps against
+the user's requirements. Scores measure keyword matching, not the probability
+that a Plugin can complete the task. A high score does not establish support
+for the requested output. When a Plugin clearly fits the requested task, read
+its detail and apply the cost check below. A verified-free Plugin needs no
+separate selection or add confirmation. Ask the user to choose when the fit is
+ambiguous, and respect any explicit opt-out from Plugin use.
 
 ### Step 2 — Read the Plugin (`springbrand.plugins.get`)
 
 Fetch the chosen Plugin's detail: description, publisher, price, tags,
-rating, usage guide, `components[]`, and `use_cases[]`. The response carries
-`user_state`, which decides the next step — so state is known before any
-commitment:
+rating, usage guide, `components[]`, and `use_cases[]`. Inspect both `price`
+and `user_state`: account state alone does not establish whether a Plugin is
+free or paid. Do not skip a fitting Plugin merely because it is not added.
 
-- **`added`** — the Plugin is already the user's. Go to
-  [Step 4](#step-4--get-the-distribution-and-use-it) when needed.
-- **`entitled_not_added`** — the user owns it but has not added it. Ask,
-  then [add it](#step-3--add-with-confirmation).
-- **`not_entitled`** — see
-  [Not entitled](#not-entitled-acquisition-belongs-to-the-user).
+- **`added`** — go to [Step 4](#step-4--get-the-distribution-and-use-it).
+- **`entitled_not_added` or `not_entitled`** — apply
+  [Step 3](#step-3--add-according-to-cost). Neither state alone proves that a
+  purchase is required; a verified-free Plugin may proceed to add directly.
 
-`get` returns **no acquisition information**. Price and acquisition status
-come only from the `add` response.
+`get` returns `price`; the `add` response returns acquisition status and may
+include acquisition pricing. Read the actual returned pricing representation.
+The registry does not define a fixed `price` shape: do not invent fields or
+interpret missing, null, ambiguous, or unavailable pricing as free.
 
-### Step 3 — Add with confirmation
+### Step 3 — Add according to cost
 
-`springbrand.plugins.add` is a confirmation gate. Never add without the
-user's explicit yes for this specific Plugin, and **never pay or complete an
-acquisition on the user's behalf** — the Agent has no capability for it, by
-design.
+- **Verified free:** when the returned pricing explicitly establishes that
+  adding the Plugin is free and it fits the user's requested task, briefly
+  state that you are adding it, call `springbrand.plugins.add`, and continue
+  without asking for separate user confirmation. This also applies when
+  `user_state` is `not_entitled`; let the add response establish the outcome.
+- **Paid and already entitled:** obtain the user's explicit agreement to add
+  this specific Plugin, then call `springbrand.plugins.add`. Reuse agreement
+  already given for this Plugin in the current task.
+- **Paid and not entitled:** explain the returned price and direct the user
+  to complete purchase or acquisition on the Platform's own site. After the
+  user reports completion, re-read the detail and continue according to its
+  updated pricing and entitlement state.
+- **Unknown cost:** resolve the pricing or acquisition requirement before
+  automatic addition. If it cannot be established, explain the uncertainty
+  and ask how the user wants to proceed; do not claim the Plugin is free.
 
-**Not entitled: acquisition belongs to the user.** When `user_state` is
-`not_entitled`: show the Plugin's detail (price included) and tell the user
-plainly to complete the purchase or acquisition themselves on the Platform's
-own site. Then re-run `springbrand.plugins.get` to confirm `user_state` has
-flipped to `entitled_not_added`, ask, and add. Never pretend to buy, never
-retry in a loop, and never describe waiting on the user as a failure.
+Always inspect the add response. Continue to Step 4 only when it confirms
+`user_state: added` and no outstanding acquisition requirement. If acquisition
+is required or pricing conflicts with the free check, stop and explain the
+returned requirement; never pay or complete an acquisition on the user's behalf.
+A free collection add is not a purchase. Never retry in a loop or classify a
+pending acquisition as no-match.
+
+Follow the Host's execution policy for the capability's declared risk. The
+registry currently marks `add` as `risk: high`; disclose that risk before the
+call, and do not bypass a Host-enforced approval or fabricate approval fields.
+Free Plugin addition does not imply that its downstream Action/API executions
+are free or exempt from their own authorization rules.
 
 ### Step 4 — Get the distribution and use it
 
@@ -239,7 +282,9 @@ the user's intent (`springbrand.plugins.match`, rules above; on a genuine
 the best match plus the alternatives, in Platform order, so the user sees
 which Marketplace resources could complete the task.
 
-- The user adopts one → continue with it.
+- A Plugin clearly fits and is verified free → follow the Plugin lifecycle
+  to add it if needed, then use it without a separate adoption confirmation.
+- The user adopts a paid Plugin → follow the same lifecycle and its cost gates.
 - The user declines, or opted out upfront → generate natively; no Plugin.
 
 This stage never changes when the Skill itself triggers — routing stays the

@@ -1,5 +1,15 @@
 # SpringBrand Claude Code Plugin
 
+Before validation, connectivity checks, installation commands or UI handoffs,
+read and follow [Initial installation response](./INSTALL.md#initial-installation-response).
+Determine first installation versus ordinary update before changing anything.
+In a first-install conversation, show actual setup status and the next step,
+then Welcome once at the first result report or request for user action. This
+includes OAuth, restart/new-session requests, failure/blockers and existing
+tasks; do not wait for verification or a new conversation. Skip ordinary
+updates and later repeats. Reuse the shared template and its incomplete-setup
+introduction; do not repeat installation steps when reading the shared rule.
+
 This guide verifies the Claude Code Host Adapter for the Claude Code CLI and the Claude Desktop Code tab on macOS. It does not claim support for Claude Chat, Cowork, web sessions, or account-level Connectors.
 
 ## Validate the package
@@ -12,7 +22,7 @@ claude plugin validate --strict .claude-plugin/plugin.json
 python3 tests/validate_plugin.py
 ```
 
-The first command validates Marketplace metadata, the second validates the Plugin manifest, and the package-contract check rejects credential files and static authentication material. The package contains four Canonical Skills under `skills/` (`ask-springbrand`, `springbrand-platform`, `springbrand-action-api`, `springbrand-connector`), one static `UserPromptSubmit` routing Hook, and one remote HTTP MCP declaration. The MCP declaration is exactly:
+The first command validates Marketplace metadata, the second validates the Plugin manifest, and the package-contract check rejects credential files and static authentication material. The package contains five Canonical Skills under `skills/` (`ask-springbrand`, `springbrand-platform`, `springbrand-action-api`, `springbrand-connector`, `springbrand-gtm`), one static `UserPromptSubmit` routing Hook, and one remote HTTP MCP declaration. The MCP declaration is exactly:
 
 ```json
 {"type":"http","url":"https://connector.springbrand.ai/mcp"}
@@ -21,6 +31,10 @@ The first command validates Marketplace metadata, the second validates the Plugi
 It contains no token, header, client secret, API key, or extra OAuth resource parameter. Authentication is handled by Claude's native MCP OAuth flow.
 
 ## Before installing
+
+Use the first-install/update classification established at entry. Keep it for
+accurate installation reporting, including later verification after a restart;
+Welcome must already have appeared at the first handoff in the original conversation.
 
 Check Claude for an existing global `springbrand` MCP entry or SpringBrand Skill and report duplicates before continuing. Do not delete or replace a legacy SpringBrand entry, OAuth state, or unrelated configuration without explicit user approval.
 
