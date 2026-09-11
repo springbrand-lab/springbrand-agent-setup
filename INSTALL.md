@@ -181,10 +181,10 @@ Follow [INSTALL.workbuddy.md](./INSTALL.workbuddy.md), using the bundled native
 CLI and this published, immutable R2 production source:
 
 ```text
-https://plugin.springbrand.ai/releases/v1.2.0-beta.12/workbuddy/springbrand-workbuddy.zip
+https://plugin.springbrand.ai/releases/v1.2.1/workbuddy/springbrand-workbuddy.zip
 ```
 
-Expected version: `1.2.0-beta.12`. The package already contains all four Skills
+Expected version: `1.2.1`. The package already contains all five Skills
 and the production MCP declaration. Do not fetch individual Skills or run a
 GitHub connectivity check. Prefer the native CLI; the guide documents the
 manual fallback's limitations. OAuth remains a native browser step.
@@ -278,7 +278,7 @@ upgrade replaces the toolset in place; no second SpringBrand entry is created.
 
 Verify before reporting success:
 
-- the complete Skill set exists and matches the selected source (five for GitHub main; four for the pinned WorkBuddy beta.12 package);
+- the complete Skill set exists and matches the selected source (five for GitHub main and the pinned WorkBuddy v1.2.1 package);
 - the MCP entry is named `springbrand`;
 - the URL is exactly `https://connector.springbrand.ai/mcp`;
 - the transport is native Streamable HTTP;
