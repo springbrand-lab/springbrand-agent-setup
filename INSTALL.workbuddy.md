@@ -15,8 +15,8 @@ Do not clone a repository, test GitHub connectivity, fetch individual Skills,
 or fall back to a GitHub source. This guide covers the verified macOS native CLI
 path (WorkBuddy 5.4.3 / bundled CLI 2.132.0); Windows remains unverified.
 
-The package contains four Canonical Skills (`ask-springbrand`,
-`springbrand-platform`, `springbrand-action-api`, `springbrand-connector`) and
+The package contains five Canonical Skills (`ask-springbrand`,
+`springbrand-platform`, `springbrand-action-api`, `springbrand-connector`, `springbrand-gtm`) and
 one production MCP entry, `springbrand`, at `https://connector.springbrand.ai/mcp`.
 Its tool prefixes are `platform_`, `action_`, and `connector_`.
 
@@ -29,8 +29,8 @@ A registered marketplace alone does not mean the Plugin was already installed.
 For the manual UI fallback, inspect the existing installation in the UI.
 
 ```sh
-WORKBUDDY_SOURCE="https://plugin.springbrand.ai/releases/v1.2.0-beta.12/workbuddy/springbrand-workbuddy.zip"
-WORKBUDDY_VERSION="1.2.0-beta.12"
+WORKBUDDY_SOURCE="https://plugin.springbrand.ai/releases/v1.2.1/workbuddy/springbrand-workbuddy.zip"
+WORKBUDDY_VERSION="1.2.1"
 ```
 
 This immutable source does not follow future releases automatically. Do not
@@ -141,7 +141,7 @@ Verify:
 
 - exactly one `springbrand@springbrand` is installed at `WORKBUDDY_VERSION`,
   with the intended enabled state and exact R2 source;
-- the four Canonical Skills are loaded in the new session;
+- the five Canonical Skills are loaded in the new session;
 - the bundled production MCP is connected, with no duplicate global entry;
 - a real, authenticated read-only capability call succeeds; anonymous discovery
   or HTTP 401 is not sufficient;
