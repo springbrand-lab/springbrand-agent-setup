@@ -137,6 +137,9 @@ RETIRED_PHRASES = (
 )
 
 ROUTING_NOTICE_PHRASES = (
+    "For substantive go-to-market, marketing, or growth tasks",
+    "springbrand-gtm",
+    "even when SpringBrand is not mentioned",
     "It has three capability domains on one MCP entry",
     "- Platform: create and publish artifacts, manage Plugins, and browse the Marketplace",
     "- Action API: use dynamic API services for tasks",

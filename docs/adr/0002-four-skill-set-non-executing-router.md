@@ -17,3 +17,22 @@ The Gateway now exposes three isolated Domain Executors (`/mcp/platform`, `/mcp/
 - Package validation moves from "exactly one `skills/*/SKILL.md`" to the named four-Skill set with three-entry MCP assertions.
 - The Routing Notice (Hook/Rule) shrinks to a ≤ ~700-character static domain map that points to Ask SpringBrand; all workflow detail lives in Skill bodies.
 - Routing evaluation must score router accuracy, domain selection, tool isolation, workflow completion, and duplicate discovery (amends the corpus behind #25).
+
+## Amendment — GTM Scenario Skill (2026-09-10, issue #96)
+
+The Skill Set gains a fifth named Canonical Skill, `springbrand-gtm`. It is a
+business entry above the existing Domain Skills, not another Capability Domain
+or MCP executor. It recognizes substantive growth work without requiring the
+user to name SpringBrand and enters one appropriate Domain Skill. Ask
+SpringBrand retains its current guide role and body; unresolved domain choice
+and cross-domain transitions retain ADR-0005's handoff contract.
+
+The static, network-free Hook/Rule includes a GTM context pointer in addition
+to the existing three-domain map. Its bounded budget is now 1100 characters
+including host-qualified Skill references. Selection occurs in the Agent,
+not through a classifier, network call, or execution in the Hook.
+
+This extends the explicit named Skill set and Distribution Mirrors while
+preserving the three domain prefixes and single MCP entry. It supersedes the
+four-member limit and earlier approximate 700-character Notice budget only.
+Native model triggering and task completion require separate dev evidence.

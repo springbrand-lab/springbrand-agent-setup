@@ -145,7 +145,7 @@ def main() -> None:
     )
     expect_failure(
         lambda root: _add_legacy_skill(root),
-        "Canonical Skill Set must be exactly the named four-Skill list",
+        "Canonical Skill Set must be exactly the named Skill list",
     )
     expect_failure(
         lambda root: edit_json(

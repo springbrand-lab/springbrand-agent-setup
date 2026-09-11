@@ -1,5 +1,58 @@
 # SpringBrand production installation protocol
 
+## Initial installation response
+
+Before changing anything, determine whether this is a first installation or an
+update of an existing SpringBrand installation. Keep that classification for
+this installation conversation, including any handoff to another Host guide.
+
+Show the welcome message once at the first installation wrap-up or request
+for user action, regardless of setup status or an existing task. Do not wait
+for verification or a new conversation. Skip ordinary updates. Do not repeat
+it in later replies of the same installation conversation.
+
+This includes setup complete, waiting for OAuth, a required restart or new
+session, and installation failure or a blocker. State the actual setup status
+and next step first, then show the Welcome message and example tasks. Showing
+the Welcome message does not mean that installation succeeded; keep the normal
+verification requirements before reporting success.
+
+If setup is incomplete, replace the prompt introduction with:
+"Once setup is complete, try a task with free credits—copy a prompt below."
+
+If the user already has a task underway, still show the Welcome message once,
+then continue the parts of that task that can be performed. Use only the current
+conversation to avoid repeats; do not defer delivery to a new session, add a
+Skill, persist a welcome flag, or inject Welcome into a per-prompt Hook.
+
+Keep the free-credit wording general: do not promise an amount, quantity, or
+validity period. Do not check the website or a balance API during installation,
+and do not present the copy as the user's current balance.
+
+### Welcome message
+
+**Everything your agent needs for go-to-market.**
+
+GTM workflow Plugins and research, social-data, and media APIs—all through
+SpringBrand, in the Agent you already use.
+
+Try a task with free credits—copy a prompt below.
+
+- **Research your market**
+  “Use SpringBrand to research my product's competitors, compare their
+  positioning, and identify opportunities to stand out. Include sources.”
+- **Find customer signals**
+  “Use SpringBrand to find public discussions about the problem my product
+  solves. Summarize recurring pain points and buying signals, with links.”
+- **Find creators**
+  “Use SpringBrand to find creators who reach my target audience, explain
+  why they fit my product, and draft personalized outreach.”
+- **Create campaign assets**
+  “Use SpringBrand to develop three creative directions for my next campaign,
+  then turn my chosen direction into copy and visuals for the target channel.”
+
+## Installation overview
+
 Identify the Host before any network preflight. WorkBuddy installs the published
 production release from R2. Codex, Claude Code, Cursor and the other-Agent
 fallback retain their existing GitHub `main` paths until separately adapted.
@@ -7,14 +60,15 @@ Do not use the legacy `stable` branch, a dev tag, or the `springbrand-dev` Plugi
 The public entry is https://plugin.springbrand.ai/INSTALL.md; a document hosted
 on R2 does not imply that every Host's package is already distributed by R2.
 
-SpringBrand ships four Canonical Skills and one MCP entry. The entry's tools carry frozen domain prefixes, so each Domain Skill is served by its own tool namespace:
+The GitHub source installation ships five Canonical Skills and one MCP entry. The entry's tools carry frozen domain prefixes, so each Domain Skill is served by its own tool namespace:
 
 | Skill | Role | Tool prefix |
 | --- | --- | --- |
+| `springbrand-gtm` | GTM business entry; hands off to one Domain Skill | none (never calls MCP) |
 | `ask-springbrand` | Ask SpringBrand — non-executing Capability Guide | none (never calls MCP) |
 | `springbrand-platform` | Platform — create/publish artifacts, Plugin lifecycle | `platform_` |
 | `springbrand-action-api` | Action API — dynamic API service execution | `action_` |
-| `springbrand-connector` | Connector — third-party systems (GitHub in v1) | `connector_` |
+| `springbrand-connector` | Connector — authorized third-party systems (GitHub, Gmail, GSC) | `connector_` |
 
 The MCP entry is:
 
@@ -24,10 +78,8 @@ The MCP entry is:
 
 ## Identify the Agent
 
-Before changing anything, determine whether this is a first installation or an
-update of an existing SpringBrand installation. Keep that classification for
-the final reporting step, then select exactly one Host path before testing
-connectivity:
+Use the first-install/update classification already established above and
+select exactly one Host path before testing connectivity:
 
 | Host | Current installation source | Guide |
 | --- | --- | --- |
@@ -39,8 +91,9 @@ connectivity:
 
 For WorkBuddy, go directly to its guide. Do not run another Host's commands,
 fetch raw Skill files, or silently fall back to GitHub when R2 is unavailable.
-When a linked Host guide completes its installation and verification steps,
-return to `After installation` below.
+The initial-response rule above applies at the first result report or request
+for user action, including when a linked Host guide blocks or asks for OAuth
+or a restart. Returning from a Host guide does not show Welcome a second time.
 
 ## Preflight
 
@@ -56,6 +109,7 @@ Skill URLs:
   https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-platform/SKILL.md
   https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-action-api/SKILL.md
   https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-connector/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-gtm/SKILL.md
 MCP URL:
   https://connector.springbrand.ai/mcp
 ```
@@ -144,13 +198,14 @@ current guide; never guess a future version or channel URL.
 Use this path only when the Agent cannot install the native Plugin.
 
 1. Identify the Agent's user-level Skill directory and MCP configuration.
-2. Fetch the four Canonical Skills from:
+2. Fetch the five Canonical Skills from:
 
    ```text
    https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/ask-springbrand/SKILL.md
    https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-platform/SKILL.md
    https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-action-api/SKILL.md
    https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-connector/SKILL.md
+   https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-gtm/SKILL.md
    ```
 
 3. Install them as:
@@ -160,6 +215,7 @@ Use this path only when the Agent cannot install the native Plugin.
    <user Skill directory>/springbrand-platform/SKILL.md
    <user Skill directory>/springbrand-action-api/SKILL.md
    <user Skill directory>/springbrand-connector/SKILL.md
+   <user Skill directory>/springbrand-gtm/SKILL.md
    ```
 
 4. Add or update exactly one native remote HTTP MCP entry:
@@ -205,7 +261,7 @@ R2 release; the other Hosts retain GitHub `main`. Obtain approval before any
 source replacement or conflicting legacy entry removal. The new Plugin bundles
 the same single `springbrand` entry, now serving
 the unified endpoint's `platform_`- / `action_`- / `connector_`-prefixed
-tools, plus the four Skills. The entry name and URL are unchanged, so the
+tools, plus the Canonical Skills included in the selected release. The entry name and URL are unchanged, so the
 upgrade replaces the toolset in place; no second SpringBrand entry is created.
 
 ## Safety and verification
@@ -222,7 +278,7 @@ upgrade replaces the toolset in place; no second SpringBrand entry is created.
 
 Verify before reporting success:
 
-- the four Skills exist and match the fixed source;
+- the complete Skill set exists and matches the selected source (five for GitHub main; four for the pinned WorkBuddy beta.12 package);
 - the MCP entry is named `springbrand`;
 - the URL is exactly `https://connector.springbrand.ai/mcp`;
 - the transport is native Streamable HTTP;
@@ -234,36 +290,3 @@ If any check fails, report the exact failure and do not declare success.
 Report the Agent and Surface, installation path, Plugin version, MCP status,
 OAuth status, conflicts found, changes made, and whether restart or a new
 session is required.
-
-## After installation
-
-After the first successful installation, show the message below. If a restart
-or new conversation is required, state that first. If the user already has a
-task underway, briefly confirm setup and continue that task instead.
-
-Do not show the message after an ordinary update or before installation
-verification succeeds. Keep the free-credit wording general: do not promise
-an amount, quantity, or validity period. Do not check the website or a balance
-API during installation, and do not present it as the user's current balance.
-
-### Welcome message
-
-**Everything your agent needs for go-to-market.**
-
-GTM workflow Plugins and research, social-data, and media APIs—all through
-SpringBrand, in the Agent you already use.
-
-Try a task with free credits—copy a prompt below.
-
-- **Research your market**
-  “Use SpringBrand to research my product's competitors, compare their
-  positioning, and identify opportunities to stand out. Include sources.”
-- **Find customer signals**
-  “Use SpringBrand to find public discussions about the problem my product
-  solves. Summarize recurring pain points and buying signals, with links.”
-- **Find creators**
-  “Use SpringBrand to find creators who reach my target audience, explain
-  why they fit my product, and draft personalized outreach.”
-- **Create campaign assets**
-  “Use SpringBrand to develop three creative directions for my next campaign,
-  then turn my chosen direction into copy and visuals for the target channel.”

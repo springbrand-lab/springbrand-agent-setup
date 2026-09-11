@@ -43,7 +43,7 @@ def main() -> None:
     assert "`codex` has no separate `plugin update` command" in install
     assert "updates the installed Plugin in place" in install
     assert "whether this is a first installation or an\nupdate" in install
-    assert "return to `After installation` below" in install
+    assert "Returning from a Host guide does not show Welcome a second time" in install
 
     # Direct Host-guide entry points must reach the shared welcome contract too.
     for name, install_heading in (
@@ -52,16 +52,21 @@ def main() -> None:
         ("INSTALL.workbuddy.md", "## 2. First install"),
     ):
         guide = (ROOT / name).read_text()
-        classification = "whether this is a first installation or an\nupdate"
+        classification = "Determine first installation versus ordinary update"
         assert classification in guide, name
         assert guide.index(classification) < guide.index(install_heading), name
-        assert "including when verification continues in a new session" in guide, name
-        welcome_link = "[After installation](./INSTALL.md#after-installation)"
+        welcome_link = "[Initial installation response](./INSTALL.md#initial-installation-response)"
         assert welcome_link in guide, name
-        assert guide.index(welcome_link) > guide.index(install_heading), name
-        assert "After installation verification succeeds" in guide, name
-        assert "## After installation\n" in install
+        # Load the shared rule before even a validation command can return early.
+        assert guide.index(welcome_link) < guide.index("\n## "), name
+        if "```" in guide:
+            assert guide.index(welcome_link) < guide.index("```"), name
+        assert "actual setup status and the next step" in guide, name
+        assert "failure/blockers and existing" in guide, name
+        assert "Skip ordinary\nupdates and later repeats" in guide, name
         assert "Try a task with free credits" not in guide, name
+        assert "After installation verification succeeds" not in guide, name
+        assert "#after-installation" not in guide, name
 
     workbuddy = (ROOT / "INSTALL.workbuddy.md").read_text()
     assert "command -v codebuddy" in workbuddy
@@ -106,30 +111,47 @@ def main() -> None:
     assert "follow-ups reuse existing state" in development
     assert "<guide-ref>" not in development
     assert "Keep that classification for final reporting" in development
-    development_flat = " ".join(development.split())
-    assert development_flat.count("Continue to `After installation` below") == 2
-    assert "Then continue to `After installation` below" in development
-
-    after_install_heading = "## After installation\n"
-    assert install.count(after_install_heading) == 1
-    assert development.count(after_install_heading) == 1
-    install_after = after_install_heading + install.split(after_install_heading, 1)[1]
-    development_after = after_install_heading + development.split(after_install_heading, 1)[1]
-    assert install_after == development_after
+    initial_heading = "## Initial installation response\n"
+    overview_heading = "## Installation overview\n"
+    initial_sections = []
+    for guide in (install, development):
+        assert guide.count(initial_heading) == 1
+        assert guide.count("### Welcome message\n") == 1
+        assert guide.index(initial_heading) < guide.index(overview_heading)
+        assert guide.index(initial_heading) < guide.index("## Preflight")
+        assert guide.index(initial_heading) < guide.index("```"), "Preflight can block before Welcome is loaded"
+        initial_sections.append(guide.split(initial_heading, 1)[1].split(overview_heading, 1)[0])
+        for retired in ("## After installation", "#after-installation", "first successful installation", "before installation\nverification succeeds", "briefly confirm setup and continue that task instead"):
+            assert retired not in guide, retired
+    assert initial_sections[0] == initial_sections[1], "Production/dev initial-response contract drift"
+    initial = " ".join(initial_sections[0].split())
+    # Cover each first-handoff outcome and the once/update constraints without
+    # pretending document checks prove a model's native runtime behavior.
     for expected in (
-        "After the first successful installation",
-        "Do not show the message after an ordinary update",
-        "Do not check the website or a balance\nAPI",
-        "do not promise\nan amount, quantity, or validity period",
-        "Try a task with free credits—copy a prompt below.",
-        "Research your market",
-        "Find customer signals",
-        "Find creators",
-        "Create campaign assets",
+        "first installation wrap-up or request for user action",
+        "regardless of setup status or an existing task",
+        "Do not wait for verification or a new conversation",
+        "Skip ordinary updates",
+        "Do not repeat it in later replies of the same installation conversation",
+        "setup complete",
+        "waiting for OAuth",
+        "required restart or new session",
+        "installation failure or a blocker",
+        "State the actual setup status and next step first",
+        "does not mean that installation succeeded",
+        "If setup is incomplete, replace the prompt introduction",
+        "Once setup is complete, try a task with free credits—copy a prompt below.",
+        "already has a task underway, still show the Welcome message once",
+        "Do not check the website or a balance API",
+        "do not promise an amount, quantity, or validity period",
+        "Research your market", "Find customer signals", "Find creators", "Create campaign assets",
     ):
-        assert expected in install_after
+        assert expected in initial, expected
+    template = initial_sections[0].split("### Welcome message\n", 1)[1]
+    assert template.count("Try a task with free credits—copy a prompt below.") == 1
+    assert template.count('“Use SpringBrand') == 4
     for retired in ("$10", "New Free accounts start", "Copy a prompt to get started:"):
-        assert retired not in install_after, retired
+        assert retired not in template, retired
 
     readme = (ROOT / "README.md").read_text()
     assert f"blob/v{DEV_VERSION}/INSTALL.dev.md" in readme

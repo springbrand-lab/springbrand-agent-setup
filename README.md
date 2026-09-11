@@ -2,14 +2,15 @@
 
 Install SpringBrand Production through the matching native Host guide: WorkBuddy uses a published R2 release; Codex, Claude Code and Cursor retain GitHub `main`. Other Agents use the documented Skill-plus-MCP fallback.
 
-SpringBrand ships four Canonical Skills and one MCP entry per environment. The entry's tools carry frozen domain prefixes, so each Domain Skill is served by its own tool namespace:
+This source tree ships five Canonical Skills and one MCP entry per environment. The published WorkBuddy beta.12 package remains pinned to four Skills until the next production release. The entry's tools carry frozen domain prefixes, so each Domain Skill is served by its own tool namespace:
 
 | Skill | Role | Tool prefix |
 | --- | --- | --- |
+| `springbrand-gtm` | Substantive GTM business entry; hands off to one Domain Skill | none (never calls MCP) |
 | `ask-springbrand` | Ask SpringBrand — non-executing Capability Guide | none (never calls MCP) |
 | `springbrand-platform` | Platform — create/publish artifacts, Plugin lifecycle | `platform_` |
 | `springbrand-action-api` | Action API — dynamic API service execution | `action_` |
-| `springbrand-connector` | Connector — third-party systems (GitHub in v1) | `connector_` |
+| `springbrand-connector` | Connector — authorized third-party systems (GitHub, Gmail, GSC) | `connector_` |
 
 ## Quick start
 
@@ -24,12 +25,12 @@ SpringBrand has two environments. Pick the one you need and paste the matching p
 ### Development
 
 > Follow the official SpringBrand development installation guide to complete setup:
-> https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.2.0-beta.11-dev.3/INSTALL.dev.md
+> https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.2.0-beta.12-dev.7/INSTALL.dev.md
 > Use the native `springbrand-dev` Plugin on Codex, Claude Code/Desktop Code, Cursor, or WorkBuddy. Use the documented Skill-plus-MCP fallback only on unsupported hosts. Preserve unrelated configuration, complete native OAuth once, verify the installation, and tell me whether I need to restart.
 
-The native development Plugin is the immutable prerelease [`v1.2.0-beta.11-dev.3`](https://github.com/springbrand-lab/springbrand-agent-setup/releases/tag/v1.2.0-beta.11-dev.3). It is identified as `springbrand-dev`, displays as **SpringBrand Dev**, and bundles a single `springbrand-dev` MCP entry at `https://devconnector.springbrand.ai/mcp`. Authentication is host-native OAuth — one consent per Surface (a single authorization covers all three domains).
+The native development Plugin is the immutable prerelease [`v1.2.0-beta.12-dev.7`](https://github.com/springbrand-lab/springbrand-agent-setup/releases/tag/v1.2.0-beta.12-dev.7). It is identified as `springbrand-dev`, displays as **SpringBrand Dev**, and bundles a single `springbrand-dev` MCP entry at `https://devconnector.springbrand.ai/mcp`. Authentication is host-native OAuth — one consent per Surface (a single authorization covers all three domains).
 
-Disable or uninstall the full production `springbrand` Plugin before enabling the full development Plugin. Both package the same four Canonical Skills and three-domain routing behavior, so enabling both can duplicate routing and make connector selection ambiguous. The manual fallback remains available for unsupported hosts and may coexist with production because it shares the same Skill files and adds only the separately named `springbrand-dev` MCP entry.
+Disable or uninstall the full production `springbrand` Plugin before enabling the full development Plugin. They share Canonical Skill names and three-domain routing. Enabling both can duplicate routing and make connector selection ambiguous. The manual fallback remains available for unsupported hosts and may coexist with production because it shares the same Skill files and adds only the separately named `springbrand-dev` MCP entry.
 
 ### Production vs Development
 
@@ -43,16 +44,16 @@ Disable or uninstall the full production `springbrand` Plugin before enabling th
 | Full Plugins can coexist | No | No — disable one before enabling the other |
 | Manual Skill-plus-MCP fallback can coexist | Yes | Yes — it shares the same Skills and uses a separate MCP entry name |
 
-Both environments share the same four Canonical Skills (`ask-springbrand`, `springbrand-platform`, `springbrand-action-api`, `springbrand-connector`). Development is for testing only and should not be used as a production configuration.
+The current source and latest dev release include `springbrand-gtm`, `ask-springbrand`, `springbrand-platform`, `springbrand-action-api`, and `springbrand-connector`; install one coherent release rather than mixing Skill versions. Development is for testing only and should not be used as a production configuration.
 
 ## What gets installed
 
-- **Codex Plugin (beta)** — packages the four Canonical Skills, the single production MCP declaration, and static preflight Hook for supported macOS Codex hosts.
-- **Claude Code Plugin (beta)** — packages the same four Skills, one native OAuth-backed production MCP entry, and static preflight Hook for Claude Code CLI and the Claude Desktop Code tab; see [`INSTALL.claude.md`](./INSTALL.claude.md).
-- **Cursor Plugin (beta)** — packages generated, verified Distribution Mirrors of all four Skills with one native OAuth-backed production MCP entry and an always-applied preflight Rule for Cursor desktop; see [`INSTALL.cursor.md`](./INSTALL.cursor.md).
+- **Codex Plugin (beta)** — packages the five Canonical Skills, the single production MCP declaration, and static preflight Hook for supported macOS Codex hosts.
+- **Claude Code Plugin (beta)** — packages the same five Skills, one native OAuth-backed production MCP entry, and static preflight Hook for Claude Code CLI and the Claude Desktop Code tab; see [`INSTALL.claude.md`](./INSTALL.claude.md).
+- **Cursor Plugin (beta)** — packages generated, verified Distribution Mirrors of all five Skills with one native OAuth-backed production MCP entry and an always-applied preflight Rule for Cursor desktop; see [`INSTALL.cursor.md`](./INSTALL.cursor.md).
 - **WorkBuddy Plugin (beta)** — a WorkBuddy Agent installs it through the bundled CLI; **Add Marketplace** remains the manual fallback; see [`INSTALL.workbuddy.md`](./INSTALL.workbuddy.md).
-- **SpringBrand Dev Plugin (prerelease)** — packages the same four Skills and the single `springbrand-dev` MCP entry for internal testing against `https://devconnector.springbrand.ai/mcp`; see [`INSTALL.dev.md`](./INSTALL.dev.md).
-- **Skill-plus-MCP fallback** — the four user-level Skills and the single remote MCP entry for unsupported hosts.
+- **SpringBrand Dev Plugin (prerelease)** — packages five Skills including `springbrand-gtm` and the single `springbrand-dev` MCP entry for internal testing against `https://devconnector.springbrand.ai/mcp`; see [`INSTALL.dev.md`](./INSTALL.dev.md).
+- **Skill-plus-MCP fallback** — the five user-level Skills and the single remote MCP entry for unsupported hosts.
 
 Both MCP environments require native OAuth before normal use. No Plugin contains static credentials or authorization headers.
 
@@ -62,7 +63,7 @@ Both MCP environments require native OAuth before normal use. No Plugin contains
 | --- | --- |
 | Production — WorkBuddy | Published R2 release selected in `INSTALL.workbuddy.md` (currently pinned) |
 | Production — other Hosts | `https://github.com/springbrand-lab/springbrand-agent-setup` (`main`) |
-| Development | `springbrand-lab/springbrand-agent-setup@v1.2.0-beta.11-dev.3` |
+| Development | `springbrand-lab/springbrand-agent-setup@v1.2.0-beta.12-dev.7` |
 
 WorkBuddy installs an immutable production-tag package from R2, not a live mirror
 of `main`; the current URL does not automatically advance. Other Hosts still
@@ -78,7 +79,7 @@ channels. This identifies the installed Skill release, not the MCP server versio
 
 Production synchronization runs automatically on same-repository pull requests
 targeting `main`. After the release author updates `VERSION` and the package
-manifests, CI stamps the four Skills, updates Cursor/WorkBuddy Distribution
+manifests, CI stamps the Canonical Skills, updates Cursor/WorkBuddy Distribution
 Mirrors, and commits generated changes to the PR branch. It then dispatches
 validation for that new commit. Merge the reviewed PR and create the production
 tag from the synchronized commit; no separate version-sync command is needed.
@@ -110,10 +111,11 @@ springbrand-agent-setup/
     ├── ask-springbrand/SKILL.md       # Ask SpringBrand — non-executing Capability Guide
     ├── springbrand-platform/SKILL.md  # Platform Domain Skill
     ├── springbrand-action-api/SKILL.md # Action API Domain Skill
-    └── springbrand-connector/SKILL.md # Connector Domain Skill
+    ├── springbrand-connector/SKILL.md # Connector Domain Skill
+    └── springbrand-gtm/SKILL.md       # GTM Scenario Skill
 ```
 
-`INSTALL.md` and `INSTALL.dev.md` are the core product. They are written to be read and executed by an Agent. The Skill sources live in `skills/<machine-name>/SKILL.md` and are fetched by the Agent during installation; both environments use the same four Skills.
+`INSTALL.md` and `INSTALL.dev.md` are the core product. They are written to be read and executed by an Agent. The Skill sources live in `skills/<machine-name>/SKILL.md` and are fetched by the Agent during installation; the selected release determines the complete Canonical Skill set.
 
 ## Requirements
 

@@ -14,7 +14,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = 'https://plugin.springbrand.ai'
 PREFIX = 'plugins/springbrand-workbuddy'
-SKILLS = ('ask-springbrand', 'springbrand-platform', 'springbrand-action-api', 'springbrand-connector')
+SKILLS = ('ask-springbrand', 'springbrand-platform', 'springbrand-action-api', 'springbrand-connector', 'springbrand-gtm')
 TAG_PATTERN = r'v\d+\.\d+\.\d+(?:-(?:alpha|beta|rc)\.\d+)?'
 
 

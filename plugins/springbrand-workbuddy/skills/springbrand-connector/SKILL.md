@@ -2,10 +2,10 @@
 name: springbrand-connector
 description: >
   Execute SpringBrand Connector workflows: search published Connector
-  capabilities (GitHub in version one) and execute them through the
-  `connector_`-prefixed tools of the SpringBrand MCP entry. Use when the task
-  names a third-party system such as GitHub. Do not use for Platform artifact
-  or Plugin work, or dynamic API services.
+  capabilities and execute them through the `connector_`-prefixed tools of
+  the SpringBrand MCP entry. Use for reads or writes in a named third-party
+  system such as GitHub, Gmail, or Google Search Console. Do not use for
+  Platform artifact or Plugin work, or dynamic API services.
 metadata:
   version: "1.2.0-beta.12"
 ---
@@ -26,8 +26,8 @@ MCP or fetch remote releases just to check versions, and do not infer the MCP
 server version or automatically reinstall from this metadata.
 
 SpringBrand Connector is the Domain Skill for working directly with a
-third-party system the user names — GitHub in version one. It owns one small
-workflow: see what the user's connections authorize, pick the capability that
+third-party system the user names, including GitHub, Gmail, and Google Search
+Console. It owns one small workflow: see what the user's connections authorize, pick the capability that
 fits, run it with the user's explicit confirmation, and report the result
 honestly.
 
@@ -66,20 +66,20 @@ an exact reference from this domain is already in hand and still applies.
 
 ## What this Skill can reach
 
-Version one publishes exactly one connector: **GitHub**. The Gateway's
-publish list is `github` and nothing else.
+The reviewed systems for this release are **GitHub**, **Gmail**, and
+**Google Search Console (GSC)**. The installed environment and runtime
+`connector_search_capabilities` result determine what this caller can use;
+a service name in this Skill does not grant access or prove account readiness.
 
-- If the user names GitHub, proceed with the workflow.
-- If the user names any other service (email, chat, documents, anything
-  else), say plainly that SpringBrand does not connect to it yet. Never
-  advertise, hint at, or attempt an unpublished connector — code existing
-  behind the scenes is not something the user can reach, and pretending
-  otherwise produces failures the user cannot debug.
+- For these systems, discover the required operation in the authorized inventory.
+- Describe support from returned capabilities, not from assumptions about the
+  provider's complete API. Never infer that GSC can request indexing or that
+  an email capability authorizes sending to unspecified recipients.
+- If nothing relevant is returned, explain that no matching capability is
+  currently available to this connection. Check the connection or authorization
+  as appropriate; do not declare the provider globally unsupported from an
+  empty caller-scoped result.
 
-<!-- UNFROZEN (mcp-gateway Issue 10 real-OAuth E2E): the GitHub-only publish
-     set comes from the dev Gateway's `PUBLISHED_CONNECTORS` configuration
-     and stays unfrozen until the Gateway's real-OAuth end-to-end
-     verification lands. -->
 - If the user's task only *mentions* GitHub in passing but really creates,
   publishes, or manages SpringBrand artifacts or Plugins, that is the
   Platform domain — see [Domain boundaries](#domain-boundaries).
@@ -207,7 +207,7 @@ Handle the outcome honestly:
 
 ## Talking to the user
 
-All user-visible text is plain, step-by-step English. The user may not be a
+Use the user's language for plain, step-by-step guidance. The user may not be a
 developer.
 
 - Say what will happen before it happens: "This will list the issues in your
@@ -224,8 +224,8 @@ developer.
 - Call only `connector_`-prefixed tools on the SpringBrand MCP entry, and
   name the `connector_` prefix in instructions. Never call a `platform_`- or
   `action_`-prefixed tool; no tool-name inference, ever.
-- Version one publishes GitHub only. Never advertise or attempt any other
-  connector.
+- Use the runtime authorized inventory as the authority for the selected
+  environment. Only advertise and execute operations returned by discovery.
 - Never construct, edit, or synthesize a `connector:` reference; use exactly
   what `connector_search_capabilities` returned, and paginate until
   `complete`.

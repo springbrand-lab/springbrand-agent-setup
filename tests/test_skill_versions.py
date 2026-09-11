@@ -43,9 +43,9 @@ def main():
         for version in ("1.2.0-beta.12", "1.2.0-beta.12-dev.1", "1.2.0-beta.13"):
             (root / "VERSION").write_text(version + "\n")
             before = {p: p.read_bytes() for p in root.rglob("SKILL.md")}
-            assert len(sync(root, check=True)) == 12
+            assert len(sync(root, check=True)) == len(before)
             assert before == {p: p.read_bytes() for p in root.rglob("SKILL.md")}, "check mode must not write"
-            assert len(sync(root)) == 12
+            assert len(sync(root)) == len(before)
             assert sync(root, check=True) == []
             assert sync(root) == [], "stamp must be idempotent"
             for path in (root / "skills").glob("*/SKILL.md"):

@@ -1,5 +1,15 @@
 # SpringBrand WorkBuddy Plugin — R2 production installation
 
+Before validation, connectivity checks, installation commands or UI handoffs,
+read and follow [Initial installation response](./INSTALL.md#initial-installation-response).
+Determine first installation versus ordinary update before changing anything.
+In a first-install conversation, show actual setup status and the next step,
+then Welcome once at the first result report or request for user action. This
+includes OAuth, restart/new-session requests, failure/blockers and existing
+tasks; do not wait for verification or a new conversation. Skip ordinary
+updates and later repeats. Reuse the shared template and its incomplete-setup
+introduction; do not repeat installation steps when reading the shared rule.
+
 Install through WorkBuddy's native Plugin lifecycle from the R2 release below.
 Do not clone a repository, test GitHub connectivity, fetch individual Skills,
 or fall back to a GitHub source. This guide covers the verified macOS native CLI
@@ -12,9 +22,9 @@ Its tool prefixes are `platform_`, `action_`, and `connector_`.
 
 ## 1. Select the published release and inspect existing state
 
-Before changing anything, determine whether this is a first installation or an
-update of an existing SpringBrand installation. Keep that classification for
-final reporting, including when verification continues in a new session.
+Use the first-install/update classification established at entry. Keep it for
+accurate installation reporting, including later verification after a restart;
+Welcome must already have appeared at the first handoff in the original conversation.
 A registered marketplace alone does not mean the Plugin was already installed.
 For the manual UI fallback, inspect the existing installation in the UI.
 
@@ -152,11 +162,6 @@ Never add tokens, authorization headers, client secrets, API keys, local MCP
 bridges or a second global MCP to work around installation/authentication.
 Never read or print token contents. Report version, source, Skills, OAuth,
 actual call result, changes made and any remaining reload requirement separately.
-
-After installation verification succeeds, read and follow
-[After installation](./INSTALL.md#after-installation) using the original
-first-install/update classification. Apply that section's welcome rules even
-when this guide was the direct entry point; do not repeat the installation steps.
 
 ## Manual UI fallback
 

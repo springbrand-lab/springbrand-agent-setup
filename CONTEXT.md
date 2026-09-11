@@ -9,12 +9,16 @@ One authoritative member of the SpringBrand Skill Set whose instructions all sup
 _Avoid_: Host Skill, Skill fork, maintained copy
 
 **SpringBrand Skill Set**:
-The four Canonical Skills shipped together: Ask SpringBrand and the Platform, Action API, and Connector Domain Skills.
+The five Canonical Skills shipped together: Ask SpringBrand, the GTM Scenario Skill, and the Platform, Action API, and Connector Domain Skills.
 _Avoid_: Monolithic Skill, Skill bundle, mixed workflow
 
 **Ask SpringBrand**:
 The user-facing Capability Guide that selects one Capability Domain, reports the current workflow position, recommends the next Domain Skill, and then stops without discovering or executing a capability.
 _Avoid_: Executor, global discovery Skill, orchestrator
+
+**GTM Scenario Skill**:
+The business entry for substantive go-to-market, marketing, and growth tasks, including requests that do not name SpringBrand. It identifies the needed contribution and enters an existing Domain Skill without owning discovery or execution.
+_Avoid_: Fourth domain, global interceptor, GTM executor
 
 **Capability Domain**:
 One SpringBrand application scenario with its own discovery, execution, and guidance authority: Platform, Action API, or Connector.
