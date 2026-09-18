@@ -3,7 +3,7 @@
 Install SpringBrand Production through the matching native Host guide: WorkBuddy uses a published R2 release; Codex, Claude Code and Cursor retain GitHub `main`. Other Agents use the documented Skill-plus-MCP fallback.
 
 This source tree ships five Canonical Skills and one MCP entry per environment.
-The published WorkBuddy v1.2.1 package includes the same five Skills. The MCP
+The published WorkBuddy v1.2.2 package includes the same five Skills. The MCP
 entry exposes five shared Meta Tools; the Domain Skills preserve business
 boundaries through discovered operation contracts rather than registered tool
 name prefixes:
@@ -29,10 +29,10 @@ SpringBrand has two environments. Pick the one you need and paste the matching p
 ### Development
 
 > Follow the official SpringBrand development installation guide to complete setup:
-> https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.2.1-dev.1/INSTALL.dev.md
+> https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.2.1-dev.2/INSTALL.dev.md
 > Identify the target environment and Host first. Provide the development API key only at runtime through the Host's secure credential flow. Configure exactly one `springbrand-dev` entry, preserve unrelated configuration, run the authoritative identity check and configured MCP service health check, and report whether a restart or new session is required. Do not launch OAuth when the API key is valid; use the manual UI instructions and stop if the Host cannot represent Bearer credentials safely.
 
-The native development Plugin is the immutable prerelease [`v1.2.1-dev.1`](https://github.com/springbrand-lab/springbrand-agent-setup/releases/tag/v1.2.1-dev.1). It is identified as `springbrand-dev`, displays as **SpringBrand Dev**, and bundles a single `springbrand-dev` MCP entry at `https://devconnector.springbrand.ai/mcp`. The selected development descriptor owns its native HTTP transport and runtime API-key credential representation.
+The native development Plugin is the immutable prerelease [`v1.2.1-dev.2`](https://github.com/springbrand-lab/springbrand-agent-setup/releases/tag/v1.2.1-dev.2). It is identified as `springbrand-dev`, displays as **SpringBrand Dev**, and bundles a single `springbrand-dev` MCP entry at `https://devconnector.springbrand.ai/mcp`. The selected development descriptor owns its native HTTP transport and runtime API-key credential representation.
 
 Keep the full production and development Plugins enabled together only when the
 Host can distinguish their entries and routing. Preserve the production entry
@@ -74,7 +74,7 @@ contains reusable credentials or static authorization headers.
 | --- | --- |
 | Production — WorkBuddy | Published R2 release selected in `INSTALL.workbuddy.md` (currently pinned) |
 | Production — other Hosts | `https://github.com/springbrand-lab/springbrand-agent-setup` (`main`) |
-| Development | `springbrand-lab/springbrand-agent-setup@v1.2.1-dev.1` |
+| Development | `springbrand-lab/springbrand-agent-setup@v1.2.1-dev.2` |
 
 WorkBuddy installs an immutable production-tag package from R2, not a live mirror
 of `main`; the current URL does not automatically advance. Other Hosts still
