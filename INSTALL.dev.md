@@ -74,11 +74,11 @@ Before installing, verify the Skill URLs and MCP URL are reachable.
 
 ```text
 Skill URLs:
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.1/skills/ask-springbrand/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.1/skills/springbrand-platform/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.1/skills/springbrand-action-api/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.1/skills/springbrand-connector/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.1/skills/springbrand-gtm/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.2/skills/ask-springbrand/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.2/skills/springbrand-platform/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.2/skills/springbrand-action-api/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.2/skills/springbrand-connector/SKILL.md
+  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.2/skills/springbrand-gtm/SKILL.md
 MCP URL:
   https://devconnector.springbrand.ai/mcp
 ```
@@ -106,7 +106,7 @@ The immutable internal-testing release is:
 | Plugin / Marketplace ID | `springbrand-dev` |
 | Display name | SpringBrand Dev |
 | Version | `1.2.1-dev.1` |
-| Git ref | `v1.2.1-dev.1` |
+| Git ref | `v1.2.1-dev.2` |
 | MCP entry | `springbrand-dev` |
 | MCP URL | `https://devconnector.springbrand.ai/mcp` |
 | Transport | Native remote HTTP / Streamable HTTP |
@@ -167,7 +167,7 @@ Skills before declaring success.
 ### Codex CLI and Desktop
 
 ```sh
-codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.1-dev.1
+codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.1-dev.2
 codex plugin add springbrand-dev@springbrand-dev
 ```
 
@@ -182,14 +182,14 @@ UI fields instead of launching OAuth or claiming success.
 CLI:
 
 ```sh
-claude plugin marketplace add springbrand-lab/springbrand-agent-setup@v1.2.1-dev.1 --scope user
+claude plugin marketplace add springbrand-lab/springbrand-agent-setup@v1.2.1-dev.2 --scope user
 claude plugin install springbrand-dev@springbrand-dev --scope user
 ```
 
 Desktop Code: open **Plugin Browser → Add Marketplace** and enter:
 
 ```text
-springbrand-lab/springbrand-agent-setup@v1.2.1-dev.1
+springbrand-lab/springbrand-agent-setup@v1.2.1-dev.2
 ```
 
 Install **SpringBrand Dev**, configure the runtime API key through the supported
@@ -203,7 +203,7 @@ Connectors.
 Open **Customize → Browse Marketplace → Add Marketplace → Import from GitHub** and enter:
 
 ```text
-springbrand-lab/springbrand-agent-setup@v1.2.1-dev.1
+springbrand-lab/springbrand-agent-setup@v1.2.1-dev.2
 ```
 
 Install **SpringBrand Dev**, configure the runtime API key for the
@@ -218,7 +218,7 @@ ZIP Marketplace and install `springbrand-dev@springbrand-dev`; **Add Marketplace
 remains the manual fallback:
 
 ```text
-https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.1-dev.1.zip
+https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.1-dev.2.zip
 ```
 
 WorkBuddy does not accept the `owner/repo@tag` shorthand. Configure the runtime
@@ -311,11 +311,11 @@ deleted, or launched proactively.
 ### Inputs
 
 - **Skill sources:**
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.1/skills/ask-springbrand/SKILL.md`
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.1/skills/springbrand-platform/SKILL.md`
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.1/skills/springbrand-action-api/SKILL.md`
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.1/skills/springbrand-connector/SKILL.md`
-  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.1/skills/springbrand-gtm/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.2/skills/ask-springbrand/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.2/skills/springbrand-platform/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.2/skills/springbrand-action-api/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.2/skills/springbrand-connector/SKILL.md`
+  - `https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/v1.2.1-dev.2/skills/springbrand-gtm/SKILL.md`
 - **MCP server name:** `springbrand-dev`
 - **MCP server URL (fixed):**
   - `https://devconnector.springbrand.ai/mcp`
@@ -431,7 +431,7 @@ if "$WORKBUDDY_CLI" plugin marketplace list | grep -q '"name": "springbrand-dev"
   "$WORKBUDDY_CLI" plugin marketplace update springbrand-dev
 else
   "$WORKBUDDY_CLI" plugin marketplace add \
-    https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.1-dev.1.zip
+    https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.1-dev.2.zip
 fi
 
 if "$WORKBUDDY_CLI" plugin list --json | grep -q '"id": "springbrand-dev@springbrand-dev"'; then
