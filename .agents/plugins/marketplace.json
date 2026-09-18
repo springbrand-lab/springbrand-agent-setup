@@ -1,11 +1,11 @@
 {
-  "name": "springbrand",
+  "name": "springbrand-dev",
   "interface": {
-    "displayName": "SpringBrand"
+    "displayName": "SpringBrand Dev"
   },
   "plugins": [
     {
-      "name": "springbrand",
+      "name": "springbrand-dev",
       "source": {
         "source": "local",
         "path": "./"
