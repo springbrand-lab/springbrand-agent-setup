@@ -63,8 +63,10 @@ Do not run both paths. This document is the single source of truth for developme
 SpringBrand ships five Canonical Skills (`ask-springbrand`,
 `springbrand-platform`, `springbrand-action-api`, `springbrand-connector`, `springbrand-gtm`) and
 one MCP entry per environment. The dev variant uses the single
-`springbrand-dev` entry against `devconnector.springbrand.ai`; its tools
-carry frozen domain prefixes (`platform_` / `action_` / `connector_`).
+`springbrand-dev` entry against `devconnector.springbrand.ai`. The four
+SpringBrand Domain Skills use the shared `search_tools`, `get_tool_schemas`,
+`manage_connections`, `execute_tools`, and `get_execution` Meta Tools;
+`springbrand-gtm` remains a non-executing workflow router.
 
 ## Preflight
 
@@ -91,11 +93,11 @@ Do not start a long clone or unbounded diagnosis.
 
 ## Native `springbrand-dev` Plugin
 
-A Legacy Plugin Release using a single `springbrand-dev` entry at
-`https://devconnector.springbrand.ai/mcp` with the Gateway's legacy mixed
-contract (unprefixed tool names) continues to work until the dev `/mcp` slot
-serves the unified endpoint; upgrading to the current Plugin with
-domain-prefixed tools is voluntary and there is no automatic sunset.
+The selected development release is described by one environment descriptor.
+That descriptor is authoritative for the entry name, URL, native remote HTTP
+transport, API-key credential representation, identity check, and MCP service
+health check. Do not copy a credential into this repository or invent a
+Host-specific representation that the selected release does not support.
 
 The immutable internal-testing release is:
 
@@ -108,13 +110,12 @@ The immutable internal-testing release is:
 | MCP entry | `springbrand-dev` |
 | MCP URL | `https://devconnector.springbrand.ai/mcp` |
 | Transport | Native remote HTTP / Streamable HTTP |
-| Authentication | Host-native OAuth (one consent per Surface) |
+| Authentication | Runtime API key through the Host's secure Bearer credential mechanism |
 
-This development release adds `springbrand-gtm` to the four existing Canonical
-Skills and retains three-domain routing. **Disable or uninstall the full production
-`springbrand` Plugin before enabling the full `springbrand-dev` Plugin.** Do
-not edit Plugin caches, override the bundled URL, add static credentials, or
-register extra dev MCP servers.
+This development release includes `springbrand-gtm` and the four Domain Skills.
+Keep production and development configuration only when the Host can distinguish
+their entries and routing. Do not edit Plugin caches, override the bundled URL,
+store a credential in repository files, or register extra dev MCP servers.
 
 ## Installation contract
 
@@ -127,13 +128,17 @@ register extra dev MCP servers.
 3. Use manual Skill-plus-MCP installation only when the Host has no native
    Plugin lifecycle. The fallback installs no Notice adapter. Never run both
    paths.
-4. Use Host-native OAuth. The single entry requires one consent per Surface —
-   one authorization covers all three domains. Never collect, print, proxy,
-   or store tokens, authorization codes, client secrets, or other
-   credentials.
+4. Ask for the development API key only at runtime, after the target environment
+   and Host are known. Configure it through the Host's secure Bearer credential
+   mechanism. Never print, echo, log, hash, proxy, or place the key or its
+   Authorization header in a URL, file, command history, error, or report.
 5. Preserve unrelated Plugins, Skills, Hooks, Rules, MCP entries, OAuth state,
    and configuration. Ask before replacing a conflicting `springbrand-dev`
    entry; never alter the production `springbrand` entry from this guide.
+6. Installation succeeds only after the authoritative identity check and the
+   configured MCP service health check pass. Capability discovery, business
+   execution, Plugin use, and Provider operations are separate functional
+   tests, not installation gates.
 
 Host Notice bindings for this development release are:
 
@@ -164,10 +169,13 @@ Skills before declaring success.
 ```sh
 codex plugin marketplace add springbrand-lab/springbrand-agent-setup --ref v1.2.1-dev.1
 codex plugin add springbrand-dev@springbrand-dev
-codex mcp login springbrand-dev
 ```
 
-The Marketplace bootstrap also exposes **SpringBrand Dev** in the Codex desktop Plugins Directory. Install it there if using Desktop, then open a new task.
+The Marketplace bootstrap also exposes **SpringBrand Dev** in the Codex desktop
+Plugins Directory. Install it there if using Desktop, configure the runtime API
+key through the supported secure credential flow, then open a new task. If the
+Host cannot safely represent the Bearer credential, stop with the exact manual
+UI fields instead of launching OAuth or claiming success.
 
 ### Claude Code CLI and Desktop Code
 
@@ -176,7 +184,6 @@ CLI:
 ```sh
 claude plugin marketplace add springbrand-lab/springbrand-agent-setup@v1.2.1-dev.1 --scope user
 claude plugin install springbrand-dev@springbrand-dev --scope user
-claude mcp login plugin:springbrand-dev:springbrand-dev
 ```
 
 Desktop Code: open **Plugin Browser → Add Marketplace** and enter:
@@ -185,7 +192,11 @@ Desktop Code: open **Plugin Browser → Add Marketplace** and enter:
 springbrand-lab/springbrand-agent-setup@v1.2.1-dev.1
 ```
 
-Install **SpringBrand Dev**, complete the single OAuth consent, and open a new Code task. This does not apply to Claude Chat, Cowork, web sessions, or account-level Connectors.
+Install **SpringBrand Dev**, configure the runtime API key through the supported
+secure credential flow, and open a new Code task. If this Surface exposes only
+manual UI configuration, give the exact descriptor fields and stop for the
+user. This does not apply to Claude Chat, Cowork, web sessions, or account-level
+Connectors.
 
 ### Cursor desktop
 
@@ -195,7 +206,9 @@ Open **Customize → Browse Marketplace → Add Marketplace → Import from GitH
 springbrand-lab/springbrand-agent-setup@v1.2.1-dev.1
 ```
 
-Install **SpringBrand Dev**, complete OAuth for the `springbrand-dev` entry, and open a new task.
+Install **SpringBrand Dev**, configure the runtime API key for the
+`springbrand-dev` entry through Cursor's supported secure credential flow, and
+open a new task. Do not fall back to OAuth when a valid API key was supplied.
 
 ### WorkBuddy desktop
 
@@ -208,8 +221,10 @@ remains the manual fallback:
 https://github.com/springbrand-lab/springbrand-agent-setup/archive/refs/tags/v1.2.1-dev.1.zip
 ```
 
-WorkBuddy does not accept the `owner/repo@tag` shorthand. OAuth remains a native
-browser step when WorkBuddy prompts the user for the `springbrand-dev` entry.
+WorkBuddy does not accept the `owner/repo@tag` shorthand. Configure the runtime
+API key only through its supported secure credential UI. If that UI cannot
+represent the selected descriptor, stop with the exact fields and do not
+launch OAuth.
 
 ### Native Plugin verification and removal
 
@@ -223,19 +238,13 @@ Verify that the installed Plugin shows:
 - the five Canonical Skills (`ask-springbrand`, `springbrand-platform`,
   `springbrand-action-api`, `springbrand-connector`, `springbrand-gtm`);
 - exactly one host-appropriate Notice Hook or Rule;
-- `platform_list_capabilities` on the `springbrand-dev` entry resolves the
-  Platform capability registry including `springbrand.plugins.match`;
-- `springbrand.plugins.match` requires `intent`, returns Plugin-only candidates
-  with `user_state`, and preserves Platform order;
-- `action_match_capabilities` on the `springbrand-dev` entry returns
-  API Service candidates only;
-- `connector_search_capabilities` on the `springbrand-dev` entry returns
-  only the caller's authorized published capabilities; the reviewed connector
-  scope is GitHub, Gmail and Google Search Console. An empty account-scoped
-  inventory does not prove that a service is globally unsupported;
-- explicit Marketplace browsing uses `springbrand.plugins.list`, one new
-  eligible task uses `springbrand.plugins.match` once, and follow-ups reuse existing state without another match;
+- the authoritative identity check for the selected environment passes;
+- the configured MCP service health check passes;
 - all unrelated configuration is intact.
+
+Do not call `initialize`, `tools/list`, capability discovery, a business
+operation, or a Provider operation merely to prove installation. Those are
+separate functional tests and must not replace either required health check.
 
 If this path succeeds, **do not run the fallback**. Apply the initial-response
 rule above if this is the first result report; do not repeat a Welcome message
@@ -245,19 +254,36 @@ the host's native Plugin lifecycle and confirm its bundled components disappear
 while unrelated configuration remains intact. Re-enable production only after
 the full dev Plugin is removed.
 
-## OAuth
+## API key and required health checks
 
-Use the Agent's native OAuth flow. Pause only when the user must complete a
-browser, UI, or authorization action.
+The user supplies the selected environment's API key at runtime. Ask for it
+only after identifying the Host and Surface and only through a secure runtime
+input. Do not launch browser OAuth when a valid API key is supplied. OAuth may
+remain on an older installation as a compatibility path, but it is not a
+prerequisite for this API-key-first flow.
 
-The MCP entry requires a single OAuth consent per Surface — one
-authorization covers all three domains. Disclose this to the user before
-starting.
+Run only these bounded installation checks through the configured target
+entry:
 
-Never collect, store, print, proxy, or write access tokens, refresh tokens,
-authorization codes, secrets, or credentials.
+1. The authoritative identity check for the selected environment.
+2. The configured MCP service health check for the selected environment.
 
-OAuth completion does not prove that a Plugin was used.
+Do not perform a real Provider write during installation. Do not claim success
+unless both required health checks pass.
+
+Missing, malformed, revoked, expired, wrong-environment, or insufficient-scope
+keys fail closed. Report only a stable failure category; never include the key,
+its hash, an Authorization header, an OAuth token, a Provider Credential, or a
+raw upstream response.
+
+### Existing OAuth migration
+
+When the selected environment has an older OAuth-backed entry, update only
+that entry if the Host can represent the API-key credential safely. Never
+read, print, copy, delete, decode, revoke, or reinterpret OAuth access or
+refresh tokens. Preserve every other environment and all unrelated
+configuration. Never create a duplicate target entry. If the authentication
+mode change is destructive or UI-only, explain the exact action and pause; do not silently start OAuth or claim migration success.
 
 ## Manual Skill-plus-MCP fallback
 
@@ -274,14 +300,13 @@ Two things, both user-level (not project-level):
    Existing Skill names are shared with production; the new GTM Skill ships
    in this development release. Install the dev-tag sources as one coherent set.
 2. **The SpringBrand dev MCP server** — a remote MCP server named
-   `springbrand-dev` at a fixed dev URL, which exposes SpringBrand
-   capabilities and connected providers in the development environment under
-   domain-prefixed tool names (`platform_` / `action_` / `connector_`).
+   `springbrand-dev` at a fixed dev URL, which exposes the five shared Meta
+   Tools for the development environment.
 
-The dev MCP server requires OAuth authorization before it can be used normally.
-Follow your Agent's normal MCP setup and connection flow; your Agent decides
-when to trigger OAuth. If authorization is completed during installation, leave
-it intact.
+The dev MCP server uses the runtime API key supplied for the selected
+environment. Configure it only through the Host's supported secure Bearer
+credential mechanism. Existing OAuth state is preserved but is not read,
+deleted, or launched proactively.
 
 ### Inputs
 
@@ -336,23 +361,27 @@ If your Agent does not support user-level Skills compatible with `SKILL.md`, rep
 1. Locate your Agent's MCP configuration. Determine its format and location (for example: a JSON file, a TOML file, a settings UI, or a CLI-managed registry). Use the Agent's documented native representation of Streamable HTTP; it may be selected through a UI or inferred from the remote URL rather than stored in a field named `transport`.
 2. **Read and parse** the existing configuration before modifying it. Never overwrite a config file without first parsing its current contents. Merge your changes into the parsed structure; do not replace the whole file.
 3. Look for an existing MCP server entry named `springbrand-dev`:
-   - **Not present** → add a new entry with the name, URL, and native Streamable HTTP transport from "Inputs" above.
-   - **Present and already matches** (correct name, URL exactly as above, native HTTP transport) → leave it unchanged. Note it as "unchanged".
-   - **Present but different** (wrong URL, or using a stdio bridge / local command instead of native HTTP) → tell the user you will replace the old entry, and **wait for approval**. After approval, remove the old entry and add the correct one. Note it as "replaced".
+   - **Not present** → add a new entry with the name, URL, native Streamable HTTP transport, and the descriptor's secure Bearer credential representation.
+   - **Present and already matches** (correct name, URL exactly as above, native HTTP transport, and API-key credential mode) → leave it unchanged. Note it as "unchanged".
+   - **Present but different** (wrong URL, transport, or authentication mode) → explain the exact conflict and **wait for approval** before replacing only that entry. Note it as "replaced" after the change.
 4. **Preserve every other MCP server entry and all unrelated configuration.** Only the `springbrand-dev` entry may be added, replaced, or left alone. In particular, do **not** delete or modify the production `springbrand` entry if it exists — the two environments are meant to coexist, and the production entry is managed exclusively by `INSTALL.md`.
+5. Ask for the API key only through the Host's secure runtime credential flow. Never put it in a URL, repository file, Skill, manifest, shell argument, log, error, or report.
 
-If your Agent only supports adding MCP servers through a UI and cannot edit its config file directly, tell the user the exact values to enter in the UI (the name, URL, and native HTTP transport from "Inputs" above) and **stop** after giving those instructions. Do not attempt to drive the UI yourself unless you have a verified ability to do so for that Agent.
+If your Agent only supports adding MCP servers through a UI and cannot edit its config file directly, tell the user the exact values to enter in the UI (the name, URL, native HTTP transport, and Bearer credential mode from the selected descriptor) and **stop** after giving those instructions. Do not attempt to drive the UI yourself unless you have a verified ability to do so for that Agent.
 
-If your Agent does not support remote Streamable HTTP MCP servers with OAuth, report that limitation and **stop**.
+If your Agent does not support remote Streamable HTTP MCP servers with a safe
+Bearer credential mechanism, report that limitation and **stop**. Do not fall
+back to OAuth or claim success.
 
 **Completion criterion:** the `springbrand-dev` MCP server is configured with its exact URL using native HTTP transport, all other configuration (including any production `springbrand` entry) is intact, or you have stopped and reported an unsupported limitation.
 
 ### Fallback Step 4 — Verify
 
 1. **Skill files:** confirm each of the five files at `<Skill dir>/{ask-springbrand,springbrand-platform,springbrand-action-api,springbrand-connector,springbrand-gtm}/SKILL.md` exists and its content matches the fetched Skill source.
-2. **MCP config:** re-read and parse the configuration. Confirm the `springbrand-dev` entry has its exact URL from "Inputs" above and uses native Streamable HTTP transport (not a stdio bridge, not a local command).
+2. **MCP config:** re-read and parse the configuration. Confirm the `springbrand-dev` entry has its exact URL from "Inputs" above, uses native Streamable HTTP transport, and uses the selected descriptor's API-key credential mode.
 3. Confirm no duplicate `springbrand-dev` entry exists.
 4. Confirm no other MCP server entries were removed or altered — including the production `springbrand` entry, which must remain untouched.
+5. Run the authoritative identity check and configured MCP service health check. Do not substitute capability discovery or a business call.
 
 **Completion criterion:** all checks pass. If any fails, report exactly what is wrong and stop — do not declare success.
 
@@ -365,14 +394,14 @@ Tell the user, in plain text:
 3. The MCP configuration location you used and whether the `springbrand-dev` entry was added, replaced, or unchanged.
 4. The full list of files you created or modified.
 5. That they must **restart the Agent or open a new session** before the SpringBrand dev MCP server is available — the current session will not rediscover the newly installed configuration.
-6. That the `springbrand-dev` MCP server requires OAuth before it can be used normally. The user should complete authorization when the Agent prompts for it; the Agent decides when to trigger that flow.
+6. That the authoritative identity and MCP service health checks passed, without reporting the key, Authorization header, or raw response.
 7. That this installed the **development** environment (`springbrand-dev`), which is for testing only and is separate from any production `springbrand` install. The manual fallback and production can coexist.
 8. Apply the initial-response rule above if Welcome has not yet been shown in
    this first-install conversation. Skip ordinary updates and later repeats.
 
 ### Fallback hard constraints
 
-- **Do not** collect, store, print, proxy, or otherwise handle OAuth access or refresh tokens. You only write Skill files and MCP configuration.
+- **Do not** store, print, proxy, log, hash, or report API keys, OAuth tokens, Authorization headers, Provider Credentials, or raw upstream responses.
 - **Do not** change the MCP URL. It is fixed at `https://devconnector.springbrand.ai/mcp` for the dev environment.
 - **Do not** name the MCP entry `springbrand-platform` etc. The dev entry must be named `springbrand-dev` so it can coexist with the production entry.
 - **Do not** remove or alter any existing MCP server entry other than the `springbrand-dev` entry. In particular, do **not** delete or modify the production `springbrand` entry.
@@ -382,7 +411,8 @@ Tell the user, in plain text:
 - **Do not** silently overwrite a Skill whose content differs from the fetched source. Tell the user first and wait for approval.
 - **Do not** execute any external third-party script. This document is the only instruction you follow.
 - **Do not** put any credentials, tokens, or secrets into Skill files, Agent configuration, logs, URLs, or error messages.
-- **Do not** declare success unless Step 4 verification passes.
+- **Do not** launch OAuth when a valid API key was supplied.
+- **Do not** declare success unless both required health checks and the rest of Step 4 verification pass.
 - If you are uncertain which Agent you are, or where its Skill directory or MCP configuration lives, **stop and ask the user**. Do not guess.
 
 ## WorkBuddy development CLI installation
@@ -414,11 +444,14 @@ fi
 ```
 
 For manual development installation, paste the same ZIP into **Add
-Marketplace**, install **SpringBrand Dev**, and complete OAuth for the
-bundled `springbrand-dev` MCP entry. After reload, verify version
+Marketplace**, install **SpringBrand Dev**, and configure the runtime API key
+through WorkBuddy's secure credential UI for the bundled `springbrand-dev` MCP
+entry. If WorkBuddy cannot safely represent the Bearer credential, stop with
+the exact manual fields instead of launching OAuth. After reload, verify version
 `1.2.1-dev.1`, the five Canonical Skills, one Plugin-level Notice Hook,
-one bundled `springbrand-dev` MCP entry, and exact discovery of
-`springbrand.plugins.match` through the `platform_` tools.
+one bundled `springbrand-dev` MCP entry, the authoritative identity check, and
+the configured MCP service health check. Capability discovery remains a
+separate functional test.
 
 For GTM acceptance after restarting, use an unbranded growth request such as
 “Analyze competitors for my AI product and recommend a positioning strategy.”

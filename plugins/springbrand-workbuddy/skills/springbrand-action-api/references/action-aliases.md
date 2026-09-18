@@ -3,25 +3,28 @@
 Use this map when a request names an API service, supplier, platform/product,
 model, object, or operation through an abbreviation, alternative spelling, or
 non-English name. It converts that wording into one catalogue-facing English
-form for `intent` and `normalized_intent`; it does not choose or authorize an Action.
+form for the unified `search_tools` query; it does not choose or authorize an
+Action.
+
+Do not invent a supplier, model version, platform, operation, or modality when
+an alias is ambiguous.
 
 ## Inventory provenance and maintenance
 
-This snapshot was audited on 2026-09-05 with
-`action_list_capabilities({ limit: 100 })`. The response contained 52 entries
-with `complete: true` and `next_cursor: null`, covering every current Action in
-the ten Supplier ID families listed below.
+This snapshot was audited on 2026-09-05 against the then-current Action
+inventory, which contained 52 entries across the ten Supplier ID families
+listed below. It is a terminology aid, not a current availability guarantee.
 
-The List response exposes public Action Inventory fields — exact IDs, titles,
-summaries, descriptions, recommended prompts, and display order. It does not
-expose private aliases or tags. The mappings below are therefore curated from
-those public fields and common, unambiguous names; never claim that the service
-returned them as alias metadata.
+The mappings below were curated from public catalogue text and common,
+unambiguous names; never claim that the service returned them as alias
+metadata. Never copy an ID from this historical snapshot into contract lookup
+or execution: only a current opaque Tool ID returned by unified discovery is
+usable.
 
-This is a temporary Agent-side discovery aid while the inventory is small. When
-the inventory or its public names change, traverse the complete current List
-again and update this snapshot. A later server-side discovery improvement should
-replace the need for this maintained map.
+This is a temporary Agent-side discovery aid. Current unified discovery is
+bounded rather than a complete inventory, so update the map only from an
+authoritative catalogue audit outside a user workflow. A later server-side
+discovery improvement should replace the need for this maintained map.
 
 ## Inventory coverage
 
@@ -40,7 +43,7 @@ replace the need for this maintained map.
 
 ## Canonicalization rules
 
-- Match case-insensitively after ordinary Unicode normalization. For short
+- Match aliases case-insensitively after ordinary Unicode normalization. For short
   abbreviations such as `X`, `IG`, `TT`, `YT`, `PDL`, `TTS`, `T2I`, and `I2V`,
   require a whole token and capability-relevant context.
 - Prefer the longest, most specific alias when forms overlap. Preserve explicit
@@ -48,21 +51,20 @@ replace the need for this maintained map.
   supplier, operation, object, and modality constraint the user actually gave.
 - Preserve canonical phrases such as `Text to Image` and `Image to Video`
   intact when extracting keywords; `to` defines the modality direction.
-- Emit one canonical form in `normalized_intent` and use the same resolved
-  concepts in the keyword `intent`. Do not stuff aliases into the
-  body and do not fan out multiple Match calls.
+- Emit one canonical English form in the search query. Do not stuff aliases
+  into the query and do not fan out multiple searches.
 - An alias supplies only the concept in its row. A platform alias does not
   invent an operation or object, and a model-family alias does not invent a
   version or input modality.
 - Treat the canonicalized concept as a hard compatibility constraint when the
-  user stated it explicitly. Include a supplier in `normalized_intent` only
-  when the user explicitly requires that supplier.
+  user stated it explicitly. Include a supplier in the query only when the
+  user explicitly requires that supplier.
 
 ## Service and supplier aliases
 
 Every current entry uses a `supplier.frank.*` Supplier ID. `Frank` alone is
-non-discriminating across the present inventory, so omit it from
-`normalized_intent` unless the user explicitly makes it a constraint.
+non-discriminating across the present inventory, so omit it from the search
+query unless the user explicitly makes it a constraint.
 
 | Canonical form | Curated aliases | Current inventory family |
 | --- | --- | --- |
@@ -100,8 +102,8 @@ non-discriminating across the present inventory, so omit it from
 
 `Douyin` appears in the TikHub catalogue summary, but the audited 52-entry
 inventory has no dedicated Douyin Action. Preserve `Douyin` as the platform
-constraint and, if complete Match plus List recovery finds no compatible
-entry, report no current fit. Never silently rewrite `Douyin` to `TikTok`.
+constraint and, if current discovery finds no compatible entry, report that
+bounded result honestly. Never silently rewrite `Douyin` to `TikTok`.
 Likewise, treat bare `X` as the social platform only when the surrounding
 request refers to posts, profiles, social search, or `X.com`.
 
