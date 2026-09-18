@@ -1,13 +1,12 @@
 ---
 name: springbrand-connector
 description: >
-  Execute SpringBrand Connector workflows: search published Connector
-  capabilities and execute them through the `connector_`-prefixed tools of
-  the SpringBrand MCP entry. Use for reads or writes in a named third-party
-  system such as GitHub, Gmail, or Google Search Console. Do not use for
-  Platform artifact or Plugin work, or dynamic API services.
+  Work with third-party systems through the unified SpringBrand MCP: discover
+  an operation, inspect its current contract, manage a required account
+  connection, confirm and execute, then read an asynchronous result when
+  needed. Do not use for Platform artifacts, Plugins, or Action API services.
 metadata:
-  version: "1.2.1"
+  version: "1.2.2"
 ---
 
 # SpringBrand Connector
@@ -20,230 +19,200 @@ Use the user's explicit environment choice, or the installed distribution
 when no choice was given; never silently switch between MCP environments.
 If local package `VERSION`, Plugin version, or sibling Skill versions are
 available, check that they agree. Report a mismatch and recommend reinstalling
-the intended release before executing capabilities. A standalone Skill need
-not have a package manifest. This is a local consistency check: do not call
-MCP or fetch remote releases just to check versions, and do not infer the MCP
-server version or automatically reinstall from this metadata.
+the intended release before executing operations. A standalone Skill need not
+have a package manifest. This is a local consistency check: do not call MCP or
+fetch remote releases just to check versions, and do not infer the MCP server
+version or automatically reinstall from this metadata.
 
-SpringBrand Connector is the Domain Skill for working directly with a
-third-party system the user names, including GitHub, Gmail, and Google Search
-Console. It owns one small workflow: see what the user's connections authorize, pick the capability that
-fits, run it with the user's explicit confirmation, and report the result
-honestly.
+SpringBrand Connector is the Domain Skill for reading or changing data in a
+third-party system the user names, such as GitHub. It discovers only currently
+available operations, verifies the current contract and connection state,
+executes with the user's explicit confirmation for this specific run, and
+reports the result honestly.
 
-Everything runs through the single SpringBrand MCP entry. Use only the
-Connector-prefixed tools — `connector_search_capabilities` and
-`connector_execute_capability` — and always name the `connector_` prefix in
-instructions. The same entry also exposes the `platform_`- and
-`action_`-prefixed tools of the other domains: never call them, never infer a
-tool by its name alone. A cross-domain need is an explicit Domain Transition
-(see [Domain boundaries](#domain-boundaries)), never a direct call to another
-domain's prefix.
+Everything uses the single SpringBrand MCP entry and the five shared Meta
+Tools: `search_tools`, `get_tool_schemas`, `manage_connections`,
+`execute_tools`, and `get_execution`. They are independently composable; do
+not call every tool when the task already has the information it needs.
 
-## How to use this Skill
+## Security boundary
 
-There are three ways into this Skill. Identify which one applies, then follow
-the two-step workflow.
+Third-party account connections and Provider Credential handling belong to the
+authoritative connection service, not this Skill. A Provider Credential must
+never appear in Skill text, conversation output, a State Document, logs,
+errors, URLs constructed by the Agent, test data, or MCP output. Never ask the
+user to paste one, never read or store one, and never place one in operation
+arguments.
 
-1. **Direct request** — the user asks to read or change something in a named
-   third-party system ("list my open GitHub issues"). Start at
-   [Step 1](#step-1--see-what-the-connection-authorizes).
-2. **Ask SpringBrand handoff** — the guide has already selected this domain
-   and handed over a restated task plus known state pointers. Scan the
-   handoff for reusable state: an exact `connector:` reference whose match
-   details (risk, schemas) are also in hand means
-   [skip ahead](#step-2--execute-with-confirmation); a reference without
-   them, or no reference at all, means start at
-   [Step 1](#step-1--see-what-the-connection-authorizes).
-3. **Domain Transition from another Domain Skill** — the user's goal turned
-   out to need a third-party system. Start at
-   [Step 1](#step-1--see-what-the-connection-authorizes) with the task state
-   that was handed over.
+Use only authorization links and identifiers returned by
+`manage_connections`. Those are workflow pointers, not credentials. Never
+construct an authorization URL or append secrets or identity fields to one.
 
-On every entry, scan the conversation and any state pointers for reusable
-work before searching again. Reuse beats rediscovery; never search anew when
-an exact reference from this domain is already in hand and still applies.
+## Entry and reuse
 
-## What this Skill can reach
+On entry, scan the conversation and any handed-off state:
 
-The reviewed systems for this release are **GitHub**, **Gmail**, and
-**Google Search Console (GSC)**. The installed environment and runtime
-`connector_search_capabilities` result determine what this caller can use;
-a service name in this Skill does not grant access or prove account readiness.
+- Existing execution ID: continue with `get_execution`; do not discover or
+  execute again.
+- Exact opaque Tool ID plus its current contract: reuse both.
+- Exact Tool ID without a current contract: inspect it with
+  `get_tool_schemas`; do not search again.
+- Existing connection or authorization-attempt pointer: verify it through
+  `manage_connections` only when the current task needs that connection.
+- No usable pointer: begin with discovery.
 
-- For these systems, discover the required operation in the authorized inventory.
-- Describe support from returned capabilities, not from assumptions about the
-  provider's complete API. Never infer that GSC can request indexing or that
-  an email capability authorizes sending to unspecified recipients.
-- If nothing relevant is returned, explain that no matching capability is
-  currently available to this connection. Check the connection or authorization
-  as appropriate; do not declare the provider globally unsupported from an
-  empty caller-scoped result.
+Copy every Tool ID, execution ID, service ID, connection ID, authorization
+attempt ID, and returned cursor exactly. Never parse an identifier for a
+service, account, operation, or Capability Domain.
 
-- If the user's task only *mentions* GitHub in passing but really creates,
-  publishes, or manages SpringBrand artifacts or Plugins, that is the
-  Platform domain — see [Domain boundaries](#domain-boundaries).
+## The workflow
 
-## The two-step workflow
+### Step 1 — Discover the third-party operation
 
-### Step 1 — See what the connection authorizes
+Call `search_tools` once with one concise English query that names the target
+service, operation, object, and output constraints the user actually gave.
+Discovery returns one bounded list; it is not globally ranked and is not a
+complete catalogue.
 
-Call `connector_search_capabilities`. It has
-two modes:
+- Preserve returned order while rejecting candidates that violate explicit
+  service or operation constraints.
+- An incomplete result cannot establish no-match. Narrow or revise the query
+  when an expected operation is absent; do not invent pagination.
+- A transport, authentication, permission, schema, configuration, or upstream
+  error is not a no-match. Report the actual failure.
+- Do not advertise a service or operation that current discovery did not
+  return. Code or historical documentation is not proof of user availability.
+- Unified discovery may return Platform or Action API operations. Ignore them
+  here and use a Domain Transition if the user's task belongs there.
 
-- **No query** — returns the complete capability inventory the user's active
-  Connector Connections authorize. Use this when the user wants to see what
-  is possible, or when you need the full picture before choosing.
-- **With a query** — searches within that same authorized inventory. Use
-  this when the goal is specific ("issues", "pull requests"). The search is
-  bounded: it never reaches beyond what the user's connections authorize.
+Present compatible operations in plain language and let the user select or
+confirm the recommendation.
 
-Rules that are not optional:
+### Step 2 — Inspect the current contract
 
-- **A search with a query is a discovery.** When the tool's declared input
-  schema exposes `observation`, attach it at the top level of the call — a
-  sibling of `query`, `limit`, and `cursor`. It is the structured
-  requirement context for this search: `schema_version: 1`, the task's
-  `task_id`, and an `intent_spec` stating the user's task goal, expected
-  output, material types, explicit constraints, and what is still undecided
-  (material types only; never content, transcripts, or credentials). Reuse
-  one `task_id` per user task; a new, independent task gets a new UUID. A
-  plain no-query listing and cursor pagination are not discoveries and need
-  no `observation`. A successful search that carried `observation` returns
-  `observation.discovery_id` — keep it with the task state; Step 2
-  associates the execution with it. The field never changes the search:
-  same query behavior, same returned order, no extra call because of it.
+Call `get_tool_schemas` with the selected opaque Tool ID unchanged. Read its
+description, exact input and output schemas, risk, known cost, access
+requirements, supported account selection, and current connection requirement.
 
-- The response carries `matches`, `total`, `complete`, and `next_cursor`.
-  **Paginate through `next_cursor` until `complete` is true.** Only
-  `complete: true` means you have seen everything; stopping at a page whose
-  `complete` is false can silently hide later capabilities.
-- **Preserve the returned order exactly.** Never rerank, never re-sort,
-  never apply a threshold of your own.
-- An **empty result can be genuine**: if the user has not connected the
-  service, the search returns empty and complete. That is not an error —
-  tell the user to connect the service first, in plain language, and stop.
-- An **error is not a no-match.** If the call fails, report the failure and
-  stop or retry; never tell the user "nothing fits" because a call errored.
+- Build arguments strictly to the current input schema. Ask for missing
+  business values instead of guessing or using placeholders.
+- Contract lookup does not execute or authorize the operation.
+- Contract or access failure does not authorize silently choosing another
+  operation.
+- Connection requirements come from the current contract and returned access
+  information, never from a guessed service mapping.
 
-Each match carries everything needed for Step 2, and nothing needs to be
-invented:
+### Step 3 — Establish or select a connection when required
 
-- **`name`** — the exact capability reference, in the form
-  `connector:<connection_id>:<release>:<action_id>`. Execution accepts this
-  reference and nothing else. Never construct, edit, or synthesize a
-  reference from memory, from a title, or from a description; use exactly
-  what `connector_search_capabilities` returned.
-- **`risk`** — how consequential the capability is. A `high` risk capability
-  must be disclosed to the user before any confirmation is requested (see
-  Step 2).
-- **`input_schema`** and **`output_schema`** — what to send and what comes
-  back, so you can build the input strictly and deliver the result in the
-  user's terms.
+Use `manage_connections` for exactly one of list, start, status, and disconnect
+at a time:
 
-Present what you found to the user in plain language: what the capability
-does, and which one you recommend. Let the user pick, or confirm your
-recommendation, before going further.
+- **List** when the user asks about connections or the current contract allows
+  account selection and an exact active connection is not already known.
+- **Start** only when the user explicitly asks to connect, or the authorized
+  operation requires it. Use the exact returned service ID. If the service is
+  not authorizable or operator configuration is missing, stop and report that
+  boundary; this tool cannot repair service outages or configuration.
+- **Status** uses the exact authorization attempt ID returned by start. Show
+  the returned authorization link to the user when provided, then pause for
+  their Provider-side action. Pending is not connected. Continue only after
+  the authoritative status says the connection is active.
+- **Disconnect** uses the exact connection ID and runs only after the user
+  explicitly requests and confirms disconnection. Never disconnect as cleanup
+  or as an error-recovery guess.
 
-### Step 2 — Execute with confirmation
+When a connection lacks required permission or is invalid, explain that the
+user must repair or reauthorize it. Do not retry execution first and do not ask
+for a Provider Credential. Reconnect only through returned connection
+management guidance and preserve account choice when the contract supports it.
 
-Execution changes real things in the user's third-party system. Never execute
-without the user's explicit confirmation for this specific run.
+### Step 4 — Confirm and execute
 
-1. **Disclose before confirming.** In plain language, tell the user what the
-   capability will do, in which system, and with what input — and if `risk`
-   is `high`, say plainly that this is a consequential action before asking
-   to proceed.
-2. **Reference the capability exactly.** Pass the `name` exactly as
-   `connector_search_capabilities` returned it, with a `body` built strictly
-   to the match's `input_schema` — every required field present, no invented
+Never execute a third-party operation without the user's explicit confirmation
+for this specific run. Before asking, state the target service and account when
+known, the operation, important inputs, every known cost, and any reported high
+risk. Unknown cost is not free.
+
+After confirmation:
+
+1. Generate and retain one UUID as the stable idempotency key for this logical
+   run, together with the exact Tool ID, arguments, and selected connection ID
+   when the current contract supports account selection.
+2. Call `execute_tools` once with the exact values required by its runtime
+   schema.
+3. Never invent identity, Project, Session, credential, approval, or connection
    fields.
-3. **Send no idempotency key.** Connector capabilities reject one
-   (`invalid_arguments`). This is different from the Action API domain; do
-   not carry that habit over.
-4. **Associate the discovery.** If the search that returned this reference
-   carried `observation` and returned a `discovery_id`, pass
-   `observation: { schema_version: 1, discovery_id }` at the top level of
-   the execute call — a sibling of `name` and `body`, never inside the
-   capability input. Without a discovery ID in hand, send no `observation`
-   and never invent one.
-5. Call `connector_execute_capability`.
 
-Handle the outcome honestly:
+A stable key does not make every write safe to retry. If a write has an outcome
+unknown, never auto-retry. Report that the effect could not be confirmed,
+preserve the exact run state, and let the user decide. A safe read may be
+retried only when the service marks the failure retryable and the operation's
+current contract permits it.
 
-- **Success** — deliver the result by its output schema, wrapped in plain
-  language the user can act on. Never claim success that did not happen.
-- **`missing_scope`** — the user's connection lacks a permission this
-  capability needs. Tell the user plainly that the connection is missing a
-  required permission and needs to be re-authorized with more permissions;
-  do not retry.
-- **`credential_invalid`** — the connection's authorization is unavailable.
-  Tell the user the connection needs to be re-established; do not retry.
-- **`invalid_capability_reference`** — the reference was not an exact,
-  authorized match. Go back to Step 1 and search again; never hand-assemble
-  a reference.
-- **A write whose outcome is unknown** — never auto-retry. Report honestly
-  that the result could not be confirmed and let the user decide. A safe
-  read may be retried; a write may have already taken effect.
+### Step 5 — Deliver or read the execution
+
+Deliver a complete synchronous result using its output schema. When execution
+returns an exact execution ID, use `get_execution` to read current status or a
+saved result without executing or charging again.
+
+- Only `succeeded` confirms completion.
+- Running or queued remains in progress; poll only when useful to the current
+  task.
+- Failure, cancellation, access loss, or other terminal state is reported as
+  returned, not hidden or rewritten as no-match.
+- An outcome unknown remains uncertain and is never auto-retried.
+- A result lookup error is a lookup failure, not proof of execution failure.
+- A synchronous result without an execution ID cannot be polled.
+
+## Connection repair boundary
+
+Connection repair is a user authorization workflow, not an execution retry:
+
+1. Explain the missing or invalid access in plain language.
+2. Use `manage_connections` with the exact returned identifier and action only
+   after the user agrees to repair it.
+3. Present the returned authorization link and pause while the user acts in the
+   Provider UI.
+4. Verify the exact attempt with status. Do not infer success from the user's
+   browser returning or from elapsed time.
+5. Ask for a fresh execution confirmation after repair; do not reuse an old
+   confirmation for a new invocation.
 
 ## Domain boundaries
 
-- **`capability_domain_mismatch`** — a reference from another domain was
-  sent here. Surface the error's `recovery.domain` to the user — it is
-  `platform` or `action-api` — announce the switch in plain language,
-  preserve the task state, end this workflow, and hand back through Ask
-  SpringBrand for an explicit Domain Transition into that domain's Skill
-  (`recovery.domain: platform` → `springbrand-platform`;
-  `recovery.domain: action-api` → `springbrand-action-api`). Never forward
-  automatically, never call another domain's prefixed tool here, and never
-  treat this error as a no-match.
-- **Outgoing:** if the user's goal turns out to need another domain —
-  creating or publishing a SpringBrand artifact, managing Plugins, or a
-  dynamic API service — say so, end this workflow, and hand back through Ask
-  SpringBrand for the explicit Domain Transition. Never call another
-  domain's prefixed tool, never a merged search across domains.
-- One executor at a time: end this domain's workflow before another domain's
-  begins.
+- Connector owns third-party operations and their connection lifecycle. It
+  does not acquire Plugins, upload or publish Artifacts, or select dynamic API
+  services from the Action API catalogue.
+- Platform and Action API eligibility, billing, or failures are not repaired
+  with `manage_connections`.
+- If the task belongs to another domain, explain why, preserve the task and
+  exact reusable pointers, end this workflow, and hand back through Ask
+  SpringBrand for an explicit Domain Transition.
+- One executor at a time: never execute another domain's operation from this
+  Skill even when unified discovery returned it.
 
 ## Talking to the user
 
-Use the user's language for plain, step-by-step guidance. The user may not be a
-developer.
-
-- Say what will happen before it happens: "This will list the issues in your
-  connected GitHub repository. Shall I go ahead?"
-- Report outcomes in everyday words: "Done — here is what it found", "It
-  didn't work because the connection is missing a permission".
-- Keep technical vocabulary — MCP, capability, schema, reference, connection
-  ID — inside these Agent-facing instructions. The user sees outcomes and
-  choices, not mechanics.
-- Never claim success that did not happen, and never hide a failure.
+Use plain language: name the service and effect, explain when authorization is
+needed, pause for Provider-side action, and report success only when confirmed.
+Keep MCP, schema, opaque identifiers, and idempotency details inside these
+Agent-facing instructions.
 
 ## Hard rules
 
-- Call only `connector_`-prefixed tools on the SpringBrand MCP entry, and
-  name the `connector_` prefix in instructions. Never call a `platform_`- or
-  `action_`-prefixed tool; no tool-name inference, ever.
-- Use the runtime authorized inventory as the authority for the selected
-  environment. Only advertise and execute operations returned by discovery.
-- Never construct, edit, or synthesize a `connector:` reference; use exactly
-  what `connector_search_capabilities` returned, and paginate until
-  `complete`.
-- Never execute without the user's explicit confirmation for this specific
-  run; disclose `high` risk first.
-- Never send an idempotency key to a Connector capability.
-- Discovery context rides only the tool arguments the schema declares
-  (`observation` on a query search and on execute): never inside the
-  capability input, and never with an invented or borrowed `discovery_id`.
-- Errors are never no-matches; an empty authorized inventory means "connect
-  the service first", not "nothing fits".
-- An unknown write outcome is never auto-retried.
-- Cross-domain work is an explicit Domain Transition — announced and
-  state-preserving, handed back through Ask SpringBrand, one executor at a
-  time — never another domain's prefixed tool.
-
-<!-- UNFROZEN (mcp-gateway Issue 10 real-OAuth E2E): the workflow above —
-     search modes and pagination completeness, the exact-reference execute
-     contract, scope and credential error handling, and the no-idempotency
-     rule — is derived from the dev Gateway contract and stays unfrozen
-     until the Gateway's real-OAuth end-to-end verification lands. -->
+- Use the five shared Meta Tools only for Connector work.
+- Search with one English query. Results are bounded, not globally ranked, and
+  incomplete results cannot establish no-match.
+- Copy exact opaque identifiers; never construct, edit, parse, or classify
+  them.
+- Use `manage_connections` only from an explicit user request or a current
+  operation requirement. Pending authorization is not an active connection.
+- Provider Credential data is never requested, handled, logged, placed in a
+  URL, or surfaced to the user.
+- Execute only with the current contract, schema-valid arguments, a stable
+  idempotency key, and explicit confirmation for this specific run.
+- Disclose high risk and known cost. Never auto-retry an outcome unknown write.
+- Use `get_execution` only for an exact existing execution ID; never re-execute
+  to inspect status.
+- Cross-domain work is an explicit, state-preserving Domain Transition handed
+  back through Ask SpringBrand.
