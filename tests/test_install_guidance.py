@@ -107,10 +107,52 @@ def main() -> None:
     assert "The fallback installs no Notice adapter" in development
     assert "/springbrand-dev:ask-springbrand" in development
     assert "$ask-springbrand" in development
-    assert "springbrand.plugins.match" in development
-    assert "follow-ups reuse existing state" in development
+    assert "API key" in development
+    assert "runtime" in development
+    assert "authoritative identity check" in development
+    assert "MCP service health check" in development
+    assert "Do not launch browser OAuth" in development
+    assert "Bearer" in development
+    assert "exactly one" in development
+    assert "Preserve every other MCP" in development
+    assert "raw upstream response" in development
+    assert "Do not perform a real" in development
+    assert "### Existing OAuth migration" in development
+    assert "do not silently start OAuth" in development
     assert "<guide-ref>" not in development
     assert "Keep that classification for final reporting" in development
+    development_flat = " ".join(development.split())
+    for required in (
+        "The user supplies the selected environment's API key at runtime",
+        "Ask for it only after identifying the Host and Surface",
+        "If the authentication mode change is destructive or UI-only",
+        "Never create a duplicate target entry",
+        "authoritative identity check",
+        "configured MCP service health check",
+        "Capability discovery",
+        "business execution",
+        "Provider operations",
+        "Do not claim success",
+    ):
+        assert required in development_flat, required
+    for secret_phrase in (
+        "Authorization: Bearer",
+        "Authorization header:",
+        "access_token=",
+        "refresh_token=",
+        "api_key=",
+        "raw upstream body",
+    ):
+        assert secret_phrase not in development_flat, secret_phrase
+    for retired in (
+        "platform_list_capabilities",
+        "action_match_capabilities",
+        "connector_search_capabilities",
+        "springbrand.plugins.match",
+        "complete OAuth once",
+        "OAuth consents per Surface",
+    ):
+        assert retired not in development, retired
     initial_heading = "## Initial installation response\n"
     overview_heading = "## Installation overview\n"
     initial_sections = []
@@ -155,6 +197,8 @@ def main() -> None:
 
     readme = (ROOT / "README.md").read_text()
     assert f"blob/v{DEV_VERSION}/INSTALL.dev.md" in readme
+    assert "| Authentication | Host-native OAuth | Runtime API key" in readme
+    assert "Do not launch OAuth when the API key is valid" in readme
 
     assert "archive/refs/tags/" not in workbuddy
     assert "## WorkBuddy development CLI installation" in development

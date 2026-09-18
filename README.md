@@ -2,15 +2,19 @@
 
 Install SpringBrand Production through the matching native Host guide: WorkBuddy uses a published R2 release; Codex, Claude Code and Cursor retain GitHub `main`. Other Agents use the documented Skill-plus-MCP fallback.
 
-This source tree ships five Canonical Skills and one MCP entry per environment. The published WorkBuddy v1.2.1 package includes the same five Skills. The entry's tools carry frozen domain prefixes, so each Domain Skill is served by its own tool namespace:
+This source tree ships five Canonical Skills and one MCP entry per environment.
+The published WorkBuddy v1.2.1 package includes the same five Skills. The MCP
+entry exposes five shared Meta Tools; the Domain Skills preserve business
+boundaries through discovered operation contracts rather than registered tool
+name prefixes:
 
-| Skill | Role | Tool prefix |
+| Skill | Role | MCP use |
 | --- | --- | --- |
 | `springbrand-gtm` | Substantive GTM business entry; hands off to one Domain Skill | none (never calls MCP) |
 | `ask-springbrand` | Ask SpringBrand — non-executing Capability Guide | none (never calls MCP) |
-| `springbrand-platform` | Platform — create/publish artifacts, Plugin lifecycle | `platform_` |
-| `springbrand-action-api` | Action API — dynamic API service execution | `action_` |
-| `springbrand-connector` | Connector — authorized third-party systems (GitHub, Gmail, GSC) | `connector_` |
+| `springbrand-platform` | Platform — create/publish artifacts, Plugin lifecycle | shared discovery, schema, execution, and result tools |
+| `springbrand-action-api` | Action API — dynamic API service execution | shared discovery, schema, execution, and result tools |
+| `springbrand-connector` | Connector — authorized third-party systems | shared tools plus connection management |
 
 ## Quick start
 
@@ -26,11 +30,15 @@ SpringBrand has two environments. Pick the one you need and paste the matching p
 
 > Follow the official SpringBrand development installation guide to complete setup:
 > https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.2.1-dev.1/INSTALL.dev.md
-> Use the native `springbrand-dev` Plugin on Codex, Claude Code/Desktop Code, Cursor, or WorkBuddy. Use the documented Skill-plus-MCP fallback only on unsupported hosts. Preserve unrelated configuration, complete native OAuth once, verify the installation, and tell me whether I need to restart.
+> Identify the target environment and Host first. Provide the development API key only at runtime through the Host's secure credential flow. Configure exactly one `springbrand-dev` entry, preserve unrelated configuration, run the authoritative identity check and configured MCP service health check, and report whether a restart or new session is required. Do not launch OAuth when the API key is valid; use the manual UI instructions and stop if the Host cannot represent Bearer credentials safely.
 
-The native development Plugin is the immutable prerelease [`v1.2.1-dev.1`](https://github.com/springbrand-lab/springbrand-agent-setup/releases/tag/v1.2.1-dev.1). It is identified as `springbrand-dev`, displays as **SpringBrand Dev**, and bundles a single `springbrand-dev` MCP entry at `https://devconnector.springbrand.ai/mcp`. Authentication is host-native OAuth — one consent per Surface (a single authorization covers all three domains).
+The native development Plugin is the immutable prerelease [`v1.2.1-dev.1`](https://github.com/springbrand-lab/springbrand-agent-setup/releases/tag/v1.2.1-dev.1). It is identified as `springbrand-dev`, displays as **SpringBrand Dev**, and bundles a single `springbrand-dev` MCP entry at `https://devconnector.springbrand.ai/mcp`. The selected development descriptor owns its native HTTP transport and runtime API-key credential representation.
 
-Disable or uninstall the full production `springbrand` Plugin before enabling the full development Plugin. They share Canonical Skill names and three-domain routing. Enabling both can duplicate routing and make connector selection ambiguous. The manual fallback remains available for unsupported hosts and may coexist with production because it shares the same Skill files and adds only the separately named `springbrand-dev` MCP entry.
+Keep the full production and development Plugins enabled together only when the
+Host can distinguish their entries and routing. Preserve the production entry
+and all unrelated configuration during development installation or migration.
+The manual fallback shares the same five Canonical Skills and adds or updates
+only the separately named `springbrand-dev` MCP entry.
 
 ### Production vs Development
 
@@ -39,9 +47,9 @@ Disable or uninstall the full production `springbrand` Plugin before enabling th
 | Install guide | [`INSTALL.md`](./INSTALL.md) | [`INSTALL.dev.md`](./INSTALL.dev.md) |
 | MCP entry name | `springbrand` | `springbrand-dev` |
 | MCP URL | `https://connector.springbrand.ai/mcp` | `https://devconnector.springbrand.ai/mcp` |
-| OAuth consents per Surface | 1 | 1 |
+| Authentication | Host-native OAuth | Runtime API key through the selected descriptor |
 | Purpose | Everyday use | Testing only |
-| Full Plugins can coexist | No | No — disable one before enabling the other |
+| Full Plugins can coexist | Host-dependent; routing must remain unambiguous | Host-dependent; routing must remain unambiguous |
 | Manual Skill-plus-MCP fallback can coexist | Yes | Yes — it shares the same Skills and uses a separate MCP entry name |
 
 The current source and latest dev release include `springbrand-gtm`, `ask-springbrand`, `springbrand-platform`, `springbrand-action-api`, and `springbrand-connector`; install one coherent release rather than mixing Skill versions. Development is for testing only and should not be used as a production configuration.
@@ -55,7 +63,10 @@ The current source and latest dev release include `springbrand-gtm`, `ask-spring
 - **SpringBrand Dev Plugin (prerelease)** — packages five Skills including `springbrand-gtm` and the single `springbrand-dev` MCP entry for internal testing against `https://devconnector.springbrand.ai/mcp`; see [`INSTALL.dev.md`](./INSTALL.dev.md).
 - **Skill-plus-MCP fallback** — the five user-level Skills and the single remote MCP entry for unsupported hosts.
 
-Both MCP environments require native OAuth before normal use. No Plugin contains static credentials or authorization headers.
+The development API key is requested only at runtime and never stored in
+repository files, Skill text, URLs, logs, errors, or reports. Production
+authentication remains owned by the production release contract. No Plugin
+contains reusable credentials or static authorization headers.
 
 ## Distribution channels
 
@@ -122,17 +133,20 @@ springbrand-agent-setup/
 Your Agent must support:
 
 - Reading a remote URL and writing files to your user-level Skill directory.
-- Remote **Streamable HTTP** MCP servers with OAuth (not just stdio/local-command MCP).
+- Remote **Streamable HTTP** MCP servers with the selected release credential
+  contract, including a safe Bearer credential mechanism for development.
 
 If either is missing, `INSTALL.md` tells the Agent to stop and report the limitation. Some desktop Agents can only add MCP servers through their UI; in that case the Agent will give you the exact values to enter by hand.
 
 ## Safety
 
-- The installer never collects, stores, or prints OAuth tokens. It only writes the Skill files and MCP configuration.
+- The installer never stores or prints API keys, OAuth tokens, Authorization
+  headers, Provider Credentials, or raw upstream responses.
 - The production MCP URL is fixed at `https://connector.springbrand.ai/mcp`; the development MCP URL is fixed at `https://devconnector.springbrand.ai/mcp`.
 - Existing MCP configuration is preserved. The manual dev fallback merges only the `springbrand-dev` entry; native Plugin lifecycle operations remove only their own bundled components.
 - The installer does not execute any external third-party scripts.
-- No credentials or tokens are placed in Skill files, Agent configuration, logs, or URLs.
+- No credentials or tokens are placed in Skill files, repository content,
+  URLs, logs, errors, or final reports.
 
 ## Updating
 
