@@ -29,8 +29,8 @@ A registered marketplace alone does not mean the Plugin was already installed.
 For the manual UI fallback, inspect the existing installation in the UI.
 
 ```sh
-WORKBUDDY_SOURCE="https://plugin.springbrand.ai/releases/v1.2.1/workbuddy/springbrand-workbuddy.zip"
-WORKBUDDY_VERSION="1.2.1"
+WORKBUDDY_SOURCE="https://plugin.springbrand.ai/releases/v1.2.2/workbuddy/springbrand-workbuddy.zip"
+WORKBUDDY_VERSION="1.2.2"
 ```
 
 This immutable source does not follow future releases automatically. Do not
