@@ -64,13 +64,19 @@ class JevDevSkillTests(unittest.TestCase):
 
     def test_production_skill_and_mcp_manifest_are_unchanged(self):
         production_skill = ROOT / "skills/ask-springbrand/SKILL.md"
-        expected_skill = subprocess.check_output(
-            ["git", "show", "HEAD:skills/ask-springbrand/SKILL.md"], text=True
-        )
-        self.assertEqual(production_skill.read_text(), expected_skill)
         production_mcp = (ROOT / ".mcp.json").read_text()
-        self.assertIn("https://connector.springbrand.ai/mcp", production_mcp)
-        self.assertNotIn("https://devconnector.springbrand.ai/mcp", production_mcp)
+        version = (ROOT / "VERSION").read_text().strip()
+        if "-dev." in version:
+            self.assertIn("recommend_springbrand_domain", production_skill.read_text())
+            self.assertIn("https://devconnector.springbrand.ai/mcp", production_mcp)
+            self.assertNotIn("https://connector.springbrand.ai/mcp", production_mcp)
+        else:
+            expected_skill = subprocess.check_output(
+                ["git", "show", "HEAD:skills/ask-springbrand/SKILL.md"], text=True
+            )
+            self.assertEqual(production_skill.read_text(), expected_skill)
+            self.assertIn("https://connector.springbrand.ai/mcp", production_mcp)
+            self.assertNotIn("https://devconnector.springbrand.ai/mcp", production_mcp)
 
 
 if __name__ == "__main__":
