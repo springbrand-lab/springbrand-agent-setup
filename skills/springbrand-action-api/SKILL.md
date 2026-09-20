@@ -6,7 +6,7 @@ description: >
   execute it, then read an asynchronous result when needed. Do not use for
   Platform artifact or Plugin work, or third-party account connections.
 metadata:
-  version: "1.2.2"
+  version: "1.2.2-dev.1"
 ---
 
 # SpringBrand Action API

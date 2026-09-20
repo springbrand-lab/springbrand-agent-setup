@@ -1,14 +1,14 @@
 ---
 name: ask-springbrand
 description: >
-  Guide the user through SpringBrand: introduce what the Plugin and its three
+  Development Jev router for SpringBrand: introduce what the Plugin and its three
   capability domains (Platform, Action API, Connector) do, or report the
   current workflow position and the next step. Use when the user asks what
   SpringBrand can do, is new to SpringBrand, is unsure which domain fits, or
   is lost mid-workflow. It never discovers or executes capabilities; it
   recommends exactly one domain Skill and stops.
 metadata:
-  version: "1.2.2"
+  version: "1.2.2-dev.1"
 ---
 
 # Ask SpringBrand
@@ -31,9 +31,31 @@ job: work out which of the three capability domains fits the user's situation
 — or where an in-flight workflow stands — say so in plain language, hand off
 to exactly one Domain Skill, and stop.
 
-Ask SpringBrand is a guide, not a worker. It reads the conversation and local
-files, it explains, it hands off. It never discovers or executes a capability,
-and it never touches MCP.
+Ask SpringBrand is a guide, not a worker. It reads the conversation and local files, it explains, and it hands off. It
+never discovers or executes a business capability; this development variant
+only calls the Gateway Domain recommendation experiment before handoff.
+
+## Development Jev routing
+
+This dev prerelease uses the Gateway dev experiment before selecting a Domain.
+Call the development MCP tool `recommend_springbrand_domain` with exactly
+`{ "query": "<the user's current request>" }`, sending only the request text.
+A valid response has `domain` equal to `platform`, `action_api`, `connector`, or
+`none`, a finite `confidence` from 0 through 1, and a boolean `no_match`. Use
+that Domain to select exactly one existing Domain Skill; preserve the task and
+state pointers in the normal handoff and stop.
+
+`domain=none` or `no_match=true` continues ordinary work without SpringBrand.
+Treat `jev_unavailable` and `jev_invalid_response` as operational failures,
+not no-match: use the existing local Domain table as a reversible fallback and
+record that Jev fallback for evaluation. Treat confidence below `0.70` as low
+confidence: ask the one allowed goal-level clarifying question, or show the
+three-domain map when the goal is not safe to route. Cross-domain requests
+start at the earliest required Domain; record whether Jev agreed.
+
+The dev router does not call `search_tools`, `get_tool_schemas`,
+`manage_connections`, `execute_tools`, or `get_execution`. The selected Domain
+Skill continues to own those existing workflows.
 
 ## How to use this Skill
 
