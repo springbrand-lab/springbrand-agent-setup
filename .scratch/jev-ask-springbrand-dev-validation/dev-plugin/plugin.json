@@ -1,0 +1,7 @@
+{
+  "name": "springbrand-dev",
+  "version": "1.2.2-dev.1",
+  "description": "Internal Jev Domain-routing experiment.",
+  "skills": "../ask-springbrand-dev",
+  "mcpServers": "./.mcp.json"
+}

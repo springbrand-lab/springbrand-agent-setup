@@ -1,0 +1,12 @@
+[
+  {"id":"plugin-search","category":"plugin-management","request":"Find a Plugin for creating a project brief","human_domain":"platform","legacy_domain":"platform","jev":{"domain":"platform","confidence":0.96,"no_match":false}},
+  {"id":"creation-publish","category":"creation","request":"Upload this artifact and publish the Creation","human_domain":"platform","legacy_domain":"platform","jev":{"domain":"platform","confidence":0.94,"no_match":false}},
+  {"id":"action-run","category":"action-api","request":"Use an available image generation API to make a banner","human_domain":"action_api","legacy_domain":"action_api","jev":{"domain":"action_api","confidence":0.91,"no_match":false}},
+  {"id":"action-followup","category":"follow-up","request":"Check the status of execution ex_123 from the API task","human_domain":"action_api","legacy_domain":"action_api","jev":{"domain":"action_api","confidence":0.98,"no_match":false}},
+  {"id":"github-read","category":"connector-read","request":"List my GitHub repositories","human_domain":"connector","legacy_domain":"connector","jev":{"domain":"connector","confidence":0.97,"no_match":false}},
+  {"id":"github-write","category":"connector-write","request":"Create a GitHub issue from these notes","human_domain":"connector","legacy_domain":"connector","jev":{"domain":"connector","confidence":0.93,"no_match":false}},
+  {"id":"ordinary","category":"none","request":"Explain how a hash table works","human_domain":"none","legacy_domain":"none","jev":{"domain":"none","confidence":0.99,"no_match":true}},
+  {"id":"cross-domain","category":"cross-domain","request":"Create a project brief, then open a GitHub issue with it","human_domain":"platform","legacy_domain":"platform","jev":{"domain":"platform","confidence":0.74,"no_match":false}},
+  {"id":"ambiguous","category":"ambiguous","request":"Help me get this done with SpringBrand","human_domain":"none","legacy_domain":"clarify","jev":{"domain":"platform","confidence":0.42,"no_match":false}},
+  {"id":"state-followup","category":"in-flight","request":"Continue the upload using the artifact workspace we already prepared","human_domain":"platform","legacy_domain":"platform","jev":{"domain":"platform","confidence":0.88,"no_match":false}}
+]
