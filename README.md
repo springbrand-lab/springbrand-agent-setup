@@ -1,24 +1,45 @@
-# SpringBrand Agent Setup
+# SpringBrand
 
-Install SpringBrand Production through the matching native Host guide: WorkBuddy uses a published R2 release; Codex, Claude Code and Cursor retain GitHub `main`. Other Agents use the documented Skill-plus-MCP fallback.
+**The AI agent capability marketplace — everything your AI agent needs to take action, all in one place.**
 
-This source tree ships five Canonical Skills and one MCP entry per environment.
-The published WorkBuddy v1.2.2 package includes the same five Skills. The MCP
-entry exposes five shared Meta Tools; the Domain Skills preserve business
-boundaries through discovered operation contracts rather than registered tool
-name prefixes:
+SpringBrand connects professional data sources, tools, and ready-made task workflows to the AI assistant you already use. You describe the outcome you want; your agent discovers and calls the right services through a single MCP entry — no extra accounts, API keys, or subscriptions to manage. Multiple providers, pay per call, one bill.
 
-| Skill | Role | MCP use |
-| --- | --- | --- |
-| `springbrand-gtm` | Substantive GTM business entry; hands off to one Domain Skill | none (never calls MCP) |
-| `ask-springbrand` | Ask SpringBrand — non-executing Capability Guide | none (never calls MCP) |
-| `springbrand-platform` | Platform — create/publish artifacts, Plugin lifecycle | shared discovery, schema, execution, and result tools |
-| `springbrand-action-api` | Action API — dynamic API service execution | shared discovery, schema, execution, and result tools |
-| `springbrand-connector` | Connector — authorized third-party systems | shared tools plus connection management |
+This repository ships the SpringBrand installer: five Canonical Skills plus one MCP entry per environment, packaged as native Plugins for Codex, Claude Code, Cursor, and WorkBuddy, with a Skill-plus-MCP fallback for any other agent.
 
-## Quick start
+## The problem it solves
 
-SpringBrand has two environments. Pick the one you need and paste the matching prompt into your Agent (Cursor, Claude Code, Codex, Copilot, Devin, Windsurf, WorkBuddy, or any compatible Agent).
+Getting an agent to complete a real task today usually means finding separate tools, opening multiple accounts, paying for several subscriptions, configuring different APIs, and manually stitching data and workflow together. The tools exist, but they are scattered — the agent cannot reach the right capability at the right moment.
+
+SpringBrand brings those capabilities into one place. The agent discovers, chooses, and combines what the task needs; you just say what you want done.
+
+## What your agent can do
+
+One MCP entry, three capability domains:
+
+- **Platform** — create and publish artifacts, manage Plugins, and browse the Marketplace.
+- **Action API** — call dynamic API services for tasks, for example:
+  - **Market and SEO research** — Similarweb, Semrush, Ahrefs, DataForSEO for traffic, keywords, and search performance; Exa, Tavily, Perplexity, Firecrawl for source gathering.
+  - **Social listening** — collect discussions and trending content from X, YouTube, TikTok, Instagram, Reddit, Pinterest, and 小红书.
+  - **Creator discovery** — find KOL/KOC on Instagram, TikTok, and YouTube with WaveInflu, and draft outreach.
+  - **Prospecting** — build company and contact lists with Apollo and People Data Labs.
+  - **Content generation** — copy plus images and video via GPT Image, Seedream, Seedance, and Nano Banana, with ElevenLabs voiceover.
+- **Connector** — work with third-party systems such as GitHub, within your authorized scope.
+
+Not sure which domain fits? Ask `$ask-springbrand` — it recommends exactly one Domain Skill and stops.
+
+**Example — SEO research without a four-figure tool stack.** Ahrefs- and Semrush-class subscriptions cost $1,000+/month and take time to learn. On SpringBrand the agent queries professional traffic databases per call — top tier $79 — comparing traffic, growth, and audience sources across products in one prompt. No SEO background required.
+
+## Why teams pick it
+
+- **Professional capabilities on demand** — single services or complete workflows, inside the assistant you already use.
+- **Pay per call, one bill** — no per-vendor subscriptions or prepaids for occasional use; try and combine services cheaply.
+- **Connected apps** — the agent works with data and features of the apps you authorize, so less switching and manual hand-off.
+- **Scheduled recurring tasks** — define the task, frequency, and expected output once; the agent runs it and reports on schedule.
+- **Learns your context** — the agent combines capabilities per task and applies your confirmed requirements and feedback to later work.
+
+## Install in one prompt
+
+Paste the matching prompt into your Agent (Claude Code, Codex, Cursor, Copilot, Devin, Windsurf, WorkBuddy, or any compatible Agent). The Agent reads the guide and performs the installation.
 
 ### Production
 
@@ -54,67 +75,58 @@ only the separately named `springbrand-dev` MCP entry.
 
 The current source and latest dev release include `springbrand-gtm`, `ask-springbrand`, `springbrand-platform`, `springbrand-action-api`, and `springbrand-connector`; install one coherent release rather than mixing Skill versions. Development is for testing only and should not be used as a production configuration.
 
+### Requirements
+
+Your Agent must support:
+
+- Reading a remote URL and writing files to your user-level Skill directory.
+- Remote **Streamable HTTP** MCP servers with the selected release credential
+  contract, including a safe Bearer credential mechanism for development.
+
+If either is missing, `INSTALL.md` tells the Agent to stop and report the limitation. Some desktop Agents can only add MCP servers through their UI; in that case the Agent will give you the exact values to enter by hand.
+
 ## What gets installed
 
-- **Codex Plugin** — packages the five Canonical Skills, the single production MCP declaration, and static preflight Hook for supported macOS Codex hosts.
-- **Claude Code Plugin** — packages the same five Skills, one native OAuth-backed production MCP entry, and static preflight Hook for Claude Code CLI and the Claude Desktop Code tab; see [`INSTALL.claude.md`](./INSTALL.claude.md).
-- **Cursor Plugin** — packages generated, verified Distribution Mirrors of all five Skills with one native OAuth-backed production MCP entry and an always-applied preflight Rule for Cursor desktop; see [`INSTALL.cursor.md`](./INSTALL.cursor.md).
-- **WorkBuddy Plugin** — a WorkBuddy Agent installs it through the bundled CLI; **Add Marketplace** remains the manual fallback; see [`INSTALL.workbuddy.md`](./INSTALL.workbuddy.md).
-- **SpringBrand Dev Plugin (prerelease)** — packages five Skills including `springbrand-gtm` and the single `springbrand-dev` MCP entry for internal testing against `https://devconnector.springbrand.ai/mcp`; see [`INSTALL.dev.md`](./INSTALL.dev.md).
+- **Codex Plugin** — the five Canonical Skills, the single production MCP declaration, and a static preflight Hook for supported macOS Codex hosts.
+- **Claude Code Plugin** — the same five Skills, one native OAuth-backed production MCP entry, and a static preflight Hook for Claude Code CLI and the Claude Desktop Code tab; see [`INSTALL.claude.md`](./INSTALL.claude.md).
+- **Cursor Plugin** — generated, verified Distribution Mirrors of all five Skills with one native OAuth-backed production MCP entry and an always-applied preflight Rule for Cursor desktop; see [`INSTALL.cursor.md`](./INSTALL.cursor.md).
+- **WorkBuddy Plugin** — installed through the bundled WorkBuddy CLI from an immutable published R2 release; **Add Marketplace** remains the manual fallback; see [`INSTALL.workbuddy.md`](./INSTALL.workbuddy.md).
+- **SpringBrand Dev Plugin (prerelease)** — the five Skills and a single `springbrand-dev` MCP entry for internal testing against `https://devconnector.springbrand.ai/mcp`; see [`INSTALL.dev.md`](./INSTALL.dev.md).
 - **Skill-plus-MCP fallback** — the five user-level Skills and the single remote MCP entry for unsupported hosts.
 
-The development API key is requested only at runtime and never stored in
-repository files, Skill text, URLs, logs, errors, or reports. Production
-authentication remains owned by the production release contract. No Plugin
-contains reusable credentials or static authorization headers.
+Each Plugin ships the same five Canonical Skills:
 
-## Distribution channels
-
-| Environment | Installation channel |
+| Skill | Role |
 | --- | --- |
-| Production — WorkBuddy | Published R2 release selected in `INSTALL.workbuddy.md` (currently pinned) |
-| Production — other Hosts | `https://github.com/springbrand-lab/springbrand-agent-setup` (`main`) |
-| Development | `springbrand-lab/springbrand-agent-setup@v1.2.1-dev.2` |
+| `springbrand-gtm` | GTM business entry; hands off to one Domain Skill |
+| `ask-springbrand` | Ask SpringBrand — non-executing Capability Guide |
+| `springbrand-platform` | Platform — create/publish artifacts, Plugin lifecycle |
+| `springbrand-action-api` | Action API — dynamic API service execution |
+| `springbrand-connector` | Connector — authorized third-party systems |
 
-WorkBuddy installs an immutable production-tag package from R2, not a live mirror
-of `main`; the current URL does not automatically advance. Other Hosts still
-follow `main`. Release-to-R2 publication is currently manually triggered.
-Development Plugins remain immutable dev tags and are never merged into `main`.
+## Safety
 
-## Repository layout
+- The installer never stores or prints API keys, OAuth tokens, Authorization
+  headers, Provider Credentials, or raw upstream responses. No credentials or
+  tokens are placed in Skill files, repository content, URLs, logs, errors, or
+  final reports.
+- The production MCP URL is fixed at `https://connector.springbrand.ai/mcp`; the development MCP URL is fixed at `https://devconnector.springbrand.ai/mcp`.
+- Existing MCP configuration is preserved. The manual dev fallback merges only the `springbrand-dev` entry; native Plugin lifecycle operations remove only their own bundled components.
+- The installer does not execute any external third-party scripts.
 
-Each Canonical Skill declares the package release in YAML `metadata.version`.
-`VERSION` is the source of truth: production versions have no `-dev.N` marker;
-development releases include it. Keep `name` lowercase and stable across both
-channels. This identifies the installed Skill release, not the MCP server version.
+## Updating
 
-Production synchronization runs automatically on same-repository pull requests
-targeting `main`. After the release author updates `VERSION` and the package
-manifests, CI stamps the Canonical Skills, updates Cursor/WorkBuddy Distribution
-Mirrors, and commits generated changes to the PR branch. It then dispatches
-validation for that new commit. Merge the reviewed PR and create the production
-tag from the synchronized commit; no separate version-sync command is needed.
-The workflow never pushes to protected `main` directly or rewrites existing tags.
+Use each host's native Marketplace update flow for Plugins. For the manual fallback, send the same prompt again; `INSTALL.md` / `INSTALL.dev.md` updates the existing entries rather than adding duplicates.
 
-Development releases synchronize automatically in
-`build_dev_variant.py --version ...`. For local previews or fork contributions
-(where CI cannot write to the source branch), the same operation is available:
+## For maintainers
 
-```sh
-python3 scripts/sync_skill_versions.py
-python3 scripts/sync_skill_versions.py --check
-python3 tests/validate_plugin.py
-```
-
-CI rejects mismatched versions or mirrors on main, tags, and validation dispatches.
-Automatic PR synchronization uses job-scoped `contents: write` and `actions: write`
-permissions; validation jobs remain read-only. Version metadata does not itself
-check remote releases or update an installed Skill; upgrades still use the
-documented installation flow for the intended channel.
+`INSTALL.md` and `INSTALL.dev.md` are the core product: they are written to be
+read and executed by an Agent. Skill sources live in `skills/<machine-name>/SKILL.md`
+and are fetched by the Agent during installation.
 
 ```
 springbrand-agent-setup/
-├── README.md                          # this file — for humans
+├── README.md                          # this file
 ├── INSTALL.md                         # the production installation protocol — for Agents
 ├── INSTALL.dev.md                     # the development installation protocol — for Agents
 ├── VERSION                            # current release version
@@ -126,36 +138,33 @@ springbrand-agent-setup/
     └── springbrand-gtm/SKILL.md       # GTM Scenario Skill
 ```
 
-`INSTALL.md` and `INSTALL.dev.md` are the core product. They are written to be read and executed by an Agent. The Skill sources live in `skills/<machine-name>/SKILL.md` and are fetched by the Agent during installation; the selected release determines the complete Canonical Skill set.
+Each Canonical Skill declares the package release in YAML `metadata.version`.
+`VERSION` is the source of truth: production versions have no `-dev.N` marker;
+development releases include it. Keep `name` lowercase and stable across both
+channels. This identifies the installed Skill release, not the MCP server version.
 
-## Requirements
+Production synchronization runs automatically on same-repository pull requests
+targeting `main`. After the release author updates `VERSION` and the package
+manifests, CI stamps the Canonical Skills, updates Cursor/WorkBuddy Distribution
+Mirrors, and commits generated changes to the PR branch, then dispatches
+validation for that commit. Merge the reviewed PR and create the production tag
+from the synchronized commit. The workflow never pushes to protected `main`
+directly or rewrites existing tags. Development releases synchronize in
+`build_dev_variant.py --version ...`; for local previews or forks:
 
-Your Agent must support:
+```sh
+python3 scripts/sync_skill_versions.py [--check]
+python3 tests/validate_plugin.py
+```
 
-- Reading a remote URL and writing files to your user-level Skill directory.
-- Remote **Streamable HTTP** MCP servers with the selected release credential
-  contract, including a safe Bearer credential mechanism for development.
+CI rejects mismatched versions or mirrors on main, tags, and validation dispatches.
+Version metadata does not itself check remote releases or update an installed
+Skill; upgrades use the documented installation flow for the intended channel.
 
-If either is missing, `INSTALL.md` tells the Agent to stop and report the limitation. Some desktop Agents can only add MCP servers through their UI; in that case the Agent will give you the exact values to enter by hand.
-
-## Safety
-
-- The installer never stores or prints API keys, OAuth tokens, Authorization
-  headers, Provider Credentials, or raw upstream responses.
-- The production MCP URL is fixed at `https://connector.springbrand.ai/mcp`; the development MCP URL is fixed at `https://devconnector.springbrand.ai/mcp`.
-- Existing MCP configuration is preserved. The manual dev fallback merges only the `springbrand-dev` entry; native Plugin lifecycle operations remove only their own bundled components.
-- The installer does not execute any external third-party scripts.
-- No credentials or tokens are placed in Skill files, repository content,
-  URLs, logs, errors, or final reports.
-
-## Updating
-
-Use each host's native Marketplace update flow for Plugins. For the manual fallback, send the same prompt again; `INSTALL.md` / `INSTALL.dev.md` updates the existing entries rather than adding duplicates.
-
-## Migration from a Legacy Plugin Release
+### Migration from a Legacy Plugin Release
 
 A Legacy Plugin Release — an already-installed SpringBrand Plugin version that uses a single `springbrand` MCP entry at `https://connector.springbrand.ai/mcp` with the Gateway's legacy mixed contract (unprefixed tool names) — continues to work until the owner's production release switches the `/mcp` slot to the unified endpoint (Gateway ADR-0014; retirement is Gateway Issue 12, owner-controlled). Upgrading to the current single-entry Plugin with domain-prefixed tools is voluntary — there is no automatic sunset.
 
-## Future: deterministic installer
+### Future: deterministic installer
 
 A programmatic installer (`npx @springbrand/setup@latest`) is planned as a deterministic alternative for environments where prompt-based installation is unreliable. It is not required for the current flow.
