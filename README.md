@@ -1,6 +1,12 @@
+<div align="center">
+
+<img src="./assets/springbrand-icon.png" width="96" alt="SpringBrand logo" />
+
 # SpringBrand
 
 **The AI agent capability marketplace — everything your AI agent needs to take action, all in one place.**
+
+</div>
 
 SpringBrand connects professional data sources, tools, and ready-made task workflows to the AI assistant you already use. You describe the outcome you want; your agent discovers and calls the right services through a single MCP entry — no extra accounts, API keys, or subscriptions to manage. Multiple providers, pay per call, one bill.
 
