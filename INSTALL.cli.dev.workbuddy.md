@@ -9,7 +9,7 @@ This document targets immutable development release `v1.2.1-dev.2`. It configure
 Run exactly one command. Do not run `--help`, `doctor`, `auth status`, an all-client command, or a second install command first.
 
 ```sh
-npx -y @springbrand/cli@alpha connect workbuddy --url https://devconnector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}
+npx -y @springbrand/cli@alpha connect workbuddy-ai --url https://devconnector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}
 ```
 
 The API key is supplied at runtime. Never print, log, save, repeat, or include it in a report. If no valid API key is available, omit `--api-key` and use the supported native OAuth flow for this client when prompted. Do not silently switch to another client or another environment.
