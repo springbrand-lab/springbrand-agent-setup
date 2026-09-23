@@ -53,7 +53,9 @@ Try a task with free credits—copy a prompt below.
 
 ## Installation overview
 
-Identify the Host before any network preflight. WorkBuddy installs the published
+Use the preferred CLI installation first. If the CLI cannot run or reports a
+failed installation, identify the Host before any network preflight and use one
+of the fallback paths below. WorkBuddy installs the published
 production release from R2. Codex, Claude Code, Cursor and the other-Agent
 fallback retain their existing GitHub `main` paths until separately adapted.
 Do not use the legacy `stable` branch, a dev tag, or the `springbrand-dev` Plugin.
@@ -75,6 +77,21 @@ The MCP entry is:
 | Entry name | URL |
 | --- | --- |
 | `springbrand` | `https://connector.springbrand.ai/mcp` |
+
+## Preferred CLI installation
+
+Set up SpringBrand in every supported client detected on this machine.
+Detect every supported client installed on this machine. Configure each detected client and do not configure clients that are not installed.
+Run exactly one command now. Do not run --help, doctor, auth status, or any other preflight command first.
+All detected clients command: `npx -y @springbrand/cli@latest connect --all --skip-launch --url https://connector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}`
+The --all mode is intentional. Do not replace it with per-client commands and do not run another install command.
+If copied text contains Markdown artifacts such as backslash escapes or link wrappers, remove those artifacts before running the command.
+The command includes a one-time installation key. Run it once and do not print the key in your response.
+Do not install the legacy Plugin. Do not run a separate upgrade or reinstall command. Let this command handle existing registrations.
+After the command finishes, report every detected client, each command outcome without revealing credentials, each auth method, MCP and Skill status, restart or reload requirements, and any failed phase. If the CLI says restart or reload is required, report it and stop there. Do not attempt MCP tool discovery or a business operation in this same session. If the command fails, report the failed client, failed phase, and the CLI's next action. Do not rerun the command with the same one-time key. If the CLI reports the key as invalid, expired, or already used, ask the user to copy a fresh setup prompt. If the key is accepted but the MCP connection or authorization fails, run the same command once without the --api-key argument and complete the browser OAuth authorization it opens. Never blind-retry.
+If the CLI cannot run or reports a failed installation, continue with the matching Host guide below. Preserve any registration the CLI created and report the failed phase before starting the fallback path.
+If the CLI reports an existing SpringBrand Plugin registration, pass that note to the user: the Plugin and this CLI registration can coexist, though a single install method is recommended. Leave the Plugin as it is; if SpringBrand tools appear twice, `/springbrand:doctor` shows the plugin removal command when one exists.
+Close your report with a one-sentence capability note: SpringBrand gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub. Then ask the user what they would like to build first.
 
 ## Identify the Agent
 
