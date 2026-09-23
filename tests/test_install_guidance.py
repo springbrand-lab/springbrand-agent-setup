@@ -196,7 +196,7 @@ def main() -> None:
         assert retired not in template, retired
 
     readme = (ROOT / "README.md").read_text()
-    assert f"blob/v{DEV_VERSION}/INSTALL.dev.md" in readme
+    assert "https://plugin.springbrand.ai/INSTALL.dev.md" in readme
     assert "| Authentication | Host-native OAuth | Runtime API key" in readme
     assert "Do not launch OAuth when the API key is valid" in readme
 

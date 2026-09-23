@@ -13,7 +13,9 @@ from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
-FILES = ('INSTALL.md', 'INSTALL.claude.md', 'INSTALL.cursor.md', 'INSTALL.workbuddy.md')
+PRODUCTION_FILES = ('INSTALL.md', 'INSTALL.claude.md', 'INSTALL.cursor.md', 'INSTALL.workbuddy.md')
+DEV_FILES = ('INSTALL.dev.md',)
+FILES = PRODUCTION_FILES + DEV_FILES
 BUCKET = 'springbrand-plugin-distribution'
 ORIGIN = 'https://plugin.springbrand.ai'
 ENDPOINT = 'https://a046b52313a86ecd2ce47e418d8b0f28.r2.cloudflarestorage.com'
@@ -31,8 +33,14 @@ def build(source, output, commit):
             raise ValueError(f'Symlink is not a canonical document: {name}')
         data = path.read_bytes()
         text = data.decode('utf-8')
-        if re.search(r'-dev\.\d+|devconnector\.springbrand\.ai|^## Development install', text, re.M):
-            raise ValueError(f'Development installation leaked into {name}')
+        if name in PRODUCTION_FILES:
+            if re.search(r'-dev\.\d+|devconnector\.springbrand\.ai|^## Development install', text, re.M):
+                raise ValueError(f'Development installation leaked into {name}')
+        else:
+            if not re.search(r'-dev\.\d+', text) or 'devconnector.springbrand.ai' not in text:
+                raise ValueError(f'Development document is missing its immutable dev identity: {name}')
+            if 'https://connector.springbrand.ai/mcp' in text:
+                raise ValueError(f'Production MCP endpoint leaked into {name}')
         for link in re.findall(r'\]\(([^)]+)\)', text):
             url = urlsplit(link)
             if url.scheme or url.netloc or not url.path:

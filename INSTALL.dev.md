@@ -472,7 +472,7 @@ For GTM acceptance after restarting, use an unbranded growth request such as
 “Analyze competitors for my AI product and recommend a positioning strategy.”
 Verify `springbrand-gtm` enters Plugin discovery; use a direct GSC or Gmail
 account request to exercise the Connector path. See
-[the GTM dev evaluation cases](./docs/gtm-routing-evaluation.md).
+[the GTM dev evaluation cases](https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.2.1-dev.2/docs/gtm-routing-evaluation.md).
 
 Apply the initial-response rule above at the first result report or request
 for user action; do not repeat Welcome if it was already shown.

@@ -61,7 +61,7 @@ npx add-mcp 'https://connector.springbrand.ai/mcp'
 ### Development (testing only)
 
 > Follow the official SpringBrand development installation guide to complete setup:
-> https://github.com/springbrand-lab/springbrand-agent-setup/blob/v1.2.1-dev.2/INSTALL.dev.md
+> https://plugin.springbrand.ai/INSTALL.dev.md
 > Identify the target environment and Host first. Provide the development API key only at runtime through the Host's secure credential flow. Configure exactly one `springbrand-dev` entry, preserve unrelated configuration, run the authoritative identity check and configured MCP service health check, and report whether a restart or new session is required. Do not launch OAuth when the API key is valid; use the manual UI instructions and stop if the Host cannot represent Bearer credentials safely.
 
 | | Production | Development |

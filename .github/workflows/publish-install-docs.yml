@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - name: Validate production documents and package
+      - name: Validate installation documents and package
         run: |
           python3 tests/validate_plugin.py
           python3 tests/test_release_identity.py
