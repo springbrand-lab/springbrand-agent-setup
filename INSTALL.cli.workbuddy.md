@@ -9,7 +9,7 @@ This document configures **WorkBuddy only**. Do not detect, configure, update, o
 Run exactly one command. Do not run `--help`, `doctor`, `auth status`, an all-client command, or a second install command first.
 
 ```sh
-npx -y @springbrand/cli@latest connect workbuddy --url https://connector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}
+npx -y @springbrand/cli@latest connect workbuddy-ai --url https://connector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}
 ```
 
 The API key is supplied at runtime. Never print, log, save, repeat, or include it in a report. If no valid API key is available, omit `--api-key` and use the supported native OAuth flow for this client when prompted. Do not silently switch to another client or another environment.

@@ -211,7 +211,7 @@ def main() -> None:
 
     for environment, endpoint, tag in (("production", "https://connector.springbrand.ai/mcp", "latest"), ("development", "https://devconnector.springbrand.ai/mcp", "alpha")):
         prefix = "INSTALL.cli.dev." if environment == "development" else "INSTALL.cli."
-        for client, client_id in (("codex", "codex"), ("claude-code", "claude-code"), ("cursor", "cursor"), ("opencode", "opencode"), ("workbuddy", "workbuddy")):
+        for client, client_id in (("codex", "codex"), ("claude-code", "claude-code"), ("cursor", "cursor"), ("opencode", "opencode"), ("workbuddy", "workbuddy-ai")):
             path = f"{prefix}{client}.md"
             if environment == "production" and client in {"cursor", "workbuddy"}:
                 path = f"INSTALL.cli.{client}.md"
