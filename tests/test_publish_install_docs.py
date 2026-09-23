@@ -48,7 +48,7 @@ class PublishingTests(unittest.TestCase):
         with patch.dict('os.environ', env, clear=True), patch.object(publisher.subprocess, 'check_output', return_value='a' * 40 + '\trefs/heads/main'), patch.object(publisher.subprocess, 'run') as upload, patch.object(publisher, 'verify') as verify:
             publisher.publish(Path('/docs'), 'a' * 40)
             commands = [call.args[0] for call in upload.call_args_list]
-            self.assertEqual(len(commands), 6)
+            self.assertEqual(len(commands), len(publisher.FILES) + 1)
             self.assertTrue(all(command[:3] == ['aws', 's3', 'cp'] for command in commands))
             self.assertEqual(commands[-2][3], '/docs/INSTALL.md')
             self.assertEqual(commands[-1][3], '/docs/manifest.json')
@@ -78,7 +78,7 @@ class PublishingTests(unittest.TestCase):
                 return response
             with patch.object(publisher, 'urlopen', side_effect=respond) as fetch, patch.object(publisher.time, 'sleep'):
                 publisher.verify(output)
-                self.assertEqual(fetch.call_count, 6)
+                self.assertEqual(fetch.call_count, len(publisher.FILES) + 1)
 
     def test_public_mismatch_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
