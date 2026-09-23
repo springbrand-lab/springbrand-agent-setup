@@ -21,6 +21,10 @@
     "defaultPrompt": [
       "Find a SpringBrand Plugin for this task."
     ],
+    "websiteURL": "https://springbrand.ai",
+    "privacyPolicyURL": "https://springbrand.ai/privacy",
+    "termsOfServiceURL": "https://springbrand.ai/terms",
+    "supportURL": "https://springbrand.ai/contact",
     "brandColor": "#FF8A2C",
     "composerIcon": "./assets/springbrand-icon.svg",
     "logo": "./assets/springbrand-icon.svg",
