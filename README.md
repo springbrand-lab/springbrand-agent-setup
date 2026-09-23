@@ -74,6 +74,17 @@ npx add-mcp 'https://connector.springbrand.ai/mcp'
 
 Install one coherent release rather than mixing Skill versions. Development is for testing only and should not be used as a production configuration.
 
+When only one client should change, use its single-client guide instead of the
+all-client entry:
+
+| Client | Production | Development |
+| --- | --- | --- |
+| Codex | [`INSTALL.cli.codex.md`](./INSTALL.cli.codex.md) | [`INSTALL.cli.dev.codex.md`](./INSTALL.cli.dev.codex.md) |
+| Claude Code | [`INSTALL.cli.claude-code.md`](./INSTALL.cli.claude-code.md) | [`INSTALL.cli.dev.claude-code.md`](./INSTALL.cli.dev.claude-code.md) |
+| Cursor | [`INSTALL.cli.cursor.md`](./INSTALL.cli.cursor.md) | [`INSTALL.cli.dev.cursor.md`](./INSTALL.cli.dev.cursor.md) |
+| OpenCode | [`INSTALL.cli.opencode.md`](./INSTALL.cli.opencode.md) | [`INSTALL.cli.dev.opencode.md`](./INSTALL.cli.dev.opencode.md) |
+| WorkBuddy | [`INSTALL.cli.workbuddy.md`](./INSTALL.cli.workbuddy.md) | [`INSTALL.cli.dev.workbuddy.md`](./INSTALL.cli.dev.workbuddy.md) |
+
 ## What this repository contains
 
 The SpringBrand installer: five Canonical Skills and one MCP entry per environment, packaged as native Plugins for Codex, Claude Code, Cursor, and WorkBuddy. Other AI Agents connect through the documented Skill-plus-MCP fallback.

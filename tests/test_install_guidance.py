@@ -8,9 +8,18 @@ GUIDES = (
     "README.md",
     "INSTALL.md",
     "INSTALL.claude.md",
-    "INSTALL.cursor.md",
+    "INSTALL.cli.cursor.md",
     "INSTALL.workbuddy.md",
+    "INSTALL.cli.workbuddy.md",
     "INSTALL.dev.md",
+    "INSTALL.cli.codex.md",
+    "INSTALL.cli.claude-code.md",
+    "INSTALL.cli.opencode.md",
+    "INSTALL.cli.dev.codex.md",
+    "INSTALL.cli.dev.claude-code.md",
+    "INSTALL.cli.dev.cursor.md",
+    "INSTALL.cli.dev.opencode.md",
+    "INSTALL.cli.dev.workbuddy.md",
     "docs/adr/0001-native-host-plugin-adapters.md",
     "docs/codex-plugin-distribution-plan.md",
 )
@@ -199,6 +208,29 @@ def main() -> None:
     assert "https://plugin.springbrand.ai/INSTALL.dev.md" in readme
     assert "| Authentication | Host-native OAuth | Runtime API key" in readme
     assert "Do not launch OAuth when the API key is valid" in readme
+
+    for environment, endpoint, tag in (("production", "https://connector.springbrand.ai/mcp", "latest"), ("development", "https://devconnector.springbrand.ai/mcp", "alpha")):
+        prefix = "INSTALL.cli.dev." if environment == "development" else "INSTALL.cli."
+        for client, client_id in (("codex", "codex"), ("claude-code", "claude-code"), ("cursor", "cursor"), ("opencode", "opencode"), ("workbuddy", "workbuddy")):
+            path = f"{prefix}{client}.md"
+            if environment == "production" and client in {"cursor", "workbuddy"}:
+                path = f"INSTALL.cli.{client}.md"
+            if environment == "development":
+                path = f"INSTALL.cli.dev.{client}.md"
+            guide = (ROOT / path).read_text()
+            assert f"connect {client_id} --url {endpoint} --api-key {{{{INSTALL_KEY}}}}" in guide
+            assert f"@springbrand/cli@{tag}" in guide
+            title = "OpenCode" if client == "opencode" else ("WorkBuddy" if client == "workbuddy" else client.replace('-', ' ').title())
+            assert f"configures **{title} only**" in guide
+            assert "Do not detect, configure, update, or remove any other client" in guide
+            assert "OAuth flow" in guide
+            assert "Close your report with a one-sentence capability note: SpringBrand gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub." in guide
+            assert "Then ask the user what they would like to build first." in guide
+            if environment == "development":
+                assert "v1.2.1-dev.2" in guide
+                assert "https://connector.springbrand.ai/mcp" not in guide
+            else:
+                assert "devconnector.springbrand.ai" not in guide
 
     assert "archive/refs/tags/" not in workbuddy
     assert "## WorkBuddy development CLI installation" in development

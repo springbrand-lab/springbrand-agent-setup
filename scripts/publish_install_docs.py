@@ -13,8 +13,25 @@ from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
-PRODUCTION_FILES = ('INSTALL.md', 'INSTALL.claude.md', 'INSTALL.cursor.md', 'INSTALL.workbuddy.md')
-DEV_FILES = ('INSTALL.dev.md',)
+PRODUCTION_FILES = (
+    'INSTALL.md',
+    'INSTALL.claude.md',
+    'INSTALL.cursor.md',
+    'INSTALL.workbuddy.md',
+    'INSTALL.cli.codex.md',
+    'INSTALL.cli.claude-code.md',
+    'INSTALL.cli.cursor.md',
+    'INSTALL.cli.opencode.md',
+    'INSTALL.cli.workbuddy.md',
+)
+DEV_FILES = (
+    'INSTALL.dev.md',
+    'INSTALL.cli.dev.codex.md',
+    'INSTALL.cli.dev.claude-code.md',
+    'INSTALL.cli.dev.cursor.md',
+    'INSTALL.cli.dev.opencode.md',
+    'INSTALL.cli.dev.workbuddy.md',
+)
 FILES = PRODUCTION_FILES + DEV_FILES
 BUCKET = 'springbrand-plugin-distribution'
 ORIGIN = 'https://plugin.springbrand.ai'

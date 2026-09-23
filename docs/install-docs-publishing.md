@@ -3,13 +3,13 @@
 ## Scope and ownership
 
 Canonical documents remain in this repository. R2 holds byte-identical
-Distribution Mirrors, not separately maintained content. The only published
-files are `INSTALL.md`, `INSTALL.claude.md`, `INSTALL.cursor.md`,
-`INSTALL.workbuddy.md`, and generated `manifest.json` (commit SHA and SHA-256
-hashes). The production and development installation instructions are both
-published as separate objects; `INSTALL.md` is the production entry and
-`INSTALL.dev.md` is the test entry. Native Plugin installation and updates
-still require GitHub.
+Distribution Mirrors, not separately maintained content. The publisher mirrors
+the unified entries plus one single-client document for Codex, Claude Code,
+Cursor, OpenCode, and WorkBuddy in both production and development variants,
+along with generated `manifest.json` (commit SHA and SHA-256 hashes). The
+production and development installation instructions are published as separate
+objects; `INSTALL.md` is the production entry and `INSTALL.dev.md` is the test
+entry. Native Plugin installation and updates still require GitHub.
 
 - Public origin: `https://plugin.springbrand.ai`
 - Bucket: `springbrand-plugin-distribution` (Standard)
@@ -17,8 +17,9 @@ still require GitHub.
 - S3 endpoint: `https://a046b52313a86ecd2ce47e418d8b0f28.r2.cloudflarestorage.com`
 
 The bucket may later hold versioned release packages. This publisher only
-writes the five named keys; it never deletes objects or synchronizes the
-whole bucket. Release-package installation is outside this implementation.
+writes the keys listed in `scripts/publish_install_docs.py`; it never deletes
+objects or synchronizes the whole bucket. Release-package installation is
+outside this implementation.
 
 ## One-time activation
 
