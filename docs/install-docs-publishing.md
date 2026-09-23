@@ -6,8 +6,10 @@ Canonical documents remain in this repository. R2 holds byte-identical
 Distribution Mirrors, not separately maintained content. The only published
 files are `INSTALL.md`, `INSTALL.claude.md`, `INSTALL.cursor.md`,
 `INSTALL.workbuddy.md`, and generated `manifest.json` (commit SHA and SHA-256
-hashes). Development instructions remain in `INSTALL.dev.md` and are not
-published. Native Plugin installation and updates still require GitHub.
+hashes). The production and development installation instructions are both
+published as separate objects; `INSTALL.md` is the production entry and
+`INSTALL.dev.md` is the test entry. Native Plugin installation and updates
+still require GitHub.
 
 - Public origin: `https://plugin.springbrand.ai`
 - Bucket: `springbrand-plugin-distribution` (Standard)
@@ -31,8 +33,9 @@ whole bucket. Release-package installation is outside this implementation.
 5. Manually run **Publish installation documents** against `main`.
    This is a real production upload; absent credentials cause an explicit
    failure. The workflow requires AWS CLI (provided by its Ubuntu runner).
-6. Verify the workflow's public-content checks pass and all four documents
-   can be fetched without login. Only then change product installation links.
+6. Verify the workflow's public-content checks pass and all published
+   documents can be fetched without login. Only then change product
+   installation links.
 7. Set repository variable `INSTALL_DOCS_AUTO_PUBLISH` to `true` to enable
    relevant `main` pushes. PRs and tags never publish. Manual dispatch from
    another branch does not publish either.
