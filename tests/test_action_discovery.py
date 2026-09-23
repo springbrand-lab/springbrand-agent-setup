@@ -50,6 +50,20 @@ def test_execution_safety_and_reuse_survive() -> None:
         assert phrase in skill, phrase
 
 
+def test_image_presentation_prefers_declared_ui_then_content_then_url() -> None:
+    skill = normalized(SKILL)
+    phrases = (
+        "MCP App/UI",
+        "Never invent or guess a renderer tool name",
+        "prefer an `image` content block",
+        "embed the exact saved preview URL as a Markdown image",
+        "Never print base64",
+    )
+    for phrase in phrases:
+        assert phrase in skill, phrase
+    assert skill.index(phrases[0]) < skill.index(phrases[2]) < skill.index(phrases[3])
+
+
 def test_alias_map_keeps_compatibility_constraints() -> None:
     aliases = normalized(ALIASES)
     for phrase in (
@@ -63,6 +77,7 @@ def main() -> None:
     test_mirrors_are_byte_equivalent()
     test_action_uses_unified_contract_without_legacy_paths()
     test_execution_safety_and_reuse_survive()
+    test_image_presentation_prefers_declared_ui_then_content_then_url()
     test_alias_map_keeps_compatibility_constraints()
     print("action discovery fixtures: ok")
 

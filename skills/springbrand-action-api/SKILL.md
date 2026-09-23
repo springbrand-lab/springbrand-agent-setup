@@ -174,10 +174,22 @@ when the user needs current status or the saved result:
 - A `get_execution` error is a lookup failure, not an execution status. It
   says nothing about whether the Action succeeded.
 
-For image results, prefer the image content already returned by
-`get_execution`. If the Host cannot render it, use the exact saved preview URL,
-then the exact original-file URL as the final fallback. Never print base64 and
-never execute the Action again to repair presentation.
+### Image result presentation
+
+After `get_execution` verifies a successful image result, present it in this
+order without starting another Action execution:
+
+1. If the current tool contract or result explicitly provides an MCP App/UI
+   resource, use that UI first. Never invent or guess a renderer tool name.
+2. Otherwise, prefer an `image` content block already returned by the tool.
+   Do not add a duplicate Markdown image when the Host has rendered that block.
+3. If no image content is available, embed the exact saved preview URL as a
+   Markdown image. If there is no preview URL, use the exact original-file URL;
+   keep it as a normal download link when applicable.
+
+Never print base64, construct a new image URL, or execute the Action again to
+repair presentation. A UI or rendering failure does not change the verified
+execution status.
 
 ## Continuing an earlier execution
 
