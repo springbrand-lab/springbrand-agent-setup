@@ -195,7 +195,6 @@ def validate_portable_package(root: Path, version: str, identity: dict) -> None:
         "brandColor",
         "composerIcon",
         "logo",
-        "logoDark",
     ):
         require(interface.get(field) == compatibility_interface.get(field), f"Portable interface field is out of sync: {field}")
     for field, expected in (
@@ -252,7 +251,7 @@ def validate_codex_adapter(root: Path, version: str, identity: dict) -> None:
         ("supportURL", "https://springbrand.ai/contact"),
     ):
         require(interface.get(field) == expected, f"Codex interface {field} is invalid")
-    for field in ("composerIcon", "logo", "logoDark"):
+    for field in ("composerIcon", "logo"):
         reference = interface.get(field)
         require(reference == "./assets/springbrand-icon.svg", f"Codex {field} must reference ./assets/springbrand-icon.svg")
         require(component(root, reference, f"Codex {field}").is_file(), f"Codex {field} must be a file")
