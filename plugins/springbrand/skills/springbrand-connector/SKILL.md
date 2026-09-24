@@ -6,7 +6,7 @@ description: >
   connection, confirm and execute, then read an asynchronous result when
   needed. Do not use for Platform artifacts, Plugins, or Action API services.
 metadata:
-  version: "1.2.3"
+  version: "1.2.4"
 ---
 
 # SpringBrand Connector
