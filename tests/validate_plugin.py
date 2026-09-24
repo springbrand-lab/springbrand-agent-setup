@@ -371,7 +371,10 @@ def validate_cursor_adapter(root: Path, version: str, identity: dict) -> None:
     require((package / plugin["logo"]).is_file(), "Cursor logo does not exist")
 
     validate_skill_mirrors(root, package, "Cursor")
-    require((package / "assets/springbrand-icon.svg").read_bytes() == (root / "assets/springbrand-icon.svg").read_bytes(), "Cursor logo mirror must be byte-equivalent to the canonical logo")
+    # Hosts can require different icon dimensions. The Cursor package keeps
+    # its own 38x38 asset while the portable/Codex package uses the 48x48
+    # canonical asset, so only require the host-specific mirror to exist.
+    require((package / "assets/springbrand-icon.svg").is_file(), "Cursor logo mirror does not exist")
 
     rule = (package / "rules/springbrand-preflight.mdc")
     require(rule.is_file(), "Cursor Rule mirror does not exist")

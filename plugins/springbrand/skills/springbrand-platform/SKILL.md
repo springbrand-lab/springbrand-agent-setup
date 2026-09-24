@@ -6,7 +6,7 @@ description: >
   publish Creations. Do not use for Action API services or direct work in a
   third-party account.
 metadata:
-  version: "1.2.3"
+  version: "1.2.4"
 ---
 
 # SpringBrand Platform
