@@ -29,7 +29,7 @@ PROD_DESCRIPTION = "Discover and use SpringBrand Plugins through the production 
 DEV_DESCRIPTION = "Discover and use SpringBrand Plugins through the development connector. Internal testing only."
 PROD_PACKAGE_DESCRIPTION = "Discover and use SpringBrand Plugins through the production connector"
 DEV_PACKAGE_DESCRIPTION = "Discover and use SpringBrand Plugins through the development connector. Internal testing only."
-PROD_SHORT_DESCRIPTION = "Discover and use SpringBrand Plugins"
+PROD_SHORT_DESCRIPTION = "Discover SpringBrand Plugins"
 DEV_SHORT_DESCRIPTION = "Test SpringBrand Plugins"
 PROD_LONG_DESCRIPTION = "Search for reusable SpringBrand Plugins and apply them to your work through the production connector."
 DEV_LONG_DESCRIPTION = "Search for reusable SpringBrand Plugins and apply them through the development connector. Internal testing only."
@@ -106,12 +106,7 @@ def rewrite_claude_plugin(path, version):
     write_json(path, data)
 
 
-def rewrite_codex_plugin(path, version):
-    data = read_json(path)
-    data["name"] = dev_name(data["name"], f"{path} name")
-    data["version"] = version
-    data["description"] = dev_value(data["description"], PROD_DESCRIPTION, DEV_DESCRIPTION, f"{path} description")
-    interface = data["interface"]
+def rewrite_openai_interface(interface, path):
     interface["displayName"] = dev_value(interface["displayName"], PROD_DISPLAY_NAME, DEV_DISPLAY_NAME, f"{path} interface.displayName")
     interface["shortDescription"] = dev_value(interface["shortDescription"], PROD_SHORT_DESCRIPTION, DEV_SHORT_DESCRIPTION, f"{path} interface.shortDescription")
     interface["longDescription"] = dev_value(interface["longDescription"], PROD_LONG_DESCRIPTION, DEV_LONG_DESCRIPTION, f"{path} interface.longDescription")
@@ -119,6 +114,23 @@ def rewrite_codex_plugin(path, version):
         dev_value(prompt, PROD_DEFAULT_PROMPT, DEV_DEFAULT_PROMPT, f"{path} interface.defaultPrompt")
         for prompt in interface["defaultPrompt"]
     ]
+
+
+def rewrite_codex_plugin(path, version):
+    data = read_json(path)
+    data["name"] = dev_name(data["name"], f"{path} name")
+    data["version"] = version
+    data["description"] = dev_value(data["description"], PROD_DESCRIPTION, DEV_DESCRIPTION, f"{path} description")
+    rewrite_openai_interface(data["interface"], path)
+    write_json(path, data)
+
+
+def rewrite_portable_plugin(path, version):
+    data = read_json(path)
+    data["name"] = dev_name(data["name"], f"{path} name")
+    data["version"] = version
+    data["description"] = dev_value(data["description"], PROD_DESCRIPTION, DEV_DESCRIPTION, f"{path} description")
+    rewrite_openai_interface(data["extensions"]["com.openai"]["interface"], path)
     write_json(path, data)
 
 
@@ -204,14 +216,24 @@ def rewrite_workflow(path):
     path.write_text(text)
 
 
+def rewrite_agents_dependency(path):
+    text = path.read_text()
+    text = text.replace('value: "springbrand"', 'value: "springbrand-dev"')
+    text = text.replace(PROD_URL, DEV_URL)
+    if 'value: "springbrand-dev"' not in text or DEV_URL not in text:
+        fail(f"{path}: portable MCP dependency is not production-shaped")
+    path.write_text(text)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--version", required=True, help="dev version for VERSION and every manifest version field")
     args = parser.parse_args()
 
-    for name in (".mcp.json", "plugins/springbrand/mcp.json", "plugins/springbrand-workbuddy/.mcp.json"):
+    for name in (".mcp.json", "mcp.json", "plugins/springbrand/mcp.json", "plugins/springbrand-workbuddy/.mcp.json"):
         rewrite_mcp_manifest(ROOT / name)
 
+    rewrite_portable_plugin(ROOT / "plugin.json", args.version)
     rewrite_claude_plugin(ROOT / ".claude-plugin/plugin.json", args.version)
     rewrite_codex_plugin(ROOT / ".codex-plugin/plugin.json", args.version)
     rewrite_cursor_plugin(ROOT / "plugins/springbrand/.cursor-plugin/plugin.json", args.version)
@@ -222,6 +244,7 @@ def main() -> None:
     rewrite_cursor_marketplace(ROOT / ".cursor-plugin/marketplace.json", args.version)
     for name in ("hooks/user-prompt-submit", "plugins/springbrand-workbuddy/hooks/user-prompt-submit"):
         rewrite_hook(ROOT / name)
+    rewrite_agents_dependency(ROOT / "agents/openai.yaml")
     rewrite_workflow(ROOT / ".github/workflows/validate-plugin.yml")
     (ROOT / "VERSION").write_text(args.version + "\n")
     sync_skill_versions(ROOT)

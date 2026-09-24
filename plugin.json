@@ -1,0 +1,37 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "springbrand",
+  "version": "1.2.4",
+  "description": "Discover and use SpringBrand Plugins through the production connector.",
+  "author": {
+    "name": "SpringBrand"
+  },
+  "homepage": "https://springbrand.ai",
+  "repository": "https://github.com/springbrand-lab/springbrand-agent-setup",
+  "extensions": {
+    "com.openai": {
+      "hooks": "./hooks/codex-hooks.json",
+      "interface": {
+        "displayName": "SpringBrand",
+        "shortDescription": "Discover SpringBrand Plugins",
+        "longDescription": "Search for reusable SpringBrand Plugins and apply them to your work through the production connector.",
+        "developerName": "SpringBrand",
+        "category": "Productivity",
+        "capabilities": [
+          "Search",
+          "Execute"
+        ],
+        "websiteURL": "https://springbrand.ai",
+        "privacyPolicyURL": "https://springbrand.ai/privacy",
+        "termsOfServiceURL": "https://springbrand.ai/terms",
+        "supportURL": "https://springbrand.ai/contact",
+        "defaultPrompt": [
+          "Find a SpringBrand Plugin for this task."
+        ],
+        "brandColor": "#FF8A2C",
+        "composerIcon": "./assets/springbrand-icon.svg",
+        "logo": "./assets/springbrand-icon.svg"
+      }
+    }
+  }
+}
