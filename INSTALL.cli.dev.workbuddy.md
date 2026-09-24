@@ -14,6 +14,8 @@ npx -y @springbrand/cli@alpha connect workbuddy-ai --url https://devconnector.sp
 
 The API key is supplied at runtime. Never print, log, save, repeat, or include it in a report. If no valid API key is available, omit `--api-key` and use the supported native OAuth flow for this client when prompted. Do not silently switch to another client or another environment.
 
+WorkBuddy currently requires the user to trust a newly installed MCP entry. After the command runs, tell the user that WorkBuddy will show an MCP trust prompt and guide them through approving the `springbrand-dev` entry before continuing. Do not report success until the user has confirmed this trust step.
+
 If the command reports an invalid, expired, revoked, wrong-environment, or insufficient-scope key, stop and report only that stable failure category. Do not rerun the command with the same key. If the command reports an authentication or MCP authorization failure after accepting the key, retry once without `--api-key` only when the client explicitly offers its native OAuth flow. Never blind-retry.
 
 ## Required verification
