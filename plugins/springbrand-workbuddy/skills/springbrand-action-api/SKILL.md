@@ -24,11 +24,11 @@ have a package manifest. This is a local consistency check: do not call MCP or
 fetch remote releases just to check versions, and do not infer the MCP server
 version or automatically reinstall from this metadata.
 
-SpringBrand Action API is the Domain Skill for having an available API service
-do a task for the user. It owns one workflow: understand the intended result,
-find a compatible Action operation, inspect the current contract, execute with
-the user's explicit confirmation for this specific run, and deliver the result
-honestly.
+SpringBrand Action API is the generic execution framework for operations found
+through the SpringBrand MCP. Tool-specific purpose, usage, prerequisites and
+follow-up behavior come from the selected Tool's current description and
+contract. This Skill owns discovery, contract use, confirmation, execution and
+status handling.
 
 Everything uses the single SpringBrand MCP entry and four shared Meta Tools:
 `search_tools`, `get_tool_schemas`, `execute_tools`, and `get_execution`.
@@ -70,10 +70,17 @@ question only when a missing fact prevents safe discovery or schema-valid
 input. Do not invent a supplier, model version, platform, operation, or input
 modality.
 
-For non-English requests, use
-[references/action-aliases.md](references/action-aliases.md) to resolve an
-unambiguous catalogue concept. Aliases preserve hard constraints; they never
-authorize an operation.
+Ask about only the missing decision that blocks progress. The useful questions
+are whether the user requires a particular service or supplier, platform or
+product, operation, object or modality, output type, input material, time
+range, or budget. Do not ask the user to name a Tool, Tool ID, supplier
+implementation, or catalogue entry; those are discovered from the current
+`search_tools` result. If the request already contains enough constraints,
+search immediately without a clarification question.
+
+For non-English requests, translate the user's request into one concise
+English discovery query while preserving the constraints the user actually
+gave. Do not invent a supplier, model, operation or modality.
 
 ### Step 2 — Discover compatible operations
 
@@ -83,8 +90,9 @@ that preserves every explicit service, operation, object, modality, and output
 constraint. The result is one bounded list, not a complete catalogue and not
 globally ranked.
 
-Inspect returned descriptions and reported requirements in their returned
-order. Compatibility is a filter, not a new ranking: reject candidates that
+Inspect returned descriptions, any `recommendedPrompt`, and reported
+requirements in their returned order. Compatibility is a filter, not a new
+ranking: reject candidates that
 violate an explicit supplier, platform, operation, object, or modality
 constraint, then recommend the first compatible Action API operation.
 
@@ -102,12 +110,33 @@ constraint, then recommend the first compatible Action API operation.
 Let the user pick a candidate or confirm the recommendation before execution
 preparation continues.
 
+### Discovery and contract shapes
+
+`search_tools` returns one bounded result shaped like
+`{ items, complete, status, warnings? }`. Each `items` entry is a summary with
+`toolId`, `name`, and `description`, and may include `displayName`, `summary`,
+`recommendedPrompt`, `price`, `risk`, `access`, `auth`, and `relatedTools`.
+Search summaries do not contain executable argument schemas.
+
+`get_tool_schemas` returns `{ tools: [...] }`, with one current public Tool
+Contract per requested opaque Tool ID. Every contract contains:
+
+- `toolId`, `name`, `description`, and `inputSchema`;
+- optionally `outputSchema`, `displayName`, `summary`, `recommendedPrompt`,
+  `price`, `risk`, `access`, `revision`, `docsUrl`, `notes`, `usage`, `hints`,
+  `billing`, `produces`, `attachmentInputFields`, `auth`, and `relatedTools`.
+
+`inputSchema` and `outputSchema` are the current JSON Schemas. Use the current
+description and schemas as the source of truth; do not infer fields from a
+Tool name, ID, historical alias, or prior result.
+
 ### Step 3 — Inspect the current contract
 
 Call `get_tool_schemas` with the selected opaque Tool ID copied unchanged.
 Read the selected operation's description, current input and output schemas,
 access requirements, risk, known costs, attachment requirements, produced
-material, and revision information.
+material, and revision information. The Tool's description is the authority
+for Tool-specific usage and follow-up behavior.
 
 - Build arguments strictly from the current input schema: every required
   value present, exact field names and types, and no invented fields.
@@ -149,9 +178,8 @@ A stable key supports safe replay where the operation contract permits it; it
 does not make every write safe to retry. An outcome unknown for a write is
 never auto-retried. Report the uncertainty, keep the exact run state, and let
 the user decide. A result reporting insufficient credits is a business
-requirement: explain that
-credits must be added and that a later user-approved attempt is a new run; do
-not report it as a system failure.
+requirement: explain that credits must be added and that a later user-approved
+attempt is a new run; do not report it as a system failure.
 
 ### Step 5 — Deliver or read the execution
 
