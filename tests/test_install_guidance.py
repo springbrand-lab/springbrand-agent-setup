@@ -46,15 +46,15 @@ def main() -> None:
 
     install = (ROOT / "INSTALL.md").read_text()
     plugin = (ROOT / "INSTALL.plugin.md").read_text()
-    assert "npx -y @springbrand/cli@latest connect --all" in install
-    assert "without `--api-key`" in install
-    assert "native OAuth" in install
+    assert "connect codex --skip-launch --url https://connector.springbrand.ai/mcp" in install
+    assert "--api-key" in install
     assert "native OAuth flow" in install
-    assert "Run exactly one CLI command" in install
+    assert "exactly one `connect <client>`" in install
+    assert "Do not run `connect --all` for a single-Host installation" in install
+    assert "ask the user which client is running" in install
     assert "account-settings?section=mcp-api-keys" in install
     assert "API-key fallback" in install
     assert "Do not run `auth login` for this flow" in install
-    assert "account-settings?section=mcp-api-keys" in install
     assert "Plugin fallback" in install
     assert "INSTALL.plugin.md" in install
     assert "INSTALL.cli.codex.md" in plugin
@@ -95,16 +95,15 @@ def main() -> None:
     dev_plugin = (ROOT / "INSTALL.plugin.dev.md").read_text()
     assert "v1.2.1-dev.2" in development
     assert "https://devconnector.springbrand.ai/mcp" in development
-    assert "npx -y @springbrand/cli@alpha connect --all" in development
-    assert "no API key" in development
-    assert "native browser OAuth" in development
-    assert "ask which terminal/client" in development
-    assert "do not run `connect --all`" in development
+    assert "connect codex --skip-launch --url https://devconnector.springbrand.ai/mcp" in development
+    assert "--api-key" in development
+    assert "native OAuth flow" in development
+    assert "exactly one `connect <client>`" in development
+    assert "Do not run `connect --all` for a single-Host installation" in development
+    assert "ask the user which client is running" in development
     assert "devrapp.springbrand.ai/account-settings?section=mcp-api-keys" in development
-    assert "Wait for the key" in development
-    assert "OAuth as an explicit fallback" in development
-    assert "INSTALL.cli.dev.codex.md" in development
-    assert "single-client development guide" in development
+    assert "API-key fallback" in development
+    assert "Do not run `auth login` for this flow" in development
     assert "INSTALL.plugin.dev.md" in development
     assert "springbrand-dev" in dev_plugin
     assert "Host-native OAuth" in dev_plugin
