@@ -31,13 +31,20 @@ npx -y @springbrand/cli@latest connect --all --skip-launch --url https://connect
 ```
 
 If there is **no API key**, do not run `connect --all`. First ask the user which
-client is the current installation target (for example `codex`, `claude-code`,
-`cursor`, `opencode`, or `workbuddy-ai`), then run exactly one command for that
-client:
+client is the current installation target, then read and follow that client's
+single-client guide:
 
-```sh
-npx -y @springbrand/cli@latest connect <client> --url https://connector.springbrand.ai/mcp
-```
+- [Codex](./INSTALL.cli.codex.md)
+- [Claude Code](./INSTALL.cli.claude-code.md)
+- [Cursor](./INSTALL.cli.cursor.md)
+- [OpenCode](./INSTALL.cli.opencode.md)
+- [WorkBuddy](./INSTALL.cli.workbuddy.md)
+
+Those guides run exactly one `connect <client> --url ...` command, allowing the
+selected client to trigger and store its own native browser OAuth session.
+In this branch, do not run `sp auth login` and do not open the API-key page:
+OAuth belongs to the selected client and is completed by that client's native
+MCP flow.
 
 The CLI then uses native browser OAuth for that client. OAuth credentials are
 stored by the client/session and do not authorize the other clients. If the
