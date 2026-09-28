@@ -1,7 +1,7 @@
 # SpringBrand WorkBuddy Plugin — R2 production installation
 
 Before validation, connectivity checks, installation commands or UI handoffs,
-read and follow [Initial installation response](./INSTALL.md#initial-installation-response).
+read and follow [Initial installation response](./INSTALL.plugin.md#initial-installation-response).
 Determine first installation versus ordinary update before changing anything.
 In a first-install conversation, show actual setup status and the next step,
 then Welcome once at the first result report or request for user action. This
