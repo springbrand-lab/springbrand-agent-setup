@@ -34,10 +34,14 @@ def main():
         assert len(set(notices)) == 1, "The hook must not classify prompt content"
 
     guide = (ROOT / "INSTALL.dev.md").read_text()
+    plugin_guide = (ROOT / "INSTALL.plugin.dev.md").read_text()
     assert "GitHub capabilities only" not in guide
-    assert "immutable older tag or ZIP does not select this release" in guide
-    assert "/skills/springbrand-gtm/SKILL.md" in guide
-    assert "<your user-level Skill directory>/springbrand-gtm/SKILL.md" in guide
+    assert "v1.2.1-dev.2" in guide
+    assert "INSTALL.plugin.dev.md" in guide
+    assert "immutable release" in plugin_guide
+    assert "springbrand-dev" in plugin_guide
+    assert "https://devconnector.springbrand.ai/mcp" in plugin_guide
+    assert "### Welcome message" in plugin_guide
     for adapter in ("plugins/springbrand", "plugins/springbrand-workbuddy"):
         assert (ROOT / adapter / "skills/springbrand-gtm/SKILL.md").read_bytes() == source.read_bytes()
     with tempfile.TemporaryDirectory() as temp:
