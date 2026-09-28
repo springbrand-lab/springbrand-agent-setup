@@ -6,15 +6,21 @@ This document targets immutable development release `v1.2.1-dev.2`. It configure
 
 ## Preferred CLI installation
 
-Run exactly one command. Do not run `--help`, `doctor`, `auth status`, an all-client command, or a second install command first.
+After any required API-key preparation, run exactly one connect command. Do not run `--help`, `doctor`, an all-client command, or a second connect command first.
 
 ```sh
 npx -y @springbrand/cli@alpha connect codex --url https://devconnector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}
 ```
 
-The API key is supplied at runtime. Never print, log, save, repeat, or include it in a report. If no valid API key is available, omit `--api-key` and use the supported native OAuth flow for this client when prompted. Do not silently switch to another client or another environment.
+The Agent must never print, log, repeat, or include the key in a report. Choose exactly one branch:
 
-If the command reports an invalid, expired, revoked, wrong-environment, or insufficient-scope key, stop and report only that stable failure category. Do not rerun the command with the same key. If the command reports an authentication or MCP authorization failure after accepting the key, retry once without `--api-key` only when the client explicitly offers its native OAuth flow. Never blind-retry.
+- **Key supplied:** run the command above with `--api-key {{INSTALL_KEY}}`.
+- **No key supplied:** run `npx -y @springbrand/cli@alpha auth login --url https://devconnector.springbrand.ai/mcp`. Ask the user to register or sign in, create or copy the key, and paste it into the CLI. After `auth login` succeeds, run `npx -y @springbrand/cli@alpha connect codex --url https://devconnector.springbrand.ai/mcp` without `--api-key`; the CLI reads the saved key. The CLI may save the key in its own credential file.
+- **OAuth fallback:** only after the user cannot use an API key or explicitly chooses OAuth after a failed key attempt, run the native OAuth flow with `npx -y @springbrand/cli@alpha connect codex --url https://devconnector.springbrand.ai/mcp` without `--api-key`. Do not run `auth login` in this branch.
+
+Do not silently switch to another client or another environment.
+
+If the command reports an invalid, expired, revoked, wrong-environment, or insufficient-scope key, stop and report only that stable failure category. Do not rerun the command with the same key. If the command reports an authentication or MCP authorization failure after accepting the key, stop and report the stable failure category. Retry without `--api-key` only after the user explicitly chooses the OAuth fallback. Never blind-retry.
 
 ## Required verification
 

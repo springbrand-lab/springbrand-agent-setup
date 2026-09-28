@@ -10,13 +10,17 @@ This guide installs immutable development release `v1.2.1-dev.2` from
 This document is the CLI-first entry point. Use this order for every install or
 update:
 
-1. **CLI with an API key.** If the setup prompt contains a development key,
-   pass it to the CLI.
-2. **CLI with OAuth for the current client.** If the setup prompt contains no
-   key, ask which terminal/client the user is installing into, then run the
-   single-client command for that client without `--api-key`. Native browser
-   OAuth is scoped to that client and its local session; it is not a shared
-   credential for every client.
+1. **CLI with an API key (preferred).** If the setup prompt contains a
+   development key, pass it to the CLI. If it does not, run
+   `npx -y @springbrand/cli@alpha auth login --url https://devconnector.springbrand.ai/mcp`.
+   Ask the user to register or sign in, create or copy a development API key,
+   and paste it into the CLI before continuing.
+2. **CLI with OAuth as an explicit fallback.** Only when the user cannot use an
+   API key, or the user explicitly chooses OAuth after an API-key attempt has
+   failed, ask which terminal/client is being installed and run that client's
+   single-client command without `--api-key`. Native browser OAuth is scoped to
+   that client and its local session; it is not a shared credential for every
+   client.
 3. **Plugin fallback.** Only when the CLI cannot run or a specific client fails,
    preserve successful CLI registrations and read
    [INSTALL.plugin.dev.md](./INSTALL.plugin.dev.md). Do not load Plugin
@@ -35,9 +39,22 @@ on this machine, then run exactly one command:
 npx -y @springbrand/cli@alpha connect --all --skip-launch --url https://devconnector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}
 ```
 
-If there is **no API key**, do not run `connect --all`. First ask the user which
-client is the current installation target, then read and follow that client's
-single-client development guide:
+If there is **no API key in the setup prompt**, run this command first:
+
+```sh
+npx -y @springbrand/cli@alpha auth login --url https://devconnector.springbrand.ai/mcp
+```
+
+Ask the user to register or sign in, create or copy the development key, and
+paste it into the CLI. After `auth login` succeeds, run the API-key command
+above with the runtime key supplied to `--api-key`, or omit `--api-key` so the
+CLI reads the saved key. Do not print, log, repeat, or include the key in the
+report. The CLI may save the key in its own credential file as part of
+`auth login`.
+
+Only if the user cannot use an API key, or explicitly chooses OAuth after the
+key attempt fails, ask which client is the current installation target and read
+that client's single-client development guide:
 
 - [Codex](./INSTALL.cli.dev.codex.md)
 - [Claude Code](./INSTALL.cli.dev.claude-code.md)
@@ -46,10 +63,9 @@ single-client development guide:
 - [WorkBuddy](./INSTALL.cli.dev.workbuddy.md)
 
 Those guides run exactly one `connect <client> --url ...` command, allowing the
-selected client to trigger and store its own native browser OAuth session.
-In this branch, do not run `sp auth login` and do not open the API-key page:
-OAuth belongs to the selected client and is completed by that client's native
-MCP flow.
+selected client to trigger and store its own native browser OAuth session. Do
+not enter this branch merely because the setup prompt omitted a key; offer the
+development API-key page first.
 
 The CLI then uses native browser OAuth for that client. OAuth credentials are
 stored by the client/session and do not authorize the other clients. If the
@@ -67,9 +83,9 @@ key and rerun; do not silently switch that failed key attempt to OAuth. A
 key-only client may be reported as failed when no key is supplied; handle only
 that client through the fallback document.
 
-Never print, store, or repeat the key. Do not run a second blind install
-attempt. If the CLI requests a restart or new session, report that as the next
-step and stop.
+The Agent must never print, log, or repeat the key. Do not run a second blind
+install attempt. If the CLI requests a restart or new session, report that as
+the next step and stop.
 
 ## Plugin fallback
 

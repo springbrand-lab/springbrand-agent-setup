@@ -50,7 +50,7 @@ Capabilities are organized into three domains — **Platform**, **Action API**, 
 
 Paste this prompt into your AI Agent (Claude Code, Codex, Cursor, Copilot, Devin, Windsurf, WorkBuddy, or any compatible Agent); it reads the guide and performs the installation:
 
-> Install or update SpringBrand Production by following https://plugin.springbrand.ai/INSTALL.md. Identify this Agent, use the matching Host guide, detect whether SpringBrand is already installed, refresh the existing Marketplace/Plugin in place when updating, prefer native OAuth, preserve existing configuration, and pause only for UI or OAuth steps I must complete.
+> Install or update SpringBrand Production by following https://plugin.springbrand.ai/INSTALL.md. Identify this Agent, use the matching Host guide, detect whether SpringBrand is already installed, prefer an API key by opening the account API-key page when needed and asking me to register or sign in and paste the key, refresh the existing Marketplace/Plugin in place when updating, preserve existing configuration, and use native OAuth only as an explicit fallback after the API-key path cannot be used.
 
 Or add the hosted MCP server directly:
 
@@ -62,14 +62,14 @@ npx add-mcp 'https://connector.springbrand.ai/mcp'
 
 > Follow the official SpringBrand development installation guide to complete setup:
 > https://plugin.springbrand.ai/INSTALL.dev.md
-> Identify the target environment and Host first. Provide the development API key only at runtime through the Host's secure credential flow. Configure exactly one `springbrand-dev` entry, preserve unrelated configuration, run the authoritative identity check and configured MCP service health check, and report whether a restart or new session is required. Do not launch OAuth when the API key is valid; use the manual UI instructions and stop if the Host cannot represent Bearer credentials safely.
+> Identify the target environment and Host first. Prefer a development API key: open the development account API-key page when no key is supplied, ask me to register or sign in and paste the key, then provide it only at runtime through the Host's secure credential flow. Configure exactly one `springbrand-dev` entry, preserve unrelated configuration, run the authoritative identity check and configured MCP service health check, and report whether a restart or new session is required. Use native OAuth only as an explicit fallback after the API-key path cannot be used. Do not launch OAuth when the API key is valid.
 
 | | Production | Development |
 | --- | --- | --- |
 | Install guide | [`INSTALL.md`](./INSTALL.md) | [`INSTALL.dev.md`](./INSTALL.dev.md) |
 | MCP entry name | `springbrand` | `springbrand-dev` |
 | MCP URL | `https://connector.springbrand.ai/mcp` | `https://devconnector.springbrand.ai/mcp` |
-| Authentication | Host-native OAuth | Runtime API key through the selected descriptor |
+| Authentication | Runtime API key preferred; host-native OAuth fallback | Runtime API key preferred; host-native OAuth fallback |
 | Purpose | Everyday use | Testing only |
 
 Install one coherent release rather than mixing Skill versions. Development is for testing only and should not be used as a production configuration.
