@@ -152,7 +152,13 @@ def main() -> None:
             assert f"connect {client_id} --url {endpoint} --api-key {{{{INSTALL_KEY}}}}" in guide
             assert f"@springbrand/cli@{tag}" in guide
             title = "OpenCode" if client == "opencode" else ("WorkBuddy" if client == "workbuddy" else client.replace('-', ' ').title())
-            assert f"configures **{title} only**" in guide
+            if client == "claude-code" and environment == "production":
+                assert "configures **one Claude surface only**" in guide
+                assert "Claude Desktop Cowork" in guide
+                assert "Cowork → Customize → Plugins" in guide
+                assert "Do not provide an API key to the Cowork flow" in guide
+            else:
+                assert f"configures **{title} only**" in guide
             assert "Do not detect, configure, update, or remove any other client" in guide
             assert "OAuth flow" in guide
             assert "Close your report with a one-sentence capability note: SpringBrand gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub." in guide
