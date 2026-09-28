@@ -50,7 +50,9 @@ def main() -> None:
     assert "no API key" in install
     assert "native browser OAuth" in install
     assert "ask which terminal/client" in install
-    assert "do not run `connect --all`" in install
+    assert "run this command first" in install
+    assert "auth login --url https://connector.springbrand.ai/mcp" in install
+    assert "OAuth as an explicit fallback" in install
     assert "account-settings?section=mcp-api-keys" in install
     assert "INSTALL.cli.codex.md" in install
     assert "single-client guide" in install
@@ -98,7 +100,9 @@ def main() -> None:
     assert "no API key" in development
     assert "native browser OAuth" in development
     assert "ask which terminal/client" in development
-    assert "do not run `connect --all`" in development
+    assert "run this command first" in development
+    assert "auth login --url https://devconnector.springbrand.ai/mcp" in development
+    assert "OAuth as an explicit fallback" in development
     assert "INSTALL.cli.dev.codex.md" in development
     assert "single-client development guide" in development
     assert "INSTALL.plugin.dev.md" in development
@@ -126,7 +130,7 @@ def main() -> None:
 
     readme = (ROOT / "README.md").read_text()
     assert "https://plugin.springbrand.ai/INSTALL.dev.md" in readme
-    assert "| Authentication | Host-native OAuth | Runtime API key" in readme
+    assert "| Authentication | Runtime API key preferred; host-native OAuth fallback | Runtime API key preferred; host-native OAuth fallback |" in readme
     assert "Do not launch OAuth when the API key is valid" in readme
 
     for environment, endpoint, tag in (("production", "https://connector.springbrand.ai/mcp", "latest"), ("development", "https://devconnector.springbrand.ai/mcp", "alpha")):
