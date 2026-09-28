@@ -47,16 +47,14 @@ def main() -> None:
     install = (ROOT / "INSTALL.md").read_text()
     plugin = (ROOT / "INSTALL.plugin.md").read_text()
     assert "npx -y @springbrand/cli@latest connect --all" in install
-    assert "no API key" in install
-    assert "native browser OAuth" in install
-    assert "ask which terminal/client" in install
-    assert "do not run `connect --all`" in install
+    assert "without `--api-key`" in install
+    assert "native OAuth" in install
+    assert "native OAuth flow" in install
+    assert "Run exactly one CLI command" in install
     assert "account-settings?section=mcp-api-keys" in install
-    assert "Wait for the key" in install
-    assert "OAuth as an explicit fallback" in install
+    assert "API-key fallback" in install
+    assert "Do not run `auth login` for this flow" in install
     assert "account-settings?section=mcp-api-keys" in install
-    assert "INSTALL.cli.codex.md" in install
-    assert "single-client guide" in install
     assert "Plugin fallback" in install
     assert "INSTALL.plugin.md" in install
     assert "INSTALL.cli.codex.md" in plugin
