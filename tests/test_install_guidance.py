@@ -52,7 +52,8 @@ def main() -> None:
     assert "ask which terminal/client" in install
     assert "do not run `connect --all`" in install
     assert "account-settings?section=mcp-api-keys" in install
-    assert "connect <client> --url https://connector.springbrand.ai/mcp" in install
+    assert "INSTALL.cli.codex.md" in install
+    assert "single-client guide" in install
     assert "Plugin fallback" in install
     assert "INSTALL.plugin.md" in install
     assert "INSTALL.cli.codex.md" in plugin
@@ -98,7 +99,8 @@ def main() -> None:
     assert "native browser OAuth" in development
     assert "ask which terminal/client" in development
     assert "do not run `connect --all`" in development
-    assert "connect <client> --url https://devconnector.springbrand.ai/mcp" in development
+    assert "INSTALL.cli.dev.codex.md" in development
+    assert "single-client development guide" in development
     assert "INSTALL.plugin.dev.md" in development
     assert "springbrand-dev" in dev_plugin
     assert "Host-native OAuth" in dev_plugin

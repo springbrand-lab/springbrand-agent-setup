@@ -36,17 +36,26 @@ npx -y @springbrand/cli@alpha connect --all --skip-launch --url https://devconne
 ```
 
 If there is **no API key**, do not run `connect --all`. First ask the user which
-client is the current installation target, then run exactly one command for
-that client:
+client is the current installation target, then read and follow that client's
+single-client development guide:
 
-```sh
-npx -y @springbrand/cli@alpha connect <client> --url https://devconnector.springbrand.ai/mcp
-```
+- [Codex](./INSTALL.cli.dev.codex.md)
+- [Claude Code](./INSTALL.cli.dev.claude-code.md)
+- [Cursor](./INSTALL.cli.dev.cursor.md)
+- [OpenCode](./INSTALL.cli.dev.opencode.md)
+- [WorkBuddy](./INSTALL.cli.dev.workbuddy.md)
+
+Those guides run exactly one `connect <client> --url ...` command, allowing the
+selected client to trigger and store its own native browser OAuth session.
+In this branch, do not run `sp auth login` and do not open the API-key page:
+OAuth belongs to the selected client and is completed by that client's native
+MCP flow.
 
 The CLI then uses native browser OAuth for that client. OAuth credentials are
 stored by the client/session and do not authorize the other clients. If the
 user wants one installation to cover every client, they need a development API
-key and must rerun the API-key branch. The no-key condition includes the CLI's
+key from [SpringBrand development account settings](https://devrapp.springbrand.ai/account-settings?section=mcp-api-keys)
+and must rerun the API-key branch. The no-key condition includes the CLI's
 ambient sources: `SPRINGBRAND_API_KEY` and `~/.springbrand/config.json`. If
 either contains an old key, clear the saved key with `sp auth logout` and unset
 the current shell variable before using the OAuth branch; otherwise the CLI
