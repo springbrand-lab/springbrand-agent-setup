@@ -50,6 +50,9 @@ def main() -> None:
     assert "connect codex --skip-launch" not in install
     assert "--api-key" in install
     assert "native OAuth flow" in install
+    assert "The CLI owns the OAuth transaction after the command starts" in install
+    assert "use browser or Computer Use automation" in install
+    assert "do not read the Plugin fallback or run another install command" in " ".join(install.split())
     assert "exactly one `connect <client>`" in install
     assert "Do not run `connect --all` for a single-Host installation" in install
     assert "ask the user which client is running" in install
@@ -100,6 +103,9 @@ def main() -> None:
     assert "connect codex --skip-launch" not in development
     assert "--api-key" in development
     assert "native OAuth flow" in development
+    assert "The CLI owns the OAuth transaction after the command starts" in development
+    assert "use browser or Computer Use automation" in development
+    assert "do not read the Plugin fallback or run another install command" in " ".join(development.split())
     assert "exactly one `connect <client>`" in development
     assert "Do not run `connect --all` for a single-Host installation" in development
     assert "ask the user which client is running" in development

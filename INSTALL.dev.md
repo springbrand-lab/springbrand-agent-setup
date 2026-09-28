@@ -20,6 +20,13 @@ install or update:
 5. Use a development API key only when OAuth is unavailable, unsupported, or
    explicitly requested by the user.
 
+The CLI owns the OAuth transaction after the command starts. Do not open the
+printed authorization URL yourself, use browser or Computer Use automation,
+call an OAuth endpoint, or start a second login. Let the user complete sign-in
+and consent in the browser opened by the CLI, then wait for the same command to
+exit. If it reports success, stop the OAuth and installation flow; do not read
+the Plugin fallback or run another install command.
+
 Do not run `connect --all` for a single-Host installation. Use it only when the
 user explicitly asks to configure every detected client. Different clients
 have separate OAuth sessions and may require separate authorization.
