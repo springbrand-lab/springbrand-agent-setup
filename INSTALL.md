@@ -7,9 +7,11 @@ update:
 
 1. **CLI with an API key.** If the setup prompt contains an installation key,
    pass it to the CLI.
-2. **CLI with OAuth.** If the setup prompt contains no key, omit
-   `--api-key {{INSTALL_KEY}}` and let the CLI configure the MCP entry without a
-   key so the client performs native browser OAuth.
+2. **CLI with OAuth for the current client.** If the setup prompt contains no
+   key, ask which terminal/client the user is installing into, then run the
+   single-client command for that client without `--api-key`. Native browser
+   OAuth is scoped to that client and its local session; it is not a shared
+   credential for every client.
 3. **Plugin fallback.** Only when the CLI cannot run or a specific client fails,
    preserve successful CLI registrations and read
    [INSTALL.plugin.md](./INSTALL.plugin.md). Do not load Plugin installation
@@ -21,19 +23,31 @@ run capability discovery or a business operation as an installation check.
 
 ## Preferred CLI installation
 
-Detect every supported client installed on this machine, then run exactly one
-command:
+When an API key is supplied, detect every supported client installed on this
+machine, then run exactly one command:
 
 ```sh
 npx -y @springbrand/cli@latest connect --all --skip-launch --url https://connector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}
 ```
 
-If there is **no API key**, remove the `--api-key {{INSTALL_KEY}}` part and run
-the same command. The CLI then uses native OAuth where the client supports it.
-The no-key condition includes the CLI's ambient sources: `SPRINGBRAND_API_KEY`
-and `~/.springbrand/config.json`. If either contains an old key, clear the
-saved key with `sp auth logout` and unset the current shell variable before
-using the OAuth branch; otherwise the CLI correctly remains in API-key mode.
+If there is **no API key**, do not run `connect --all`. First ask the user which
+client is the current installation target (for example `codex`, `claude-code`,
+`cursor`, `opencode`, or `workbuddy-ai`), then run exactly one command for that
+client:
+
+```sh
+npx -y @springbrand/cli@latest connect <client> --url https://connector.springbrand.ai/mcp
+```
+
+The CLI then uses native browser OAuth for that client. OAuth credentials are
+stored by the client/session and do not authorize the other clients. If the
+user wants one installation to cover every client, direct them to create an
+API key at [SpringBrand account settings](https://rapp.springbrand.ai/account-settings?section=mcp-api-keys)
+and rerun the API-key branch. The no-key condition includes the CLI's ambient
+sources: `SPRINGBRAND_API_KEY` and `~/.springbrand/config.json`. If either
+contains an old key, clear the saved key with `sp auth logout` and unset the
+current shell variable before using the OAuth branch; otherwise the CLI
+correctly remains in API-key mode.
 
 If a supplied key is malformed, rejected, expired, revoked, or for the wrong
 environment, the CLI blocks before writing client configuration. Replace the
