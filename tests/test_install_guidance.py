@@ -46,7 +46,8 @@ def main() -> None:
 
     install = (ROOT / "INSTALL.md").read_text()
     plugin = (ROOT / "INSTALL.plugin.md").read_text()
-    assert "connect codex --skip-launch --url https://connector.springbrand.ai/mcp" in install
+    assert "connect codex --url https://connector.springbrand.ai/mcp" in install
+    assert "connect codex --skip-launch" not in install
     assert "--api-key" in install
     assert "native OAuth flow" in install
     assert "exactly one `connect <client>`" in install
@@ -95,7 +96,8 @@ def main() -> None:
     dev_plugin = (ROOT / "INSTALL.plugin.dev.md").read_text()
     assert "v1.2.1-dev.2" in development
     assert "https://devconnector.springbrand.ai/mcp" in development
-    assert "connect codex --skip-launch --url https://devconnector.springbrand.ai/mcp" in development
+    assert "connect codex --url https://devconnector.springbrand.ai/mcp" in development
+    assert "connect codex --skip-launch" not in development
     assert "--api-key" in development
     assert "native OAuth flow" in development
     assert "exactly one `connect <client>`" in development

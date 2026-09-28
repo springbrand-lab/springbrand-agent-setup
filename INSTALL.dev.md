@@ -28,19 +28,19 @@ Use the command matching the current Host:
 
 ```sh
 # Codex
-npx -y @springbrand/cli@alpha connect codex --skip-launch --url https://devconnector.springbrand.ai/mcp
+npx -y @springbrand/cli@alpha connect codex --url https://devconnector.springbrand.ai/mcp
 
 # Claude Code
-npx -y @springbrand/cli@alpha connect claude-code --skip-launch --url https://devconnector.springbrand.ai/mcp
+npx -y @springbrand/cli@alpha connect claude-code --url https://devconnector.springbrand.ai/mcp
 
 # Cursor
-npx -y @springbrand/cli@alpha connect cursor --skip-launch --url https://devconnector.springbrand.ai/mcp
+npx -y @springbrand/cli@alpha connect cursor --url https://devconnector.springbrand.ai/mcp
 
 # OpenCode
-npx -y @springbrand/cli@alpha connect opencode --skip-launch --url https://devconnector.springbrand.ai/mcp
+npx -y @springbrand/cli@alpha connect opencode --url https://devconnector.springbrand.ai/mcp
 
 # WorkBuddy
-npx -y @springbrand/cli@alpha connect workbuddy-ai --skip-launch --url https://devconnector.springbrand.ai/mcp
+npx -y @springbrand/cli@alpha connect workbuddy-ai --url https://devconnector.springbrand.ai/mcp
 ```
 
 If the current Host cannot be identified, ask the user which client is running
