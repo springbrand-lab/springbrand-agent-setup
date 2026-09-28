@@ -15,6 +15,7 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parents[1]
 PRODUCTION_FILES = (
     'INSTALL.md',
+    'INSTALL.plugin.md',
     'INSTALL.claude.md',
     'INSTALL.cursor.md',
     'INSTALL.workbuddy.md',
@@ -26,6 +27,7 @@ PRODUCTION_FILES = (
 )
 DEV_FILES = (
     'INSTALL.dev.md',
+    'INSTALL.plugin.dev.md',
     'INSTALL.cli.dev.codex.md',
     'INSTALL.cli.dev.claude-code.md',
     'INSTALL.cli.dev.cursor.md',

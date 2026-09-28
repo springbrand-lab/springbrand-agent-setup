@@ -1,309 +1,50 @@
-# SpringBrand production installation protocol
-
-## Initial installation response
-
-Before changing anything, determine whether this is a first installation or an
-update of an existing SpringBrand installation. Keep that classification for
-this installation conversation, including any handoff to another Host guide.
-
-Show the welcome message once at the first installation wrap-up or request
-for user action, regardless of setup status or an existing task. Do not wait
-for verification or a new conversation. Skip ordinary updates. Do not repeat
-it in later replies of the same installation conversation.
-
-This includes setup complete, waiting for OAuth, a required restart or new
-session, and installation failure or a blocker. State the actual setup status
-and next step first, then show the Welcome message and example tasks. Showing
-the Welcome message does not mean that installation succeeded; keep the normal
-verification requirements before reporting success.
-
-If setup is incomplete, replace the prompt introduction with:
-"Once setup is complete, try a task with free credits—copy a prompt below."
-
-If the user already has a task underway, still show the Welcome message once,
-then continue the parts of that task that can be performed. Use only the current
-conversation to avoid repeats; do not defer delivery to a new session, add a
-Skill, persist a welcome flag, or inject Welcome into a per-prompt Hook.
-
-Keep the free-credit wording general: do not promise an amount, quantity, or
-validity period. Do not check the website or a balance API during installation,
-and do not present the copy as the user's current balance.
-
-### Welcome message
-
-**Everything your agent needs for go-to-market.**
-
-GTM workflow Plugins and research, social-data, and media APIs—all through
-SpringBrand, in the Agent you already use.
-
-Try a task with free credits—copy a prompt below.
-
-- **Research your market**
-  “Use SpringBrand to research my product's competitors, compare their
-  positioning, and identify opportunities to stand out. Include sources.”
-- **Find customer signals**
-  “Use SpringBrand to find public discussions about the problem my product
-  solves. Summarize recurring pain points and buying signals, with links.”
-- **Find creators**
-  “Use SpringBrand to find creators who reach my target audience, explain
-  why they fit my product, and draft personalized outreach.”
-- **Create campaign assets**
-  “Use SpringBrand to develop three creative directions for my next campaign,
-  then turn my chosen direction into copy and visuals for the target channel.”
+# SpringBrand production CLI installation protocol
 
 ## Installation overview
 
-Use the preferred CLI installation first. If the CLI cannot run or reports a
-failed installation, identify the Host before any network preflight and use one
-of the fallback paths below. WorkBuddy installs the published
-production release from R2. Codex, Claude Code, Cursor and the other-Agent
-fallback retain their existing GitHub `main` paths until separately adapted.
-Do not use the legacy `stable` branch, a dev tag, or the `springbrand-dev` Plugin.
-The public entry is https://plugin.springbrand.ai/INSTALL.md; a document hosted
-on R2 does not imply that every Host's package is already distributed by R2.
+This document is the CLI-first entry point. Use this order for every install or
+update:
 
-The GitHub source installation ships five Canonical Skills and one MCP entry. The entry's tools carry frozen domain prefixes, so each Domain Skill is served by its own tool namespace:
+1. **CLI with an API key.** If the setup prompt contains an installation key,
+   pass it to the CLI.
+2. **CLI with OAuth.** If the setup prompt contains no key, omit
+   `--api-key {{INSTALL_KEY}}` and let the CLI configure the MCP entry without a
+   key so the client performs native browser OAuth.
+3. **Plugin fallback.** Only when the CLI cannot run or a specific client fails,
+   preserve successful CLI registrations and read
+   [INSTALL.plugin.md](./INSTALL.plugin.md). Do not load Plugin installation
+   context while the CLI path is still available.
 
-| Skill | Role | Tool prefix |
-| --- | --- | --- |
-| `springbrand-gtm` | GTM business entry; hands off to one Domain Skill | none (never calls MCP) |
-| `ask-springbrand` | Ask SpringBrand — non-executing Capability Guide | none (never calls MCP) |
-| `springbrand-platform` | Platform — create/publish artifacts, Plugin lifecycle | `platform_` |
-| `springbrand-action-api` | Action API — dynamic API service execution | `action_` |
-| `springbrand-connector` | Connector — authorized third-party systems (GitHub, Gmail, GSC) | `connector_` |
-
-The MCP entry is:
-
-| Entry name | URL |
-| --- | --- |
-| `springbrand` | `https://connector.springbrand.ai/mcp` |
+The CLI's own summary is the installation report. Report each detected client,
+auth mode, MCP and Skill status, restart requirement, and failed phase. Do not
+run capability discovery or a business operation as an installation check.
 
 ## Preferred CLI installation
 
-Set up SpringBrand in every supported client detected on this machine.
-Detect every supported client installed on this machine. Configure each detected client and do not configure clients that are not installed.
-Run exactly one command now. Do not run --help, doctor, auth status, or any other preflight command first.
-All detected clients command: `npx -y @springbrand/cli@latest connect --all --skip-launch --url https://connector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}`
-The --all mode is intentional. Do not replace it with per-client commands and do not run another install command.
-If copied text contains Markdown artifacts such as backslash escapes or link wrappers, remove those artifacts before running the command.
-The command includes a one-time installation key. Run it once and do not print the key in your response.
-Do not install the legacy Plugin. Do not run a separate upgrade or reinstall command. Let this command handle existing registrations.
-After the command finishes, report every detected client, each command outcome without revealing credentials, each auth method, MCP and Skill status, restart or reload requirements, and any failed phase. If the CLI says restart or reload is required, report it and stop there. Do not attempt MCP tool discovery or a business operation in this same session. If the command fails, report the failed client, failed phase, and the CLI's next action. Do not rerun the command with the same one-time key. If the CLI reports the key as invalid, expired, or already used, ask the user to copy a fresh setup prompt. If the key is accepted but the MCP connection or authorization fails, run the same command once without the --api-key argument and complete the browser OAuth authorization it opens. Never blind-retry.
-If the CLI cannot run or reports a failed installation, continue with the matching Host guide below. Preserve any registration the CLI created and report the failed phase before starting the fallback path.
-If the CLI reports an existing SpringBrand Plugin registration, pass that note to the user: the Plugin and this CLI registration can coexist, though a single install method is recommended. Leave the Plugin as it is; if SpringBrand tools appear twice, `/springbrand:doctor` shows the plugin removal command when one exists.
-Close your report with a one-sentence capability note: SpringBrand gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub. Then ask the user what they would like to build first.
-
-## Identify the Agent
-
-Use the first-install/update classification already established above and
-select exactly one Host path before testing connectivity:
-
-| Host | Current installation source | Guide |
-| --- | --- | --- |
-| WorkBuddy on macOS | Published R2 release ZIP; no GitHub preflight | [WorkBuddy](./INSTALL.workbuddy.md) |
-| Codex CLI / Desktop | GitHub `main` | Codex section below |
-| Claude Code / Desktop Code | GitHub `main` | [Claude](./INSTALL.claude.md) |
-| Cursor | GitHub `main` | [Cursor](./INSTALL.cursor.md) |
-| Other Agents | GitHub Skill files plus native MCP | Fallback section below |
-
-For WorkBuddy, go directly to its guide. Do not run another Host's commands,
-fetch raw Skill files, or silently fall back to GitHub when R2 is unavailable.
-The initial-response rule above applies at the first result report or request
-for user action, including when a linked Host guide blocks or asks for OAuth
-or a restart. Returning from a Host guide does not show Welcome a second time.
-
-## Preflight
-
-**WorkBuddy: skip the GitHub Skill URL checks** and use only the R2/MCP
-preflight in its guide. The checks below apply only to the retained GitHub
-installation paths for the other Hosts.
-
-For those Hosts, verify the Skill URLs and MCP URL are reachable.
-
-```text
-Skill URLs:
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/ask-springbrand/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-platform/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-action-api/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-connector/SKILL.md
-  https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-gtm/SKILL.md
-MCP URL:
-  https://connector.springbrand.ai/mcp
-```
-
-Check each with a five-second timeout. If a request fails:
-
-- read the system proxy once;
-- retry the same request once only when the error is retryable;
-- stop and report after the retry or on a non-retryable error.
-
-Do not start a long clone or unbounded diagnosis.
-
-## Codex CLI and Desktop
-
-Supported on Codex CLI `0.147.0+` and Codex Desktop `26.810.52044+` on macOS.
-
-For a first install, run:
+Detect every supported client installed on this machine, then run exactly one
+command:
 
 ```sh
-codex plugin marketplace add springbrand-lab/springbrand-agent-setup
-codex plugin add springbrand@springbrand
-codex mcp login springbrand
+npx -y @springbrand/cli@latest connect --all --skip-launch --url https://connector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}
 ```
 
-For an existing install, do **not** assume that repeating the install prompt
-automatically fetches the latest `main`. Refresh the configured Marketplace,
-then reinstall the same Plugin from the refreshed snapshot:
+If there is **no API key**, remove the `--api-key {{INSTALL_KEY}}` part and run
+the same command. The CLI then uses native OAuth where the client supports it.
+The no-key condition includes the CLI's ambient sources: `SPRINGBRAND_API_KEY`
+and `~/.springbrand/config.json`. If either contains an old key, clear the
+saved key with `sp auth logout` and unset the current shell variable before
+using the OAuth branch; otherwise the CLI correctly remains in API-key mode.
 
-```sh
-codex plugin marketplace upgrade springbrand
-codex plugin add springbrand@springbrand
-codex mcp login springbrand
-```
+If a supplied key is malformed, rejected, expired, revoked, or for the wrong
+environment, the CLI blocks before writing client configuration. Replace the
+key and rerun; do not silently switch that failed key attempt to OAuth. A
+key-only client may be reported as failed when no key is supplied; handle only
+that client through the fallback document.
 
-`codex` has no separate `plugin update` command in the supported CLI. The
-Marketplace `upgrade` refreshes the repository snapshot; `plugin add` then
-updates the installed Plugin in place rather than creating a second
-`springbrand@springbrand` entry. Run `codex plugin marketplace list` and
-`codex plugin list --json` first if you need to distinguish first install from
-update. If the Marketplace is not configured yet, use the first-install
-commands.
+Never print, store, or repeat the key. Do not run a second blind install
+attempt. If the CLI requests a restart or new session, report that as the next
+step and stop.
 
-The Marketplace bootstrap also exposes **SpringBrand** in the Desktop Plugins
-Directory. Review and trust the exact `UserPromptSubmit` Hook, then open a new
-session.
+## Plugin fallback
 
-## Claude Code CLI and Desktop Code
-
-Follow [`INSTALL.claude.md`](./INSTALL.claude.md). The Marketplace source is:
-
-```text
-springbrand-lab/springbrand-agent-setup
-```
-
-This applies to Claude Code CLI and the Claude Desktop Code tab, not Claude
-Chat, Cowork, web sessions, or account-level Connectors.
-
-## Cursor Desktop
-
-Follow [`INSTALL.cursor.md`](./INSTALL.cursor.md). Import this GitHub Marketplace:
-
-```text
-springbrand-lab/springbrand-agent-setup
-```
-
-## WorkBuddy Desktop
-
-Follow [INSTALL.workbuddy.md](./INSTALL.workbuddy.md), using the bundled native
-CLI and this published, immutable R2 production source:
-
-```text
-https://plugin.springbrand.ai/releases/v1.2.3/workbuddy/springbrand-workbuddy.zip
-```
-
-Expected version: `1.2.3`. The package already contains all five Skills
-and the production MCP declaration. Do not fetch individual Skills or run a
-GitHub connectivity check. Prefer the native CLI; the guide documents the
-manual fallback's limitations. OAuth remains a native browser step.
-
-This source is pinned, not a moving production channel. It does not automatically
-follow new releases or repository commits. Use only the source published in the
-current guide; never guess a future version or channel URL.
-
-## Other Agents: Skill-plus-MCP fallback
-
-Use this path only when the Agent cannot install the native Plugin.
-
-1. Identify the Agent's user-level Skill directory and MCP configuration.
-2. Fetch the five Canonical Skills from:
-
-   ```text
-   https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/ask-springbrand/SKILL.md
-   https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-platform/SKILL.md
-   https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-action-api/SKILL.md
-   https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-connector/SKILL.md
-   https://raw.githubusercontent.com/springbrand-lab/springbrand-agent-setup/main/skills/springbrand-gtm/SKILL.md
-   ```
-
-3. Install them as:
-
-   ```text
-   <user Skill directory>/ask-springbrand/SKILL.md
-   <user Skill directory>/springbrand-platform/SKILL.md
-   <user Skill directory>/springbrand-action-api/SKILL.md
-   <user Skill directory>/springbrand-connector/SKILL.md
-   <user Skill directory>/springbrand-gtm/SKILL.md
-   ```
-
-4. Add or update exactly one native remote HTTP MCP entry:
-
-   ```text
-   Name:      springbrand
-   URL:       https://connector.springbrand.ai/mcp
-   Transport: native Streamable HTTP (never stdio or a local command)
-   Auth:      native OAuth
-   ```
-
-Read and merge structured configuration instead of overwriting it. Preserve
-all unrelated configuration. If an existing SpringBrand Skill or MCP entry
-differs, report the difference and wait for approval before replacing it.
-
-## OAuth
-
-Use the Agent's native OAuth flow. Pause only when the user must complete a
-browser, UI, or authorization action.
-
-The MCP entry requires a single OAuth consent per install: one authorization
-covers all SpringBrand capabilities — Platform, Action API, and Connector.
-Say this to the user before starting.
-
-Never collect, store, print, proxy, or write access tokens, refresh tokens,
-authorization codes, secrets, or credentials.
-
-OAuth completion does not prove that a Plugin was used.
-
-## Migration from a Legacy Plugin Release
-
-A Legacy Plugin Release — an already-installed SpringBrand Plugin version that
-uses a single `springbrand` MCP entry at
-`https://connector.springbrand.ai/mcp` with the Gateway's legacy mixed
-contract (unprefixed tool names) — continues to work until the owner's
-production release switches the `/mcp` slot to the unified endpoint
-(Gateway ADR-0014; retirement is Gateway Issue 12, owner-controlled).
-Upgrading to the current single-entry Plugin with domain-prefixed tools is
-voluntary — there is no automatic sunset.
-
-To upgrade, follow the selected Host guide above: WorkBuddy uses its published
-R2 release; the other Hosts retain GitHub `main`. Obtain approval before any
-source replacement or conflicting legacy entry removal. The new Plugin bundles
-the same single `springbrand` entry, now serving
-the unified endpoint's `platform_`- / `action_`- / `connector_`-prefixed
-tools, plus the Canonical Skills included in the selected release. The entry name and URL are unchanged, so the
-upgrade replaces the toolset in place; no second SpringBrand entry is created.
-
-## Safety and verification
-
-- Do not install or enable `springbrand-dev` alongside the production Plugin.
-- Do not add API keys, tokens, static authorization headers, client secrets, or
-  local MCP bridges.
-- Authenticate the Plugin-bundled entry instead of creating a second global
-  server.
-- Preserve unrelated Plugins, Skills, Rules, Hooks, MCP servers, OAuth state,
-  and configuration.
-- If a required step is UI-only, give the user the exact menu path and value;
-  do not claim completion until the user confirms it.
-
-Verify before reporting success:
-
-- the complete Skill set exists and matches the selected source (five for GitHub main and the pinned WorkBuddy v1.2.3 package);
-- the MCP entry is named `springbrand`;
-- the URL is exactly `https://connector.springbrand.ai/mcp`;
-- the transport is native Streamable HTTP;
-- no duplicate SpringBrand entry exists;
-- all unrelated configuration is intact.
-
-If any check fails, report the exact failure and do not declare success.
-
-Report the Agent and Surface, installation path, Plugin version, MCP status,
-OAuth status, conflicts found, changes made, and whether restart or a new
-session is required.
+Use [INSTALL.plugin.md](./INSTALL.plugin.md) only after the CLI failure is known.
