@@ -80,7 +80,7 @@ all-client entry:
 | Client | Production | Development |
 | --- | --- | --- |
 | Codex | [`INSTALL.cli.codex.md`](./INSTALL.cli.codex.md) | [`INSTALL.cli.dev.codex.md`](./INSTALL.cli.dev.codex.md) |
-| Claude Code / Claude Desktop Cowork | [`INSTALL.cli.claude-code.md`](./INSTALL.cli.claude-code.md) | [`INSTALL.cli.dev.claude-code.md`](./INSTALL.cli.dev.claude-code.md) |
+| Claude Code | [`INSTALL.cli.claude-code.md`](./INSTALL.cli.claude-code.md) | [`INSTALL.cli.dev.claude-code.md`](./INSTALL.cli.dev.claude-code.md) |
 | Cursor | [`INSTALL.cli.cursor.md`](./INSTALL.cli.cursor.md) | [`INSTALL.cli.dev.cursor.md`](./INSTALL.cli.dev.cursor.md) |
 | OpenCode | [`INSTALL.cli.opencode.md`](./INSTALL.cli.opencode.md) | [`INSTALL.cli.dev.opencode.md`](./INSTALL.cli.dev.opencode.md) |
 | WorkBuddy | [`INSTALL.cli.workbuddy.md`](./INSTALL.cli.workbuddy.md) | [`INSTALL.cli.dev.workbuddy.md`](./INSTALL.cli.dev.workbuddy.md) |
