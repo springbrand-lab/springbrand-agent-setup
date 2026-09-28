@@ -31,6 +31,20 @@ The CLI's own summary is the installation report. Report each detected client,
 auth mode, MCP and Skill status, restart requirement, and failed phase. Do not
 run capability discovery or a business operation as an installation check.
 
+## Installation completion report
+
+After the command completes, report the actual status without revealing credentials:
+
+1. The configured MCP entry is named `springbrand-dev`.
+2. The MCP URL is exactly `https://devconnector.springbrand.ai/mcp` and uses the client's native remote HTTP transport.
+3. The client identity matches the development environment.
+4. The configured MCP health check passes.
+5. Existing configuration and every other client remain unchanged.
+
+If any item is not true, report that item as failed and do not claim installation success.
+
+Close your report with a one-sentence capability note: SpringBrand gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub. Then ask the user what they would like to build first.
+
 ## Preferred CLI installation
 
 When a development API key is supplied, detect every supported client installed
