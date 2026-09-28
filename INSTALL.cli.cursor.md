@@ -15,7 +15,7 @@ npx -y @springbrand/cli@latest connect cursor --url https://connector.springbran
 The Agent must never print, log, repeat, or include the key in a report. Choose exactly one branch:
 
 - **Key supplied:** run the command above with `--api-key {{INSTALL_KEY}}`.
-- **No key supplied:** run `npx -y @springbrand/cli@latest auth login --url https://connector.springbrand.ai/mcp`. Ask the user to register or sign in, create or copy the key, and paste it into the CLI. After `auth login` succeeds, run `npx -y @springbrand/cli@latest connect cursor --url https://connector.springbrand.ai/mcp` without `--api-key`; the CLI reads the saved key. The CLI may save the key in its own credential file.
+- **No key supplied:** do not run the CLI yet. Show or open `https://rapp.springbrand.ai/account-settings?section=mcp-api-keys`. Ask the user to register or sign in, create or copy the key, and provide it through the secure input channel. Wait for the key. After the user provides it, run the command above with `--api-key {INSTALL_KEY}`. Do not print, log, repeat, or include the key in the report.
 - **OAuth fallback:** only after the user cannot use an API key or explicitly chooses OAuth after a failed key attempt, run the native OAuth flow with `npx -y @springbrand/cli@latest connect cursor --url https://connector.springbrand.ai/mcp` without `--api-key`. Do not run `auth login` in this branch.
 
 Do not silently switch to another client or another environment.
