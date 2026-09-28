@@ -6,10 +6,11 @@ This document is the CLI-first entry point. Use this order for every install or
 update:
 
 1. **CLI with an API key (preferred).** If the setup prompt contains an
-   installation key, pass it to the CLI. If it does not, run
-   `npx -y @springbrand/cli@latest auth login --url https://connector.springbrand.ai/mcp`.
-   Ask the user to register or sign in, create or copy an API key from the page,
-   and paste it into the CLI before continuing.
+   installation key, pass it to the CLI. If it does not, do not run the CLI
+   yet. Show or open the API-key page at
+   `https://rapp.springbrand.ai/account-settings?section=mcp-api-keys`, ask the
+   user to register or sign in and create or copy an API key, then wait for the
+   user to provide the key before continuing.
 2. **CLI with OAuth as an explicit fallback.** Only when the user cannot use an
    API key, or the user explicitly chooses OAuth after an API-key attempt has
    failed, ask which terminal/client is being installed and run that client's
@@ -34,17 +35,13 @@ machine, then run exactly one command:
 npx -y @springbrand/cli@latest connect --all --skip-launch --url https://connector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}
 ```
 
-If there is **no API key in the setup prompt**, run this command first:
-
-```sh
-npx -y @springbrand/cli@latest auth login --url https://connector.springbrand.ai/mcp
-```
-
-Ask the user to register or sign in, create or copy the key, and paste it into
-the CLI. After `auth login` succeeds, run the API-key command above with the
-runtime key supplied to `--api-key`, or omit `--api-key` so the CLI reads the
-saved key. Do not print, log, repeat, or include the key in the report. The CLI
-may save the key in its own credential file as part of `auth login`.
+If there is **no API key in the setup prompt**, do not run `connect --all` and
+do not run `auth login`. Show or open
+`https://rapp.springbrand.ai/account-settings?section=mcp-api-keys`. Ask the
+user to register or sign in, create or copy the key, and provide it through the
+secure input channel. Wait for the key. Only after the key is provided, run the
+API-key command above with `--api-key {{INSTALL_KEY}}`. Do not print, log,
+repeat, or include the key in the report.
 
 Only if the user cannot use an API key, or explicitly chooses OAuth after the
 key attempt fails, ask which client is the current installation target and read
@@ -77,9 +74,10 @@ key and rerun; do not silently switch that failed key attempt to OAuth. A
 key-only client may be reported as failed when no key is supplied; handle only
 that client through the fallback document.
 
-The Agent must never print, log, or repeat the key. Do not run a second blind
-install attempt. If the CLI requests a restart or new session, report that as
-the next step and stop.
+The Agent must never print, log, or repeat the key. Do not treat the missing-key
+pause as an installation failure. Do not run a second blind install attempt. If
+the CLI requests a restart or new session, report that as the next step and
+stop.
 
 ## Plugin fallback
 

@@ -50,8 +50,9 @@ def main() -> None:
     assert "no API key" in install
     assert "native browser OAuth" in install
     assert "ask which terminal/client" in install
-    assert "run this command first" in install
-    assert "auth login --url https://connector.springbrand.ai/mcp" in install
+    assert "do not run `connect --all`" in install
+    assert "account-settings?section=mcp-api-keys" in install
+    assert "Wait for the key" in install
     assert "OAuth as an explicit fallback" in install
     assert "account-settings?section=mcp-api-keys" in install
     assert "INSTALL.cli.codex.md" in install
@@ -100,8 +101,9 @@ def main() -> None:
     assert "no API key" in development
     assert "native browser OAuth" in development
     assert "ask which terminal/client" in development
-    assert "run this command first" in development
-    assert "auth login --url https://devconnector.springbrand.ai/mcp" in development
+    assert "do not run `connect --all`" in development
+    assert "devrapp.springbrand.ai/account-settings?section=mcp-api-keys" in development
+    assert "Wait for the key" in development
     assert "OAuth as an explicit fallback" in development
     assert "INSTALL.cli.dev.codex.md" in development
     assert "single-client development guide" in development
