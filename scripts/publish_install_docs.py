@@ -28,6 +28,7 @@ PRODUCTION_FILES = (
 DEV_FILES = (
     'INSTALL.dev.md',
     'INSTALL.plugin.dev.md',
+    'INSTALL.claude.dev.md',
     'INSTALL.cli.dev.codex.md',
     'INSTALL.cli.dev.claude-code.md',
     'INSTALL.cli.dev.cursor.md',
