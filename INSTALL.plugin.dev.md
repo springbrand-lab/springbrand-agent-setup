@@ -41,7 +41,7 @@ Try a task with free credits—copy a prompt below.
 ## Host guides
 
 - [Codex CLI and Desktop](./INSTALL.cli.dev.codex.md)
-- [Claude Code and Desktop Code](./INSTALL.cli.dev.claude-code.md)
+- [Claude Code and Desktop Code](./INSTALL.claude.dev.md)
 - [Cursor](./INSTALL.cli.dev.cursor.md)
 - [WorkBuddy](./INSTALL.cli.dev.workbuddy.md)
 

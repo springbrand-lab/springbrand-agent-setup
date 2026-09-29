@@ -118,6 +118,8 @@ def main() -> None:
     assert "springbrand-dev" in dev_plugin
     assert "Host-native OAuth" in dev_plugin
     assert "https://devconnector.springbrand.ai/mcp" in dev_plugin
+    assert "[Claude Code and Desktop Code](./INSTALL.claude.dev.md)" in dev_plugin
+    assert "INSTALL.cli.dev.claude-code.md" not in dev_plugin
     assert "Do not launch OAuth" not in development
     development_flat = " ".join(development.split())
     for secret_phrase in (
