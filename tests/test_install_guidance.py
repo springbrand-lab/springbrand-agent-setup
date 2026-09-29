@@ -12,6 +12,7 @@ GUIDES = (
     "INSTALL.workbuddy.md",
     "INSTALL.cli.workbuddy.md",
     "INSTALL.dev.md",
+    "INSTALL.claude.dev.md",
     "INSTALL.cli.codex.md",
     "INSTALL.cli.claude-code.md",
     "INSTALL.cli.opencode.md",
@@ -97,6 +98,7 @@ def main() -> None:
 
     development = (ROOT / "INSTALL.dev.md").read_text()
     dev_plugin = (ROOT / "INSTALL.plugin.dev.md").read_text()
+    dev_claude = (ROOT / "INSTALL.claude.dev.md").read_text()
     assert "v1.2.1-dev.2" in development
     assert "https://devconnector.springbrand.ai/mcp" in development
     assert "connect codex --url https://devconnector.springbrand.ai/mcp" in development
@@ -123,6 +125,12 @@ def main() -> None:
         "refresh_token=", "api_key=", "raw upstream body",
     ):
         assert secret_phrase not in development_flat, secret_phrase
+
+    assert "v1.2.1-dev.2" in dev_claude
+    assert "springbrand-dev" in dev_claude
+    assert "https://devconnector.springbrand.ai/mcp" in dev_claude
+    assert "https://connector.springbrand.ai/mcp" not in dev_claude
+    assert "claude plugin install springbrand-dev@springbrand-dev" in dev_claude
 
     # Welcome is Plugin-only; CLI entry points must stay focused on the CLI summary.
     for guide in (install, development):
