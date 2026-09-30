@@ -48,15 +48,12 @@ def main() -> None:
     install = (ROOT / "INSTALL.md").read_text()
     plugin = (ROOT / "INSTALL.plugin.md").read_text()
     assert len(install.splitlines()) <= 75
-    assert "## Initial installation response" in install
-    assert "connect codex --url https://connector.springbrand.ai/mcp" in install
-    assert "connect claude-code --url https://connector.springbrand.ai/mcp" in install
-    assert "connect workbuddy-ai --url https://connector.springbrand.ai/mcp" in install
-    assert "connect cursor --url https://connector.springbrand.ai/mcp" in install
-    assert "connect opencode --url https://connector.springbrand.ai/mcp" in install
-    assert "connect pi --url https://connector.springbrand.ai/mcp" in install
+    assert "## Install workflow" in install
+    assert "npx -y @springbrand/cli@latest connect <client> --url https://connector.springbrand.ai/mcp" in install
+    for client in ("codex", "claude-code", "workbuddy-ai", "cursor", "opencode", "pi"):
+        assert f"`{client}`" in install
     assert "connect --all" in install
-    assert "Any other Agent: use the standard MCP branch below." in install
+    assert "Any other Agent: go to step 6." in install
     assert "URL: https://connector.springbrand.ai/mcp" in install
     assert "Authorization: Bearer <user-provided API key>" in install
     assert "Do not run another" in " ".join(install.split())
@@ -134,7 +131,7 @@ def main() -> None:
     assert "claude plugin install springbrand-dev@springbrand-dev" in dev_claude
 
     # Welcome is Plugin-only; CLI entry points must stay focused on execution.
-    assert install.count("## Initial installation response\n") == 1
+    assert install.count("## Install workflow\n") == 1
     for guide in (development,):
         assert "### Welcome message" not in guide
         assert "Try a task with free credits" not in guide
