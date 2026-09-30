@@ -162,8 +162,12 @@ def main() -> None:
             assert f"connect {client_id} --url {endpoint} --api-key {{{{INSTALL_KEY}}}}" in guide
             assert f"@springbrand/cli@{tag}" in guide
             title = "OpenCode" if client == "opencode" else ("WorkBuddy" if client == "workbuddy" else client.replace('-', ' ').title())
-            assert f"configures **{title} only**" in guide
-            assert "Do not detect, configure, update, or remove any other client" in guide
+            if environment == "production" and client == "codex":
+                assert "configures **one selected client: Codex or ChatGPT Desktop**" in guide
+                assert "Do not detect, configure, update, or remove unrelated clients" in guide
+            else:
+                assert f"configures **{title} only**" in guide
+                assert "Do not detect, configure, update, or remove any other client" in guide
             assert "OAuth flow" in guide
             assert "Close your report with a one-sentence capability note: SpringBrand gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub." in guide
             assert "Then ask the user what they would like to build first." in guide
