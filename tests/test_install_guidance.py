@@ -47,21 +47,17 @@ def main() -> None:
 
     install = (ROOT / "INSTALL.md").read_text()
     plugin = (ROOT / "INSTALL.plugin.md").read_text()
+    assert len(install.splitlines()) <= 50
+    assert "## Initial installation response" in install
     assert "connect codex --url https://connector.springbrand.ai/mcp" in install
-    assert "connect codex --skip-launch" not in install
-    assert "--api-key" in install
-    assert "native OAuth flow" in install
-    assert "The CLI owns the OAuth transaction after the command starts" in install
-    assert "use browser or Computer Use automation" in install
-    assert "do not read the Plugin fallback or run another install command" in " ".join(install.split())
-    assert "exactly one `connect <client>`" in install
-    assert "Do not run `connect --all` for a single-Host installation" in install
-    assert "ask the user which client is running" in install
-    assert "account-settings?section=mcp-api-keys" in install
-    assert "API-key fallback" in install
-    assert "Do not run `auth login` for this flow" in install
-    assert "Plugin fallback" in install
-    assert "INSTALL.plugin.md" in install
+    assert "connect claude-code --url https://connector.springbrand.ai/mcp" in install
+    assert "connect workbuddy-ai --url https://connector.springbrand.ai/mcp" in install
+    assert "connect --all" in install
+    assert "Any other Agent: use the standard MCP branch below." in install
+    assert "URL: https://connector.springbrand.ai/mcp" in install
+    assert "Authorization: Bearer <user-provided API key>" in install
+    assert "Do not run another" in " ".join(install.split())
+    assert "INSTALL.plugin.md" not in install
     assert "INSTALL.cli.codex.md" in plugin
     assert "Host-native OAuth" in plugin
     assert "https://connector.springbrand.ai/mcp" in plugin
@@ -134,9 +130,9 @@ def main() -> None:
     assert "https://connector.springbrand.ai/mcp" not in dev_claude
     assert "claude plugin install springbrand-dev@springbrand-dev" in dev_claude
 
-    # Welcome is Plugin-only; CLI entry points must stay focused on the CLI summary.
-    for guide in (install, development):
-        assert "## Initial installation response" not in guide
+    # Welcome is Plugin-only; CLI entry points must stay focused on execution.
+    assert install.count("## Initial installation response\n") == 1
+    for guide in (development,):
         assert "### Welcome message" not in guide
         assert "Try a task with free credits" not in guide
     for guide in (plugin, dev_plugin):
