@@ -47,7 +47,7 @@ def main() -> None:
 
     install = (ROOT / "INSTALL.md").read_text()
     plugin = (ROOT / "INSTALL.plugin.md").read_text()
-    assert len(install.splitlines()) <= 50
+    assert len(install.splitlines()) <= 60
     assert "## Initial installation response" in install
     assert "connect codex --url https://connector.springbrand.ai/mcp" in install
     assert "connect claude-code --url https://connector.springbrand.ai/mcp" in install

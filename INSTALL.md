@@ -2,9 +2,16 @@
 
 ## Initial installation response
 
-Execute one branch only. Do not infer a client, run `connect` without a client,
-run `connect --all`, retry with another client, open an OAuth URL yourself, run
-`auth login`, read another installation guide, or run a business operation.
+Execute one branch only.
+
+Do not infer a client.
+Do not run `connect` without a client.
+Do not run `connect --all`.
+Do not retry with another client.
+Do not open an OAuth URL yourself.
+Do not run `auth login`.
+Do not read another installation guide.
+Do not run a business operation.
 
 Identify exactly one Host:
 
