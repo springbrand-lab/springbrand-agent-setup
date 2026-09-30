@@ -164,6 +164,7 @@ def main() -> None:
             title = "OpenCode" if client == "opencode" else ("WorkBuddy" if client == "workbuddy" else client.replace('-', ' ').title())
             if environment == "production" and client == "codex":
                 assert "configures **one selected client: Codex or ChatGPT Desktop**" in guide
+                assert "Both clients use the Codex installation mechanism" in guide
                 assert "Do not detect, configure, update, or remove unrelated clients" in guide
             else:
                 assert f"configures **{title} only**" in guide
