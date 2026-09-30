@@ -44,6 +44,20 @@ Do not run a business operation.
    - Any non-zero exit code: report the failed phase and stop.
    - Do not run another installation command.
 
+6. Installation completion report
+
+   After the command completes, report the actual status without revealing credentials:
+
+   1. The configured MCP entry is named `springbrand`.
+   2. The MCP URL is exactly `https://connector.springbrand.ai/mcp` and uses the selected client's native remote HTTP transport.
+   3. The client identity matches the production environment.
+   4. The configured MCP health check passes.
+   5. Existing configuration and every other client remain unchanged.
+
+   If any item is not true, report that item as failed and do not claim installation success.
+
+   Close the report with a one-sentence capability note: SpringBrand gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub. Then ask the user what they would like to build first.
+
 ## Other Agent install workflow
 
 1. Do not run `sp connect`. Configure the Agent's standard remote MCP client

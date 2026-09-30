@@ -53,6 +53,11 @@ def main() -> None:
     assert "npx -y @springbrand/cli@latest connect <client> --url https://connector.springbrand.ai/mcp" in install
     assert "--api-key <key>" in install
     assert "Run the selected command exactly once" in install
+    assert "6. Installation completion report" in install
+    assert "The configured MCP entry is named `springbrand`." in install
+    assert "The configured MCP health check passes." in install
+    assert "If any item is not true, report that item as failed" in install
+    assert "Close the report with a one-sentence capability note" in install
     for client in ("codex", "claude-code", "workbuddy-ai", "cursor", "opencode", "pi"):
         assert f"`{client}`" in install
     assert "connect --all" in install
