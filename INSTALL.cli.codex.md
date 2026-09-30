@@ -2,11 +2,11 @@
 
 Before any command, read and follow [the initial installation response](./INSTALL.md#initial-installation-response). Determine whether this is a first installation or an update, and keep that classification for the whole conversation.
 
-This document configures **one selected client: Codex or ChatGPT Desktop**. Here, `codex` is the CLI installation target. For ChatGPT Desktop, confirm whether it uses the same Codex installation mechanism; if so, use the command below. Do not infer incompatibility solely from the command name or the absence of a separate `chatgpt-desktop` target. Configure only the user-requested client. Do not detect, configure, update, or remove unrelated clients. Preserve every unrelated configuration and existing MCP entry.
+This document configures **one selected client: Codex or ChatGPT Desktop**. Both clients use the Codex installation mechanism and the command below. Here, `codex` is the CLI installation target for either selected client. Configure only the user-requested client. Do not search for a separate `chatgpt-desktop` target or infer incompatibility from the command name. Do not detect, configure, update, or remove unrelated clients. Preserve every unrelated configuration and existing MCP entry.
 
 ## Preferred CLI installation
 
-After confirming the selected client's installation mechanism and completing any required API-key preparation, run exactly one connect command. Do not run `--help`, `doctor`, an all-client command, or a second connect command first.
+After completing any required API-key preparation, run exactly one connect command for the selected client. Do not run `--help`, `doctor`, an all-client command, or a second connect command first.
 
 ```sh
 npx -y @springbrand/cli@latest connect codex --url https://connector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}
@@ -36,5 +36,5 @@ For ChatGPT Desktop, confirm that it uses the resulting configuration before rep
 
 If the client requires a restart, reload, or new session, report that requirement and stop. Do not claim installation success until the identity and health checks pass. Do not run capability discovery or a business operation as a substitute for installation verification.
 
-If the CLI cannot install this client, report the failed phase and continue only with the matching host-specific fallback in [INSTALL.md](./INSTALL.md). For ChatGPT Desktop, the Codex fallback applies only when the shared installation mechanism has been confirmed. Keep the single-client scope when using that fallback.
+If the CLI cannot install this client, report the failed phase and continue only with the matching host-specific fallback in [INSTALL.md](./INSTALL.md). For ChatGPT Desktop, use the Codex fallback because both clients use the shared Codex installation mechanism. Keep the single-client scope when using that fallback.
 Close your report with a one-sentence capability note: SpringBrand gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub. Then ask the user what they would like to build first.
