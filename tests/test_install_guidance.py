@@ -47,11 +47,14 @@ def main() -> None:
 
     install = (ROOT / "INSTALL.md").read_text()
     plugin = (ROOT / "INSTALL.plugin.md").read_text()
-    assert len(install.splitlines()) <= 60
+    assert len(install.splitlines()) <= 75
     assert "## Initial installation response" in install
     assert "connect codex --url https://connector.springbrand.ai/mcp" in install
     assert "connect claude-code --url https://connector.springbrand.ai/mcp" in install
     assert "connect workbuddy-ai --url https://connector.springbrand.ai/mcp" in install
+    assert "connect cursor --url https://connector.springbrand.ai/mcp" in install
+    assert "connect opencode --url https://connector.springbrand.ai/mcp" in install
+    assert "connect pi --url https://connector.springbrand.ai/mcp" in install
     assert "connect --all" in install
     assert "Any other Agent: use the standard MCP branch below." in install
     assert "URL: https://connector.springbrand.ai/mcp" in install
