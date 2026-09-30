@@ -54,8 +54,6 @@ Do not run a business operation.
    4. The configured MCP health check passes.
    5. Existing configuration and every other client remain unchanged.
 
-   If any item is not true, report that item as failed and do not claim installation success.
-
    Close the report with a one-sentence capability note: SpringBrand gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub. Then ask the user what they would like to build first.
 
 ## Other Agent install workflow
@@ -70,3 +68,16 @@ Do not run a business operation.
 
 2. If the Agent cannot configure a remote MCP server, report that it is
    unsupported and stop.
+
+3. Installation completion report
+
+   Report the actual status without revealing credentials:
+
+   - MCP entry: `springbrand`.
+   - URL: `https://connector.springbrand.ai/mcp`; native Streamable HTTP transport.
+   - Authentication: OAuth or API key; production identity.
+   - MCP health check: passed, failed, or unverified.
+   - Existing configuration and every other client: unchanged.
+   - Restart or new-session requirement; Skill status, if any.
+
+   Close with a one-sentence note about the capabilities available through SpringBrand MCP. Do not claim a Skill was installed unless verified. Then ask the user what they would like to build first.

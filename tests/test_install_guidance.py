@@ -47,7 +47,7 @@ def main() -> None:
 
     install = (ROOT / "INSTALL.md").read_text()
     plugin = (ROOT / "INSTALL.plugin.md").read_text()
-    assert len(install.splitlines()) <= 75
+    assert len(install.splitlines()) <= 90
     assert "## Install workflow" in install
     assert "Check whether the user's Prompt contains an API key" in install
     assert "npx -y @springbrand/cli@latest connect <client> --url https://connector.springbrand.ai/mcp" in install
@@ -56,13 +56,16 @@ def main() -> None:
     assert "6. Installation completion report" in install
     assert "The configured MCP entry is named `springbrand`." in install
     assert "The configured MCP health check passes." in install
-    assert "If any item is not true, report that item as failed" in install
     assert "Close the report with a one-sentence capability note" in install
     for client in ("codex", "claude-code", "workbuddy-ai", "cursor", "opencode", "pi"):
         assert f"`{client}`" in install
     assert "connect --all" in install
     assert "Any other Agent: use the Other Agent install workflow below." in install
     assert "## Other Agent install workflow" in install
+    other_install = install.split("## Other Agent install workflow", 1)[1]
+    assert "3. Installation completion report" in other_install
+    assert "MCP health check: passed, failed, or unverified." in other_install
+    assert "Do not claim a Skill was installed unless verified." in other_install
     assert "1. Do not run `sp connect`." in install
     assert "URL: https://connector.springbrand.ai/mcp" in install
     assert "Authorization: Bearer <user-provided API key>" in install
