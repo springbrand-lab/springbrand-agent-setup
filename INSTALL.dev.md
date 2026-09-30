@@ -1,98 +1,86 @@
 # SpringBrand development CLI installation protocol
 
-## Development release identity
+Development release identity: `v1.2.1-dev.2`, entry `springbrand-dev`, endpoint
+`https://devconnector.springbrand.ai/mcp`.
 
-This guide installs immutable development release `v1.2.1-dev.2` from
-`springbrand-dev` at `https://devconnector.springbrand.ai/mcp`.
+## Install workflow
 
-## Installation overview
+Do not infer a client.
+Do not run `connect` without a client.
+Do not run `connect --all`.
+Do not retry with another client.
+Do not open an OAuth URL yourself.
+Do not run `auth login`.
+Do not read another installation guide.
+Do not run a business operation.
 
-This document is the CLI-first entry point. Use this order for every first
-install or update:
+1. Identify exactly one Host and select its CLI client:
 
-1. Identify the current Host before running the CLI.
-2. Run exactly one `connect <client>` command for that Host without
-   `--api-key`.
-3. Let that client open its native OAuth flow. If the user is not signed in,
-   let the user sign in or register, then continue the same browser flow until
-   it returns to the client.
-4. Wait for OAuth to finish before reporting the result.
-5. Use a development API key only when OAuth is unavailable, unsupported, or
-   explicitly requested by the user.
+   - Codex CLI or ChatGPT Desktop: `codex`
+   - Claude Code or Claude Desktop Code tab: `claude-code`
+   - WorkBuddy: `workbuddy-ai`
+   - Cursor: `cursor`
+   - OpenCode: `opencode`
+   - Pi: `pi`
+   - Any other Agent: use the Other Agent install workflow below.
 
-The CLI owns the OAuth transaction after the command starts. Do not open the
-printed authorization URL yourself, use browser or Computer Use automation,
-call an OAuth endpoint, or start a second login. Let the user complete sign-in
-and consent in the browser opened by the CLI, then wait for the same command to
-exit. If it reports success, stop the OAuth and installation flow; do not read
-the Plugin fallback or run another install command.
+2. Check whether the user's Prompt contains a development API key and select one command:
 
-Do not run `connect --all` for a single-Host installation. Use it only when the
-user explicitly asks to configure every detected client. Different clients
-have separate OAuth sessions and may require separate authorization.
+   ```sh
+   # No API key
+   npx -y @springbrand/cli@alpha connect <client> --url https://devconnector.springbrand.ai/mcp
 
-Use the command matching the current Host:
+   # API key supplied
+   npx -y @springbrand/cli@alpha connect <client> --url https://devconnector.springbrand.ai/mcp --api-key <key>
+   ```
 
-```sh
-# Codex
-npx -y @springbrand/cli@alpha connect codex --url https://devconnector.springbrand.ai/mcp
+   Never print, log, repeat, or include the key in a report.
 
-# Claude Code
-npx -y @springbrand/cli@alpha connect claude-code --url https://devconnector.springbrand.ai/mcp
+3. Run the selected command exactly once.
 
-# Cursor
-npx -y @springbrand/cli@alpha connect cursor --url https://devconnector.springbrand.ai/mcp
+4. Wait for the command to exit. Let the user complete the browser flow opened
+   by the client, then continue waiting for the same command.
 
-# OpenCode
-npx -y @springbrand/cli@alpha connect opencode --url https://devconnector.springbrand.ai/mcp
+5. Finish the supported-client flow:
 
-# WorkBuddy
-npx -y @springbrand/cli@alpha connect workbuddy-ai --url https://devconnector.springbrand.ai/mcp
-```
+   - Exit code `0`: report the CLI status and any restart or new-session requirement it prints.
+   - Any non-zero exit code: report the failed phase and stop.
+   - Do not run another installation command.
 
-If the current Host cannot be identified, ask the user which client is running
-before executing a command. Do not guess from the first client detected on the
-machine.
+6. Installation completion report
 
-The CLI summary is the installation report. Report the selected client, auth
-mode, MCP and Skill status, restart requirement, and failed phase. Do not run
-capability discovery or a business operation as an installation check.
+   After the command completes, report the actual status without revealing credentials:
 
-## Installation completion report
+   1. The configured MCP entry is named `springbrand-dev`.
+   2. The MCP URL is exactly `https://devconnector.springbrand.ai/mcp` and uses the selected client's native remote HTTP transport.
+   3. The client identity matches the development environment.
+   4. The configured MCP health check passes.
+   5. Existing configuration and every other client remain unchanged.
 
-After the command completes, report the actual status without revealing credentials:
+   Close the report with a one-sentence capability note: SpringBrand Dev gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub. Then ask the user what they would like to build first.
 
-1. The configured MCP entry is named `springbrand-dev`.
-2. The MCP URL is exactly `https://devconnector.springbrand.ai/mcp` and uses the selected client's native remote HTTP transport.
-3. The client identity matches the development environment.
-4. The configured MCP health check passes.
-5. Existing configuration and every other client remain unchanged.
+## Other Agent install workflow
 
-If any item is not true, report that item as failed and do not claim installation success.
+1. Do not run `sp connect`. Configure the Agent's standard remote MCP client
+   with:
 
-Close your report with a one-sentence capability note: SpringBrand gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub. Then ask the user what they would like to build first.
+   ```text
+   URL: https://devconnector.springbrand.ai/mcp
+   Authentication: native MCP OAuth, or Authorization: Bearer <user-provided development API key>
+   ```
 
-Do not run `auth login` for this flow. That command obtains an API key and is
-not part of the default installation path.
+2. If the Agent cannot configure a remote MCP server, report that it is
+   unsupported and stop.
 
-## API-key fallback
+3. Installation completion report
 
-Use this branch only when the user cannot complete OAuth, the client does not
-support native OAuth, or the user explicitly asks for API-key authentication.
-Show or open the development API-key page:
+   Report the actual status without revealing credentials:
 
-https://devrapp.springbrand.ai/account-settings?section=mcp-api-keys
+   - MCP entry: `springbrand-dev`.
+   - URL: `https://devconnector.springbrand.ai/mcp`; native Streamable HTTP transport.
+   - Authentication: OAuth or development API key; development identity.
+   - MCP health check: passed, failed, or unverified.
+   - Existing configuration and every other client: unchanged.
+   - Restart or new-session requirement; Skill status, if any.
 
-Ask the user to register or sign in, create or copy a development API key, and
-provide it through the secure input channel. Wait for the key, then rerun the
-matching single-client command with `--api-key {{INSTALL_KEY}}`.
-
-Do not print, log, repeat, or include the key in the report. If a supplied key
-is malformed, rejected, expired, revoked, or for the wrong environment, report
-the failure and ask the user to replace it; do not silently switch auth modes.
-
-## Plugin fallback
-
-Use [INSTALL.plugin.dev.md](./INSTALL.plugin.dev.md) only after the CLI cannot
-run or a specific client registration fails. Preserve successful CLI
-registrations and follow the plugin document for the failed client only.
+   Close with a one-sentence note about the capabilities available through SpringBrand Dev MCP. Do not claim a Skill was installed unless verified. Then ask the user what they would like to build first.

@@ -110,20 +110,24 @@ def main() -> None:
     dev_claude = (ROOT / "INSTALL.claude.dev.md").read_text()
     assert "v1.2.1-dev.2" in development
     assert "https://devconnector.springbrand.ai/mcp" in development
-    assert "connect codex --url https://devconnector.springbrand.ai/mcp" in development
-    assert "connect codex --skip-launch" not in development
-    assert "--api-key" in development
-    assert "native OAuth flow" in development
-    assert "The CLI owns the OAuth transaction after the command starts" in development
-    assert "use browser or Computer Use automation" in development
-    assert "do not read the Plugin fallback or run another install command" in " ".join(development.split())
-    assert "exactly one `connect <client>`" in development
-    assert "Do not run `connect --all` for a single-Host installation" in development
-    assert "ask the user which client is running" in development
-    assert "devrapp.springbrand.ai/account-settings?section=mcp-api-keys" in development
-    assert "API-key fallback" in development
-    assert "Do not run `auth login` for this flow" in development
-    assert "INSTALL.plugin.dev.md" in development
+    assert "## Install workflow" in development
+    assert "Check whether the user's Prompt contains a development API key" in development
+    assert "npx -y @springbrand/cli@alpha connect <client> --url https://devconnector.springbrand.ai/mcp" in development
+    assert "--api-key <key>" in development
+    assert "Run the selected command exactly once" in development
+    assert "6. Installation completion report" in development
+    assert "The configured MCP entry is named `springbrand-dev`." in development
+    assert "The configured MCP health check passes." in development
+    assert "Close the report with a one-sentence capability note" in development
+    for client in ("codex", "claude-code", "workbuddy-ai", "cursor", "opencode", "pi"):
+        assert f"`{client}`" in development
+    assert "connect --all" in development
+    assert "Any other Agent: use the Other Agent install workflow below." in development
+    assert "## Other Agent install workflow" in development
+    other_development = development.split("## Other Agent install workflow", 1)[1]
+    assert "3. Installation completion report" in other_development
+    assert "MCP health check: passed, failed, or unverified." in other_development
+    assert "Do not claim a Skill was installed unless verified." in other_development
     assert "springbrand-dev" in dev_plugin
     assert "Host-native OAuth" in dev_plugin
     assert "https://devconnector.springbrand.ai/mcp" in dev_plugin
@@ -132,7 +136,7 @@ def main() -> None:
     assert "Do not launch OAuth" not in development
     development_flat = " ".join(development.split())
     for secret_phrase in (
-        "Authorization: Bearer", "Authorization header:", "access_token=",
+        "Authorization header:", "access_token=",
         "refresh_token=", "api_key=", "raw upstream body",
     ):
         assert secret_phrase not in development_flat, secret_phrase
