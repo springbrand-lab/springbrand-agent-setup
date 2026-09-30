@@ -22,6 +22,7 @@ Do not run a business operation.
    - Cursor: `cursor`
    - OpenCode: `opencode`
    - Pi: `pi`
+   - ChatGPT Web or Cowork Web: use the Other Agent install workflow below.
    - Any other Agent: use the Other Agent install workflow below.
 
 2. Check whether the user's Prompt contains a development API key and select one command:
@@ -69,8 +70,13 @@ Do not run a business operation.
    Authentication: native MCP OAuth, or Authorization: Bearer <user-provided development API key>
    ```
 
-2. If the Agent cannot configure a remote MCP server, report that it is
-   unsupported and stop.
+2. If standard remote MCP configuration or authentication fails, report:
+
+   - Status: failed; phase: MCP configuration or authentication.
+   - Host limitation, if applicable: standard remote MCP is unsupported.
+   - SpringBrand configuration: unchanged; credentials not displayed.
+
+   Stop. Do not run another installation command.
 
 3. Installation completion report
 
