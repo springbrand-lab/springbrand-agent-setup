@@ -19,7 +19,7 @@ Do not run a business operation.
    - Cursor: `cursor`
    - OpenCode: `opencode`
    - Pi: `pi`
-   - Any other Agent: go to step 6.
+   - Any other Agent: use the Other Agent install workflow below.
 
 2. Check whether the user's Prompt contains an API key and select one command:
 
@@ -44,13 +44,15 @@ Do not run a business operation.
    - Any non-zero exit code: report the failed phase and stop.
    - Do not run another installation command.
 
-6. For any other Agent, do not run `sp connect`. Configure its standard remote
-   MCP client with:
+## Other Agent install workflow
+
+1. Do not run `sp connect`. Configure the Agent's standard remote MCP client
+   with:
 
    ```text
    URL: https://connector.springbrand.ai/mcp
    Authentication: native MCP OAuth, or Authorization: Bearer <user-provided API key>
    ```
 
-7. If the Agent cannot configure a remote MCP server, report that it is
+2. If the Agent cannot configure a remote MCP server, report that it is
    unsupported and stop.

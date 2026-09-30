@@ -56,7 +56,9 @@ def main() -> None:
     for client in ("codex", "claude-code", "workbuddy-ai", "cursor", "opencode", "pi"):
         assert f"`{client}`" in install
     assert "connect --all" in install
-    assert "Any other Agent: go to step 6." in install
+    assert "Any other Agent: use the Other Agent install workflow below." in install
+    assert "## Other Agent install workflow" in install
+    assert "1. Do not run `sp connect`." in install
     assert "URL: https://connector.springbrand.ai/mcp" in install
     assert "Authorization: Bearer <user-provided API key>" in install
     assert "Do not run another" in " ".join(install.split())
