@@ -21,14 +21,19 @@ Do not run a business operation.
    - Pi: `pi`
    - Any other Agent: go to step 6.
 
-2. Run exactly one command for the selected CLI client:
+2. Check whether the user's Prompt contains an API key and select one command:
 
    ```sh
+   # No API key
    npx -y @springbrand/cli@latest connect <client> --url https://connector.springbrand.ai/mcp
+
+   # API key supplied
+   npx -y @springbrand/cli@latest connect <client> --url https://connector.springbrand.ai/mcp --api-key <key>
    ```
 
-3. If the user explicitly provides an API key, append `--api-key <key>` to the
-   same command. Never print, log, repeat, or include the key in a report.
+   Never print, log, repeat, or include the key in a report.
+
+3. Run the selected command exactly once.
 
 4. Wait for the command to exit. Let the user complete the browser flow opened
    by the client, then continue waiting for the same command.

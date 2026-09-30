@@ -49,7 +49,10 @@ def main() -> None:
     plugin = (ROOT / "INSTALL.plugin.md").read_text()
     assert len(install.splitlines()) <= 75
     assert "## Install workflow" in install
+    assert "Check whether the user's Prompt contains an API key" in install
     assert "npx -y @springbrand/cli@latest connect <client> --url https://connector.springbrand.ai/mcp" in install
+    assert "--api-key <key>" in install
+    assert "Run the selected command exactly once" in install
     for client in ("codex", "claude-code", "workbuddy-ai", "cursor", "opencode", "pi"):
         assert f"`{client}`" in install
     assert "connect --all" in install
