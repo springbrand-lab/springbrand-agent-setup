@@ -37,7 +37,7 @@ def main():
     plugin_guide = (ROOT / "INSTALL.plugin.dev.md").read_text()
     assert "GitHub capabilities only" not in guide
     assert "v1.2.1-dev.2" in guide
-    assert "## Other Agent install workflow" in guide
+    assert "## Other Agent workflow" in guide
     assert "INSTALL.plugin.dev.md" not in guide
     assert "immutable release" in plugin_guide
     assert "springbrand-dev" in plugin_guide

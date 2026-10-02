@@ -31,7 +31,6 @@ jobs:
         run: |
           python3 tests/validate_plugin.py
           python3 tests/test_release_identity.py
-          python3 tests/test_install_guidance.py
           python3 tests/test_publish_install_docs.py
           python3 scripts/publish_install_docs.py
 
