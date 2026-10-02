@@ -2,6 +2,40 @@
 
 CLI channel: `@springbrand/cli@latest`.
 
+## Required environment authorization
+
+This installation changes the selected Host's local MCP, Plugin, and Skill
+configuration and requires outbound network access.
+
+Authorization is required separately for each installation stage. Approval for
+one stage is not proof that a later stage has the required access.
+
+Before each external operation, check the capabilities required by that stage:
+
+- access to the local user configuration directories used by the selected Host;
+- writing the selected Host's MCP configuration and SpringBrand Plugin/Skill files;
+- outbound network access to the npm registry and the SpringBrand endpoint;
+- executing `npx` and the selected Host integration or CLI;
+- a writable npm cache owned by the current user.
+
+Treat the execution mode as an installation precondition. Before installation
+begins, choose one mode and use it for every operation:
+
+1. Switch the session to full access, re-check the mode, then execute the
+   planned commands directly.
+2. Keep the sandbox, and run every command through Codex's approval-aware
+   execution path with `ask approval` enabled. Codex asks for permission before
+   a protected filesystem write, package download, or network call; the command
+   must not start until that approval is granted.
+
+Before each command, inspect the selected mode and classify the command's
+required capabilities. Do not replace the sandbox executor's approval prompt
+with an Agent-authored question, and do not run a command first and ask about a
+permission failure afterward. A permission grant does not guarantee that the
+operating system will allow the requested write.
+
+After each operation, read its result before beginning the next operation.
+
 ## Installation preconditions
 
 Before starting installation, the user must be registered or signed in to the
@@ -12,6 +46,11 @@ report this precondition as `met`, `unmet`, `pending`, or `not verified` based
 only on observed output; do not guess that approval mode caused the failure.
 
 ## Install workflow
+
+0. Follow the selected execution mode above. Before every operation, re-check
+   the capabilities required by that operation and use the corresponding
+   executor path. The operation must not start until any required Codex approval
+   has been granted.
 
 1. Select exactly one Host and its CLI client. The selected client is the only
    client in scope for this run:
@@ -55,6 +94,15 @@ npx -y @springbrand/cli@latest connect <client> --url https://connector.springbr
 
    IF result.outcome == "auth_pending":
        GOTO OAUTH_ACTION
+
+   IF result.error.code == "invalid_config" OR result.failed_phase IN
+      {"host_configuration", "cli_install", "skill_install"}:
+       REPORT that installation is blocked by Host/configuration permissions,
+       include the exact blocked capability and nextAction when present, and
+       stop. Resume only after the selected execution mode provides the
+       capability and the same command can be run through its required executor
+       path. Do not have the Agent ask for approval in prose.
+       STOP without asking for a different API key or switching auth modes.
 
    OTHERWISE:
        REPORT result.failed_phase and result.nextAction

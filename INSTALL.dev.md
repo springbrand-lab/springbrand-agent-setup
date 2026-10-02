@@ -20,10 +20,11 @@ Before each external operation, check the capabilities required by that stage:
 - executing `npx` and the selected Host integration or CLI;
 - a writable npm cache owned by the current user.
 
-If the current Agent is running in a sandbox, restricted filesystem mode, or
-without network access, ask the user to switch to a full-access or unrestricted
-execution mode before continuing. After authorization, check the capabilities
-again. Do not start an operation when its required capability is unavailable.
+The CLI install is performed by the Agent on the user's local machine on the
+user's behalf. Before each command, inspect the current execution mode and
+classify the command's required capabilities. Use the executor path specified
+by the selected mode; the Agent must not run a command first and ask about a
+permission failure afterward.
 
 For the `npx` stage, inspect the configured cache before running the command:
 
@@ -40,22 +41,29 @@ whole home directory:
 export NPM_CONFIG_CACHE="$(mktemp -d /tmp/springbrand-npm-cache.XXXXXX)"
 ```
 
-These checks are diagnostics, not permission grants. Before any command that
-writes Host configuration, installs the CLI or Skill, or calls the endpoint,
-obtain the user's explicit authorization for the required local and network
-capabilities. If authorization is unavailable, pause and ask the user to grant
-access or switch to full-access execution; do not run `connect` first. After
-authorization, check the capabilities again. A permission grant does not
+These checks are diagnostics, not permission grants. Treat the mode decision as
+an installation precondition. The user may choose one of two execution modes
+before installation begins:
+
+1. Switch the session to full access, re-check the mode, then execute the
+   planned commands directly.
+2. Keep the sandbox, and run every command through Codex's approval-aware
+   execution path with `ask approval` enabled. Codex, not the Agent's prose,
+   asks for permission before a protected filesystem write, package download,
+   or network call; the command must not start until that approval is granted.
+
+Do not replace the second mode with an Agent-authored approval question, and do
+not retry after a predictable permission failure. A permission grant does not
 guarantee that the operating system will allow the requested write.
 
 After each operation, read its result before beginning the next operation.
 
 Use this explanation when requesting approval:
 
-> SpringBrand installation modifies your local Agent configuration and may install or update its Plugin and Skills. It also needs network access to download the CLI and verify the SpringBrand MCP endpoint. Please approve one-time local environment and network access before installation continues.
+> SpringBrand installation modifies your local Agent configuration and may install or update its Plugin and Skills. It also needs network access to download the CLI and verify the SpringBrand MCP endpoint. Please authorize the required local and network capabilities using the selected execution mode before installation continues.
 
-If the user cannot grant this access, report that installation is blocked and
-stop without claiming success.
+If the user cannot grant the required access, report that installation is
+blocked and stop without claiming success.
 
 ## Installation preconditions
 
@@ -112,8 +120,10 @@ Do not invent a login command.
 Do not read another installation guide.
 Do not run a business operation as an installation check.
 
-0. Confirm that the required capabilities for the next operation are available
-   and obtain the authorization required for that operation.
+0. Follow the execution mode selected in **Required environment
+   authorization**. Before every operation, re-check the capabilities required
+   by that operation and use the corresponding executor path. The operation
+   must not start until any required Codex approval has been granted.
 
 1. Identify exactly one supported Host integration and select its client ID.
    The selected client is the only client in scope for this run:
@@ -174,7 +184,9 @@ Do not run a business operation as an installation check.
       {"host_configuration", "cli_install", "skill_install"}:
        REPORT that installation is blocked by Host/configuration permissions,
        include the exact blocked capability and nextAction when present, and
-       ASK the user to grant access or switch to full-access execution.
+       stop. Resume only after the selected execution mode provides the
+       capability and the same command can be run through its required
+       executor path. Do not have the Agent ask for approval in prose.
        STOP without asking for a different API key or switching auth modes.
 
    OTHERWISE:
