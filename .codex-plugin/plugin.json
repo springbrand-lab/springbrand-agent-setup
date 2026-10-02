@@ -10,7 +10,7 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "SpringBrand",
-    "shortDescription": "Discover and use SpringBrand Plugins",
+    "shortDescription": "Discover SpringBrand Plugins",
     "longDescription": "Search for reusable SpringBrand Plugins and apply them to your work through the production connector.",
     "developerName": "SpringBrand",
     "category": "Productivity",
@@ -21,10 +21,13 @@
     "defaultPrompt": [
       "Find a SpringBrand Plugin for this task."
     ],
+    "websiteURL": "https://springbrand.ai",
+    "privacyPolicyURL": "https://springbrand.ai/privacy",
+    "termsOfServiceURL": "https://springbrand.ai/terms",
+    "supportURL": "https://springbrand.ai/contact",
     "brandColor": "#FF8A2C",
     "composerIcon": "./assets/springbrand-icon.svg",
-    "logo": "./assets/springbrand-icon.svg",
-    "logoDark": "./assets/springbrand-icon.svg"
+    "logo": "./assets/springbrand-icon.svg"
   },
   "hooks": "./hooks/codex-hooks.json"
 }

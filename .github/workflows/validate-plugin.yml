@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Validate package contract
+      - name: Validate legacy and portable package contract
         run: |
           python3 scripts/sync_skill_versions.py --check
           python3 tests/test_skill_versions.py
