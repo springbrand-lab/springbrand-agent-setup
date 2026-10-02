@@ -6,37 +6,34 @@ Development release identity: `v1.2.1-dev.2`; entry `springbrand-dev`, endpoint
 
 ## Required environment authorization
 
-This installation changes the selected Host's local MCP, Plugin, and Skill
-configuration and requires outbound network access.
+Installation requires full access mode for the entire run. Before any
+installation operation, inspect the current execution mode:
 
-Authorization is required separately for each installation stage. Approval for
-one stage is not proof that a later stage has the required access.
+- If the mode is not full access, do not run a probe, package download, Host
+  command, or configuration write. Ask the user to switch the session to full
+  access, then stop and wait for that change.
+- After full access is enabled, re-check the mode and use it for every
+  operation in this installation. Do not use the per-command `ask approval`
+  path for this workflow.
 
-Before each external operation, check the capabilities required by that stage:
+Explain what full access enables before asking the user to switch:
 
-- access to the local user configuration directories used by the selected Host;
-- writing the selected Host's MCP configuration and SpringBrand Plugin/Skill files;
-- outbound network access to the npm registry and the SpringBrand endpoint;
+- writing the selected Host's MCP, Plugin, and Skill configuration, including
+  paths such as `~/.codex`, `~/.agents/plugins`, `~/.springbrand`, and the
+  user's shell profile when API-key authentication is selected;
+- downloading the CLI through the npm registry and using a user-owned npm
+  cache;
 - executing `npx` and the selected Host integration or CLI;
-- a writable npm cache owned by the current user.
+- reaching the SpringBrand MCP endpoint and the applicable RApp for account or
+  OAuth setup.
 
-Treat the execution mode as an installation precondition. Before installation
-begins, choose one mode and use it for every operation:
+Full access is an execution precondition, not proof that every write will
+succeed. After it is enabled, check the required local paths, npm cache,
+registry, endpoint, and Host capabilities once before installation begins. If
+any required capability is unavailable, report that installation is blocked and
+stop without running another command.
 
-1. Switch the session to full access, re-check the mode, then execute the
-   planned commands directly.
-2. Keep the sandbox, and run every command through Codex's approval-aware
-   execution path with `ask approval` enabled. Codex asks for permission before
-   a protected filesystem write, package download, or network call; the command
-   must not start until that approval is granted.
-
-Before each command, inspect the selected mode and classify the command's
-required capabilities. Do not replace the sandbox executor's approval prompt
-with an Agent-authored question, and do not run a command first and ask about a
-permission failure afterward. A permission grant does not guarantee that the
-operating system will allow the requested write.
-
-For the `npx` stage, inspect the configured cache before running the command:
+For the `npx` stage, inspect the configured cache:
 
 ```sh
 npm_cache="$(npm config get cache)"
@@ -44,17 +41,13 @@ test -d "$npm_cache" && test -w "$npm_cache"
 ```
 
 If the configured cache is unavailable or not writable, use a new cache owned
-by the current user for this installation instead of changing ownership of a
-whole home directory:
+by the current user for this installation:
 
 ```sh
 export NPM_CONFIG_CACHE="$(mktemp -d /tmp/springbrand-npm-cache.XXXXXX)"
 ```
 
 After each operation, read its result before beginning the next operation.
-
-If the user cannot grant the required access, report that installation is
-blocked and stop without claiming success.
 
 ## Install workflow
 
@@ -72,10 +65,9 @@ Do not invent a login command.
 Do not read another installation guide.
 Do not run a business operation as an installation check.
 
-0. Follow the selected execution mode above. Before every operation, re-check
-   the capabilities required by that operation and use the corresponding
-   executor path. The operation must not start until any required Codex approval
-   has been granted.
+0. Confirm that full access was verified in **Required environment
+   authorization**. If it was not verified, stop before running any operation
+   and ask the user to switch to full access.
 
 1. Identify exactly one supported Host integration and select its client ID.
    The selected client is the only client in scope for this run:
@@ -128,9 +120,8 @@ Do not run a business operation as an installation check.
       {"host_configuration", "cli_install", "skill_install"}:
        REPORT that installation is blocked by Host/configuration permissions,
        include the exact blocked capability and nextAction when present, and
-       stop. Resume only after the selected execution mode provides the
-       capability and the same command can be run through its required executor
-       path. Do not have the Agent ask for approval in prose.
+       stop. Resume only after full access is verified and the required
+       capability is available; then rerun the same command. Do not have the Agent ask for access in prose.
        STOP without asking for a different API key or switching auth modes.
 
    OTHERWISE:
