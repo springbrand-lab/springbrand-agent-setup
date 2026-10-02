@@ -9,24 +9,34 @@ Development release identity: `v1.2.1-dev.2`; entry `springbrand-dev`, endpoint
 This installation changes the selected Host's local MCP, Plugin, and Skill
 configuration and requires outbound network access.
 
-Authorization is required separately for each installation stage. Approval for
-one stage is not proof that a later stage has the required access.
+Installation requires full access mode for the entire run. Before any
+installation operation, inspect the current execution mode:
 
-Before each external operation, check the capabilities required by that stage:
+- If the mode is not full access, do not run a probe, package download, Host
+  command, or configuration write. Ask the user to switch the session to full
+  access, then stop and wait for that change.
+- After full access is enabled, re-check the mode and use it for every
+  operation in this installation. Do not use the per-command `ask approval`
+  path for this workflow.
 
-- access to the local user configuration directories used by the selected Host;
-- writing the selected Host's MCP configuration and SpringBrand Plugin/Skill files;
-- outbound network access to the npm registry and the SpringBrand endpoint;
+Explain what full access enables before asking the user to switch:
+
+- writing the selected Host's MCP, Plugin, and Skill configuration, including
+  paths such as `~/.codex`, `~/.agents/plugins`, `~/.springbrand`, and the
+  user's shell profile when API-key authentication is selected;
+- downloading the CLI through the npm registry and using a user-owned npm
+  cache;
 - executing `npx` and the selected Host integration or CLI;
-- a writable npm cache owned by the current user.
+- reaching the SpringBrand MCP endpoint and the applicable RApp for account or
+  OAuth setup.
 
-The CLI install is performed by the Agent on the user's local machine on the
-user's behalf. Before each command, inspect the current execution mode and
-classify the command's required capabilities. Use the executor path specified
-by the selected mode; the Agent must not run a command first and ask about a
-permission failure afterward.
+Full access is an execution precondition, not proof that every write will
+succeed. After it is enabled, check the required local paths, npm cache,
+registry, endpoint, and Host capabilities once before installation begins. If
+any required capability is unavailable, report that installation is blocked and
+stop without running another command.
 
-For the `npx` stage, inspect the configured cache before running the command:
+For the `npx` stage, inspect the configured cache:
 
 ```sh
 npm_cache="$(npm config get cache)"
@@ -34,36 +44,13 @@ test -d "$npm_cache" && test -w "$npm_cache"
 ```
 
 If the configured cache is unavailable or not writable, use a new cache owned
-by the current user for this installation instead of changing ownership of a
-whole home directory:
+by the current user for this installation:
 
 ```sh
 export NPM_CONFIG_CACHE="$(mktemp -d /tmp/springbrand-npm-cache.XXXXXX)"
 ```
 
-These checks are diagnostics, not permission grants. Treat the mode decision as
-an installation precondition. The user may choose one of two execution modes
-before installation begins:
-
-1. Switch the session to full access, re-check the mode, then execute the
-   planned commands directly.
-2. Keep the sandbox, and run every command through Codex's approval-aware
-   execution path with `ask approval` enabled. Codex, not the Agent's prose,
-   asks for permission before a protected filesystem write, package download,
-   or network call; the command must not start until that approval is granted.
-
-Do not replace the second mode with an Agent-authored approval question, and do
-not retry after a predictable permission failure. A permission grant does not
-guarantee that the operating system will allow the requested write.
-
 After each operation, read its result before beginning the next operation.
-
-Use this explanation when requesting approval:
-
-> SpringBrand installation modifies your local Agent configuration and may install or update its Plugin and Skills. It also needs network access to download the CLI and verify the SpringBrand MCP endpoint. Please authorize the required local and network capabilities using the selected execution mode before installation continues.
-
-If the user cannot grant the required access, report that installation is
-blocked and stop without claiming success.
 
 ## Installation preconditions
 
@@ -120,10 +107,9 @@ Do not invent a login command.
 Do not read another installation guide.
 Do not run a business operation as an installation check.
 
-0. Follow the execution mode selected in **Required environment
-   authorization**. Before every operation, re-check the capabilities required
-   by that operation and use the corresponding executor path. The operation
-   must not start until any required Codex approval has been granted.
+0. Confirm that full access was verified in **Required environment
+   authorization**. If it was not verified, stop before running any operation
+   and ask the user to switch to full access.
 
 1. Identify exactly one supported Host integration and select its client ID.
    The selected client is the only client in scope for this run:
