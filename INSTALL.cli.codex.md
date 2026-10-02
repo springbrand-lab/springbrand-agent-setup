@@ -6,6 +6,25 @@ Configure only the target named in the user's Prompt. Do not detect, configure, 
 
 CLI channel: `@springbrand/cli@latest`.
 
+## Required environment authorization
+
+Before installation begins, choose one execution mode and use it for every
+operation:
+
+1. Switch the session to full access, re-check the mode, then execute planned
+   commands directly.
+2. Keep the sandbox, and run every command through Codex's approval-aware
+   execution path with `ask approval` enabled. Codex asks for permission before
+   a protected filesystem write, package download, or network call; the command
+   must not start until that approval is granted.
+
+Before each operation, inspect the selected mode and confirm the Host
+configuration directories, npm cache, npm registry, and SpringBrand endpoint
+capabilities required by that operation. Do not replace the sandbox executor's
+approval prompt with an Agent-authored question, and do not run a command first
+and ask about a permission failure afterward.
+
+
 ## Target selection
 
 Select exactly one target before running a command:
@@ -20,7 +39,7 @@ The current Agent surface and installation target are separate. Never infer the 
 
 Do not run `connect` without the selected client ID. Do not run `connect --all`, `auth login`, a business operation, or a second installation command. Do not switch clients or environments. An authentication-mode switch is allowed only when the user explicitly chooses the compatible OAuth fallback described below.
 
-Before each external operation, confirm that the selected Host can write its local configuration, that the npm cache is writable, and that the npm registry and SpringBrand endpoint are reachable. If the current Agent is restricted, ask the user to switch to full-access or unrestricted execution before continuing. For a non-writable cache, use a user-owned temporary cache; do not change ownership of a home directory.
+Before each external operation, follow the selected execution mode and confirm that the required Host configuration, npm cache, registry, and endpoint capabilities are available. For a non-writable cache, use a user-owned temporary cache; do not change ownership of a home directory.
 
 The normal entry point is the logged-in installation guide, whose Prompt includes an API key. Treat a supplied API key as the preferred authentication mode and run exactly one API-key command; do not start OAuth first. If the Prompt has no key, use native OAuth. Keep the key out of output, logs, and reports:
 
