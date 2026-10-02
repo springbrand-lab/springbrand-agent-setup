@@ -4,7 +4,7 @@ Before any command, read and follow [the production installation protocol](./INS
 
 Configure only the target named in the user's Prompt. Do not detect, configure, update, or remove the other target or any unrelated client. Preserve every unrelated configuration and existing MCP entry.
 
-CLI release: `@springbrand/cli@0.1.5-alpha.1`.
+CLI channel: `@springbrand/cli@latest`.
 
 ## Target selection
 
@@ -26,10 +26,10 @@ The normal entry point is the logged-in installation guide, whose Prompt include
 
 ```sh
 # No API key: start the selected Host's native OAuth flow.
-npx -y @springbrand/cli@0.1.5-alpha.1 connect codex --url https://connector.springbrand.ai/mcp --json
+npx -y @springbrand/cli@latest connect codex --url https://connector.springbrand.ai/mcp --json
 
 # API key supplied: validate it without starting OAuth.
-npx -y @springbrand/cli@0.1.5-alpha.1 connect codex --url https://connector.springbrand.ai/mcp --api-key {{INSTALL_KEY}} --json
+npx -y @springbrand/cli@latest connect codex --url https://connector.springbrand.ai/mcp --api-key {{INSTALL_KEY}} --json
 ```
 
 When `{{INSTALL_KEY}}` is present, use the exact supplied value through the Host's secure credential flow; never print, log, repeat, or include it in a report. When it is absent, omit `--api-key` and use the native OAuth command.
@@ -60,7 +60,7 @@ If the action says that registration or login is required, ask the user to regis
 After OAuth succeeds, immediately run the same package's one continuation; do not end the task or report authentication success between these steps:
 
 ```sh
-npx -y @springbrand/cli@0.1.5-alpha.1 doctor --harness codex --url https://connector.springbrand.ai/mcp --json --wait-for-auth
+npx -y @springbrand/cli@latest doctor --harness codex --url https://connector.springbrand.ai/mcp --json --wait-for-auth
 ```
 
 For an API-key installation, run the same command without `--wait-for-auth` exactly once. The continuation is the only continuation command. An OAuth wait may poll up to 300 seconds at 3-second intervals. If it times out, report incomplete authentication, ask the user to register or sign in, then repeat the same OAuth action and one doctor continuation only after confirmation.

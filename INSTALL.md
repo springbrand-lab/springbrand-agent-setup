@@ -1,6 +1,6 @@
 # SpringBrand production CLI installation protocol
 
-CLI release: `@springbrand/cli@0.1.5-alpha.1`.
+CLI channel: `@springbrand/cli@latest`.
 
 ## Installation preconditions
 
@@ -36,10 +36,10 @@ the numbered CLI workflow; use the Other Agent workflow below.
 
 ```sh
 # No API key: the CLI starts the selected Host's native OAuth flow.
-npx -y @springbrand/cli@0.1.5-alpha.1 connect <client> --url https://connector.springbrand.ai/mcp --json
+npx -y @springbrand/cli@latest connect <client> --url https://connector.springbrand.ai/mcp --json
 
 # API key supplied: the CLI validates this key and does not start OAuth.
-npx -y @springbrand/cli@0.1.5-alpha.1 connect <client> --url https://connector.springbrand.ai/mcp --api-key <key> --json
+npx -y @springbrand/cli@latest connect <client> --url https://connector.springbrand.ai/mcp --api-key <key> --json
 ```
 
    Keep the key out of commands, output, logs and reports.
