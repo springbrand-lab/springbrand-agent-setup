@@ -24,9 +24,9 @@ Explain what full access enables before asking the user to switch:
 - writing the selected Host's MCP, Plugin, and Skill configuration, including
   paths such as `~/.codex`, `~/.agents/plugins`, `~/.springbrand`, and the
   user's shell profile when API-key authentication is selected;
-- downloading the CLI through the npm registry and using a user-owned npm
-  cache;
-- executing `npx` and the selected Host integration or CLI;
+- installing the CLI globally through the npm registry and using a user-owned
+  npm cache;
+- executing `npm`, `sp`, and the selected Host integration or CLI;
 - reaching the SpringBrand MCP endpoint and the applicable RApp for account or
   OAuth setup.
 
@@ -36,53 +36,45 @@ registry, endpoint, and Host capabilities once before installation begins. If
 any required capability is unavailable, report that installation is blocked and
 stop without running another command.
 
-For the `npx` stage, inspect the configured cache:
-
-```sh
-npm_cache="$(npm config get cache)"
-test -d "$npm_cache" && test -w "$npm_cache"
-```
-
-If the configured cache is unavailable or not writable, use a new cache owned
-by the current user for this installation:
-
-```sh
-export NPM_CONFIG_CACHE="$(mktemp -d /tmp/springbrand-npm-cache.XXXXXX)"
-```
-
-After each operation, read its result before beginning the next operation.
-
 ## Installation preconditions
 
 The following are installation preconditions. They are not optional hints, and
 approval for the Agent session does not prove that every precondition is met:
 
 - the selected Host can read and write its local MCP and Plugin/Skill configuration;
-- the npm cache used by `npx` is writable by the current user;
+- the npm cache and global installation location are writable by the current user;
 - the npm registry and `https://devconnector.springbrand.ai/mcp` are reachable;
 - the selected Host integration or CLI can execute;
-- the user is registered or signed in to the development RApp at
-  `https://devrapp.springbrand.ai/` (new users must register; existing users
-  must log in before continuing);
-- for OAuth, the selected Host has completed native OAuth for the
-  `springbrand-dev` MCP entry and the development account is authorized;
-- for an API key, the supplied development key is valid and accepted by the
-  endpoint. If a key is needed, the user must create or copy it from the
-  development RApp before providing it through the Host's secure credential
-  flow.
+
+Account and authentication requirements are handled from step 3 onward; they
+are not prerequisites for installing the CLI in step 2. Connection requires a
+development SpringBrand account and either an accepted development API key or
+completed native OAuth for the `springbrand-dev` MCP entry.
 
 Changing the Agent's approval mode only changes whether the Agent may attempt
 an operation. It does not complete OAuth, log the development account in, or
 make an unauthorized MCP session authorized.
 
-Whenever `connect` or its continuation is blocked, fails, times out, or returns
-anything other than `verified`/`ready: true`, the response must explicitly say
-that installation is incomplete or failed and include all of the following:
+## CLI result
 
-1. the observed `outcome`, `failed_phase`, and authentication/health status;
-2. the relevant precondition(s) from this section, marked as `met`, `unmet`,
-   `pending`, or `not verified` based only on the command output;
-3. the exact `nextAction`/`next_action` returned by the CLI, if present.
+`connect --json` and `doctor --json` return installation report schema version 2:
+
+| Field | Meaning |
+| --- | --- |
+| `schema_version` | Report format version: `2`. |
+| `status` | `ready`: CLI installation checks passed; `pending`: an action or verification remains; `failed`: an explicit error occurred. |
+| `message` | A short explanation for the Agent; do not match this text to decide the workflow. |
+| `steps.cli` | Whether the CLI can run. |
+| `steps.mcp` | MCP configuration, authentication and connection readiness. |
+| `next_action` | One action with `actor` (`agent` or `user`) and `instruction`; `null` when ready. |
+| `error_code` | Optional stable failure code. |
+| `diagnostics` | Additional evidence included only with `--verbose`. |
+
+Use `status`, `error_code` and `next_action` to interpret the result. Pending
+is not failure. When reporting a blocker, include the observed status, concise
+reason and returned next action without exposing credentials. Do not require
+legacy fields such as `outcome`, `failed_phase`, `ready` or `nextAction` in the
+default report.
 
 Do not infer a cause that the result does not establish. If the CLI does not
 return a precondition status, say that the relevant precondition is **not
@@ -118,223 +110,127 @@ Do not run a business operation as an installation check.
    - ChatGPT desktop app — Codex view: `codex`
    - ChatGPT desktop app — Work Local; target Codex Local: `codex`
    - ChatGPT desktop app — Work view; target Work: use the Other Agent workflow below.
+   - Claude Code or Claude Desktop Code tab: `claude-code`
+   - WorkBuddy: `workbuddy-ai`
+   - Cursor: `cursor`
+   - OpenCode: `opencode`
+   - Pi: `pi`
+   - Any other Agent: use the Other Agent workflow below.
 
    The current Agent surface and the installation target are separate. If the
    current surface is Work Local and the target is Codex Local, select `codex`
    and continue this numbered CLI workflow. If the target is Work itself, do not
    enter the numbered CLI workflow; use the Other Agent workflow below.
 
-2. Set `auth_mode` from the user's Prompt and select exactly one command.
-   Never print, log, repeat, or include the key in a report.
+2. Install the alpha CLI, then verify that the installed command runs. Execute
+   these commands separately and check each result before continuing:
 
    ```sh
-   # No key: the CLI starts the selected Host's native OAuth flow.
-   npx -y @springbrand/cli@alpha connect <client> --url https://devconnector.springbrand.ai/mcp --json
-
-   # Key supplied: the CLI validates this key and does not start OAuth.
-   npx -y @springbrand/cli@alpha connect <client> --url https://devconnector.springbrand.ai/mcp --api-key <key> --json
+   npm install -g @springbrand/cli@alpha
+   sp --version
    ```
 
-   `npx` executes the latest package published under the `alpha` channel for
-   this run.
+   Continue only after npm succeeds and `sp --version` reports an alpha
+   version.
 
-3. Re-check the network, npm cache, and Host capabilities, then run exactly one
-   selected command. Use this control flow as the normative procedure:
+3. Connect SpringBrand to the selected client.
 
-   ```text
-   result = RUN selected_connect_command()
+   ### 3.1 Select authentication and run connect
 
-   IF result.outcome == "verified":
-       IF auth_mode == "api-key":
-           GOTO AUTH_CONTINUATION
-       GOTO VERIFY_RESULT
+   If the user's prompt includes an API key, run:
 
-   IF result.outcome == "auth_pending":
-       IF auth_mode == "api-key":
-           GOTO API_KEY_VALIDATION_FAILURE
-       GOTO OAUTH_ACTION
-
-   IF result.outcome == "needs_reload":
-       IF result.auth.status == "verified" AND result.health.status == "verified":
-           NEXT TOOL CALL MUST be the API-key doctor continuation below.
-           Do not execute result.nextAction, pause for restart, or send a
-           user-facing final response before that doctor call returns.
-           GOTO AUTH_CONTINUATION
-       IF auth_mode == "api-key":
-           GOTO API_KEY_VALIDATION_FAILURE
-       REPORT installation incomplete/failed, result.failed_phase,
-              the relevant installation preconditions, and result.nextAction
-       STOP without claiming success
-
-   IF result.error.code == "invalid_config" OR result.failed_phase IN
-      {"host_configuration", "cli_install", "skill_install"}:
-       REPORT that installation is blocked by Host/configuration permissions,
-       include the exact blocked capability and nextAction when present, and
-       stop. Resume only after the selected execution mode provides the
-       capability and the same command can be run through its required
-       executor path. Do not have the Agent ask for approval in prose.
-       STOP without asking for a different API key or switching auth modes.
-
-   OTHERWISE:
-       IF auth_mode == "api-key":
-           GOTO API_KEY_VALIDATION_FAILURE
-       REPORT installation incomplete/failed, result.failed_phase,
-              the relevant installation preconditions, and result.nextAction
-       STOP without claiming success
+   ```sh
+   sp connect <client> --url https://devconnector.springbrand.ai/mcp --api-key <key> --json
    ```
 
-   For an API-key install, `verified` from `connect` means the key was written;
-   it still requires the one API-key continuation below to verify the persisted
-   credential and MCP health. Do not start OAuth automatically.
+   Otherwise, ask the user to obtain an API key from the development RApp
+   or continue with OAuth. A development SpringBrand account is required. If the user does not have
+   one, ask them to register at https://devrapp.springbrand.ai/.
+   Once they provide a key, run the command above.
+   If they choose OAuth, run:
 
-   If API-key validation fails, report that the entered API key is incorrect or
-   not accepted, without exposing it. Ask the user to confirm or re-enter the
-   key and then continue with the same API-key install, or explicitly choose
-   OAuth and continue with the OAuth branch. Wait for that choice before
-   running another command.
-
-   Do not switch clients or environments, and do not retry an API key without
-   the user's confirmation.
-
-4. `OAUTH_ACTION`: read only `nextAction` (or `next_action`), re-check its
-   required capabilities, execute it exactly as written, and wait for the
-   process to finish. For Codex, let Codex open its native system browser and
-   let the user complete authorization there. Never copy the printed URL into
-   another browser or use Computer Use/Cua for OAuth.
-
-   The Host OAuth action is not a JSON protocol and does not return another
-   `nextAction`. Use only its process exit status and final output to decide
-   whether this action completed.
-
-   ```text
-   IF exit_code == 0 AND output contains "Successfully logged in":
-       NEXT TOOL CALL MUST be doctor --wait-for-auth
-       GOTO AUTH_CONTINUATION
-
-   IF action indicates registration_or_login_required:
-       ASK user to register or log in
-       WAIT for user confirmation
-       RUN the same OAuth action again
-       GOTO AUTH_CONTINUATION
-
-   IF action indicates reload_required:
-       REPORT the exact reload/new-session action
-       WAIT for the user to complete it
-       STOP
-
-   OTHERWISE:
-       REPORT the incomplete OAuth state and nextAction
-       STOP
+   ```sh
+   sp connect <client> --url https://devconnector.springbrand.ai/mcp --json
    ```
 
-   A successful OAuth action completes `OAUTH_ACTION` but not the installation.
-   The next interaction must be `AUTH_CONTINUATION`; send no user-facing
-   confirmation message between these two states.
+   Keep the selected authentication mode as `auth_mode` for the following
+   steps. Never include the API key in reports.
 
-5. `AUTH_CONTINUATION`: choose the continuation by `auth_mode`. This step is
-   mandatory after a successful OAuth action, after an API-key `connect` returns
-   `verified`, and after a `needs_reload` result whose authentication and health
-   statuses are both `verified`. For the latter case, the doctor call must be
-   the next tool call; the connect result's restart `nextAction` is deferred
-   until doctor reports `restart_required`.
+   ### 3.2 Read the connection result
 
-   - For OAuth, immediately after the action succeeds, run the following command
-     in the same turn. It waits up to 5 minutes and checks every 3 seconds:
+   Run the selected command once. Read its JSON report and handle `status`:
 
-     ```sh
-     npx -y @springbrand/cli@alpha doctor --harness <client> --url https://devconnector.springbrand.ai/mcp --json --wait-for-auth
-     ```
+   - `ready`: CLI checks passed. Continue to the completion report in section 3.5.
+   - `pending`: follow `next_action.instruction`, except for session-only
+     verification after configuration and authentication are confirmed below.
+     If `next_action.actor` is `agent`, continue in the same turn; if it is
+     `user`, present the action and wait for completion.
+   - `failed`: report the concise reason and `error_code`, if present, then
+     follow the returned recovery action. Ask for user input only when that
+     action requires it.
 
-   - For an API-key install, run the same command without `--wait-for-auth`.
-     This is the post-write validation and must run exactly once; do not
-     execute an OAuth action or wait:
+   Exit code `4` means pending, not failure; read the JSON even when the
+   command exits nonzero. Do not repeat connect merely because it is pending.
 
-     ```sh
-     npx -y @springbrand/cli@alpha doctor --harness <client> --url https://devconnector.springbrand.ai/mcp --json
-     ```
+   ### 3.3 Run OAuth and wait for authorization
 
-   ```text
-   IF auth_mode == "oauth":
-       RUN doctor --wait-for-auth exactly once
-       WAIT up to 300 seconds
-       POLL every 3 seconds
+   For an agent-owned native OAuth action, run the returned login command
+   once and retain the connect report's `continuation`.
 
-   IF auth_mode == "api-key":
-       RUN doctor without --wait-for-auth exactly once
+   Keep the current agent turn active while the native OAuth process runs.
+   When the execution tool returns a running session/job ID, retain it and
+   use that tool's wait/poll operation on the same process until it exits.
+   Use bounded waits and brief progress updates while the user authorizes in
+   the browser. A tool yielding control or printing an authorization URL is
+   not an OAuth timeout and does not require a user reply. Do not send a
+   final answer asking the user to say "done" or "authorization complete"
+   while the process is running.
 
-   IF API-key doctor validation fails:
-       GOTO API_KEY_VALIDATION_FAILURE
+   Exit code `0` with `Successfully logged in` confirms OAuth authorization.
+   Immediately continue verification in the same turn; no additional user
+   confirmation is needed. Only pause for cancellation, an actual process
+   timeout/failure, or an explicit request for information the agent lacks.
+   Report the observed state and keep the selected Host and environment.
 
-   IF OAuth wait times out:
-       REPORT incomplete authentication
-       ASK user to register or log in
-       WAIT for confirmation
-       RUN the same OAuth action
-       RUN doctor --wait-for-auth exactly once
+   ### 3.4 Automatically run doctor after OAuth succeeds
+
+   On OAuth success, immediately run the returned `continuation` once. If an
+   older CLI omits it, use:
+
+   ```sh
+   sp doctor --harness <client> --json --url https://devconnector.springbrand.ai/mcp
    ```
 
-   The doctor command is the only continuation. Do not run a second doctor
-   command after it succeeds.
-   If `connect` was run through `npx`, use the same
-   `@springbrand/cli@alpha` package for doctor instead of an older global `sp`.
+   ### 3.5 Confirm configuration and authorization
 
-   `API_KEY_VALIDATION_FAILURE` applies only when the CLI explicitly reports
-   rejected, invalid, expired, revoked, or otherwise unaccepted API-key
-   authentication. Report the observed `outcome`, `failed_phase`, auth/health
-   status, and exact `nextAction` without exposing the key. Ask the user to
-   confirm/re-enter the key or explicitly choose OAuth, and wait before running
-   another command. Configuration, permission, CLI-install, and Skill-install
-   errors must use the environment-blocked path above instead.
+   Confirm that the continuation preserves the selected client and development
+   URL. Read its JSON even on exit code `4`. If configuration is confirmed,
+   the MCP entry and URL match the selected environment, and `auth.status`
+   is `verified`, authorization has succeeded.
 
-6. `FINAL_STATUS_REPORT`: immediately produce one structured status report
-   after the doctor continuation; do not end with only a prose restart prompt.
+   Finally, output the installation report using each item below:
+   - Entry: `springbrand-dev`.
+   - URL: `https://devconnector.springbrand.ai/mcp`; native Streamable HTTP transport.
+   - Installation/configuration and authorization: complete when confirmed above.
+   - MCP tool access: report it will be available to check/use in the new session.
+   - Existing configuration and unrelated clients: unchanged, only if verified.
+   - Next action: restart the Host and open a new conversation to begin using
+     SpringBrand Dev. End this installation conversation after the report;
+     no restart confirmation or return here for another check is required.
 
-   - If `ready: true`, output the completion report below and ask what the user
-     would like to build first.
-   - If `ready: false` and the checks show authentication, MCP health, identity,
-     and configuration are verified while
-     `hosts[].restart_required.required: true`, output a pending report stating
-     that installation is configured, list the exact restart/reload and new
-     session action, and ask the user to confirm when it is complete. Do not
-     claim final installation success. After confirmation, run doctor again and
-     return to this same status-report step; only `ready: true` may produce the
-     completion report.
-   - For `auth_pending`, failed checks, unsupported targets, or unverified
-     credentials, output the incomplete/failed status, exact `nextAction`, and
-     required user action. Do not output the completion report. A missing
-     precondition status is `not verified`; it is not evidence that approval
-     mode caused the failure.
-
-## Completion report
-
-Report only verified facts:
-
-- Entry: `springbrand-dev`.
-- URL: `https://devconnector.springbrand.ai/mcp`; native Streamable HTTP transport.
-- Development identity, authentication and configured MCP health: verified.
-- Existing configuration and unrelated clients: unchanged.
-- Host restart/reload and a new session: completed before this completion report.
-
-Do not claim a Skill or business operation was verified unless the result says
-so. Then ask the user what they would like to build first.
-Close the report with a one-sentence capability note: SpringBrand Dev gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub. Then ask the user what they would like to build first.
 
 ## Other Agent workflow
 
-Use this section only when the installation target is ChatGPT desktop Work view.
-This is a separate remote/plugin branch, not a continuation of the numbered
-`connect`/`doctor` workflow.
+For other Agents or Hosts that cannot run the local CLI, connect directly to
+`https://devconnector.springbrand.ai/mcp` using the Host's remote MCP settings.
+Use `springbrand-dev` as the entry name where supported. No CLI or Plugin
+installation is required.
 
-For ChatGPT desktop Work view as the installation target, do not run `sp connect`
-or `connect codex`; those commands configure Codex Local, not Work. Install the
-SpringBrand Dev Plugin from the desktop Plugins tab and connect its remote MCP
-server when prompted. Verify the actual Work-visible Plugin identity, MCP URL,
-authentication, and health status.
+If the user supplied an API key, configure it as a Bearer credential. Otherwise,
+ask them to obtain a key from https://devrapp.springbrand.ai/ or choose native
+OAuth. New users must register there first. Complete authentication through
+the Host's supported flow without including credentials in reports.
 
-Use either native MCP OAuth or the user-provided development API key. If the
-API-key validation fails, tell the user the entered key is incorrect or not
-accepted, then wait for the user to confirm a corrected key or choose OAuth.
-Do not use Browser, Computer Use, or Cua to simulate a configuration UI or OAuth
-consent. Report the actual MCP, authentication, identity, and health status;
-do not claim a Skill or business operation was verified unless the result says
-so.
+Send an authenticated `tools/list` request. A successful response containing
+SpringBrand tools confirms completion. If the Host cannot configure or verify
+the connection, report the limitation and the next action.
