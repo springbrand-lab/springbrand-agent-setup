@@ -1,34 +1,227 @@
-# SpringBrand WorkBuddy single-client CLI installation
+# SpringBrand production CLI installation protocol
 
-Before any command, read and follow [the initial installation response](./INSTALL.md#initial-installation-response). Determine whether this is a first installation or an update, and keep that classification for the whole conversation.
+CLI channel: `@springbrand/cli@latest`.
+Production identity: entry `springbrand`, endpoint
+`https://connector.springbrand.ai/mcp`.
 
-This document configures **WorkBuddy only**. Do not detect, configure, update, or remove any other client. Preserve every unrelated configuration and existing MCP entry.
+## Required environment authorization
 
-## Preferred CLI installation
+This installation changes the selected Host's local MCP, Plugin, and Skill
+configuration and requires outbound network access.
 
-After any required API-key preparation, run exactly one connect command. Do not run `--help`, `doctor`, an all-client command, or a second connect command first.
+WorkBuddy's default permission mode stops at
+high-risk operations and asks the user to confirm each one; that confirmation
+path is the intended way to run this installation.
 
-```sh
-npx -y @springbrand/cli@latest connect workbuddy-ai --url https://connector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}
-```
+The user will see confirmation prompts for expected operations, including:
 
-The Agent must never print, log, repeat, or include the key in a report. Choose exactly one branch:
+- installing the CLI globally through the npm registry and using a user-owned
+  npm cache;
+- writing the WorkBuddy MCP configuration at `~/.workbuddy-ai/mcp.json` and the
+  Skill files under `~/.workbuddy-ai/skills`;
+- writing the CLI's own configuration at `~/.springbrand/config.json` and, when
+  API-key authentication is selected, a managed `SPRINGBRAND_API_KEY` block in
+  the user's shell profile;
+- executing `npm`, `sp`, and the WorkBuddy integration or CLI;
+- reaching the SpringBrand MCP endpoint and the applicable RApp for account or
+  OAuth setup.
 
-- **Key supplied:** run the command above with `--api-key {{INSTALL_KEY}}`.
-- **No key supplied:** do not run the CLI yet. Show or open `https://rapp.springbrand.ai/account-settings?section=mcp-api-keys`. Ask the user to register or sign in, create or copy the key, and provide it through the secure input channel. Wait for the key. After the user provides it, run the command above with `--api-key {INSTALL_KEY}`. Do not print, log, repeat, or include the key in the report.
-- **OAuth fallback:** only after the user cannot use an API key or explicitly chooses OAuth after a failed key attempt, run the native OAuth flow with `npx -y @springbrand/cli@latest connect workbuddy-ai --url https://connector.springbrand.ai/mcp` without `--api-key`. Do not run `auth login` in this branch.
 
-Do not silently switch to another client or another environment.
+## Installation preconditions
 
-WorkBuddy currently requires the user to trust a newly installed MCP entry. After the command runs, tell the user that WorkBuddy will show an MCP trust prompt and guide them through approving the `springbrand` entry before continuing. Do not report success until the user has confirmed this trust step.
+The following are installation preconditions. They are not optional hints, and
+approving the session's confirmation prompts does not prove that every
+precondition is met:
 
-If the command reports an invalid, expired, revoked, wrong-environment, or insufficient-scope key, stop and report only that stable failure category. Do not rerun the command with the same key. If the command reports an authentication or MCP authorization failure after accepting the key, stop and report the stable failure category. Retry without `--api-key` only after the user explicitly chooses the OAuth fallback. Never blind-retry.
+- the selected Host can read and write its local MCP and Plugin/Skill configuration;
+- the npm cache and global installation location are writable by the current user;
+- the npm registry and `https://connector.springbrand.ai/mcp` are reachable;
+- the selected Host integration or CLI can execute;
 
-## Required verification
+Account and authentication requirements are handled from step 3 onward; they
+are not prerequisites for installing the CLI in step 2. Connection requires a
+production SpringBrand account and either an accepted production API key or
+completed native OAuth for the `springbrand` MCP entry.
 
-After the command completes, report the actual status without revealing credentials. Verify that the configured MCP entry is named `springbrand`, the URL is exactly `https://connector.springbrand.ai/mcp`, the client identity matches production, the configured MCP health check passes, and every other client and unrelated configuration remains unchanged.
 
-If the client requires a restart, reload, or new session, report that requirement and stop. Do not claim installation success until the identity and health checks pass. Do not run capability discovery or a business operation as a substitute for installation verification.
+## CLI result
 
-If the CLI cannot install this client, report the failed phase and continue only with the matching host-specific fallback in [INSTALL.md](./INSTALL.md). Keep the single-client scope when using that fallback.
-Close your report with a one-sentence capability note: SpringBrand gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub. Then ask the user what they would like to build first.
+`connect --json` and `doctor --json` return installation report schema version 2:
+
+| Field | Meaning |
+| --- | --- |
+| `schema_version` | Report format version: `2`. |
+| `status` | `ready`: CLI installation checks passed; `pending`: an action or verification remains; `failed`: an explicit error occurred. |
+| `message` | A short explanation for the Agent; do not match this text to decide the workflow. |
+| `steps.cli` | Whether the CLI can run. |
+| `steps.mcp` | MCP configuration, authentication and connection readiness. |
+| `next_action` | One action with `actor` (`agent` or `user`) and `instruction`; `null` when ready. |
+| `error_code` | Optional stable failure code. |
+| `diagnostics` | Additional evidence included only with `--verbose`. |
+
+Use `status`, `error_code` and `next_action` to interpret the result. Pending
+is not failure. When reporting a blocker, include the observed status, concise
+reason and returned next action without exposing credentials. Do not require
+legacy fields such as `outcome`, `failed_phase`, `ready` or `nextAction` in the
+default report.
+
+Do not infer a cause that the result does not establish. If the CLI does not
+return a precondition status, say that the relevant precondition is **not
+verified** and ask the user to check or complete it. In particular, an
+unauthorized MCP response must be reported as an unmet or pending OAuth/API-key
+precondition; do not describe it as an approval-mode block unless the command
+explicitly reports an approval denial.
+
+## Install workflow
+
+Do not infer a client.
+Do not run `connect` without a client.
+Do not run `connect --all`.
+Do not retry with another client.
+Do not open an OAuth URL yourself.
+Do not use browser, Computer Use, or Cua automation for OAuth.
+Do not start a parallel or duplicate OAuth session. Re-run the same OAuth
+action only after the previous action has exited and the user confirms that
+registration or login is complete.
+Do not run `auth login`.
+Do not invent a login command.
+Do not read another installation guide.
+Do not run a business operation as an installation check.
+
+1. Identify exactly one supported Host integration and select its client ID.
+   The selected client is the only client in scope for this run:
+
+   - Codex CLI: `codex`
+   - ChatGPT desktop app — Codex view: `codex`
+   - ChatGPT desktop app — Work Local; target Codex Local: `codex`
+   - ChatGPT desktop app — Work view; target Work: use the Other Agent workflow below.
+   - Claude Code or Claude Desktop Code tab: `claude-code`
+   - WorkBuddy: `workbuddy-ai`
+   - Cursor: `cursor`
+   - OpenCode: `opencode`
+   - Pi: `pi`
+   - Any other Agent: use the Other Agent workflow below.
+
+   The current Agent surface and the installation target are separate. If the
+   current surface is Work Local and the target is Codex Local, select `codex`
+   and continue this numbered CLI workflow. If the target is Work itself, do not
+   enter the numbered CLI workflow; use the Other Agent workflow below.
+
+2. Install the latest CLI, then verify that the installed command runs. Execute
+   these commands separately and check each result before continuing:
+
+   ```sh
+   npm install -g @springbrand/cli@latest
+   sp --version
+   ```
+
+   Continue only after npm succeeds and `sp --version` runs successfully.
+
+3. Connect SpringBrand to the selected client.
+
+   ### 3.1 Select authentication and run connect
+
+   If the user's prompt includes an API key, run:
+
+   ```sh
+   sp connect <client> --url https://connector.springbrand.ai/mcp --api-key <key> --json
+   ```
+
+   Otherwise, ask the user to obtain an API key from the production RApp
+   or continue with OAuth. A production SpringBrand account is required. If the user does not have
+   one, ask them to register at https://rapp.springbrand.ai/.
+   Once they provide a key, run the command above.
+   If they choose OAuth, run:
+
+   ```sh
+   sp connect <client> --url https://connector.springbrand.ai/mcp --json
+   ```
+
+   Keep the selected authentication mode as `auth_mode` for the following
+   steps. Never include the API key in reports.
+
+   ### 3.2 Read the connection result
+
+   Run the selected command once. Read its JSON report and handle `status`:
+
+   - `ready`: CLI checks passed. Continue to the completion report in section 3.5.
+   - `pending`: follow `next_action.instruction`, except for session-only
+     verification after configuration and authentication are confirmed below.
+     If `next_action.actor` is `agent`, continue in the same turn; if it is
+     `user`, present the action and wait for completion.
+   - `failed`: report the concise reason and `error_code`, if present, then
+     follow the returned recovery action. Ask for user input only when that
+     action requires it.
+
+   Exit code `4` means pending, not failure; read the JSON even when the
+   command exits nonzero. Do not repeat connect merely because it is pending.
+
+   ### 3.3 Run OAuth and wait for authorization
+
+   For an agent-owned native OAuth action, run the returned login command
+   once and retain the connect report's `continuation`.
+
+   Keep the current agent turn active while the native OAuth process runs.
+   When the execution tool returns a running session/job ID, retain it and
+   use that tool's wait/poll operation on the same process until it exits.
+   Use bounded waits and brief progress updates while the user authorizes in
+   the browser. A tool yielding control or printing an authorization URL is
+   not an OAuth timeout and does not require a user reply. Do not send a
+   final answer asking the user to say "done" or "authorization complete"
+   while the process is running.
+
+   Exit code `0` with `Successfully logged in` confirms OAuth authorization.
+   Immediately continue verification in the same turn; no additional user
+   confirmation is needed. Only pause for cancellation, an actual process
+   timeout/failure, or an explicit request for information the agent lacks.
+   Report the observed state and keep the selected Host and environment.
+
+   ### 3.4 Automatically run doctor after OAuth succeeds
+
+   On OAuth success, immediately run the returned `continuation` once. If an
+   older CLI omits it, use:
+
+   ```sh
+   sp doctor --harness <client> --json --url https://connector.springbrand.ai/mcp
+   ```
+
+   ### 3.5 Confirm configuration and authorization
+
+   Confirm that the continuation preserves the selected client and production
+   URL. Read its JSON even on exit code `4`. If configuration is confirmed,
+   the MCP entry and URL match the selected environment, and `auth.status`
+   is `verified`, authorization has succeeded.
+
+   Finally, output the installation report using each item below:
+   - Entry: `springbrand`.
+   - URL: `https://connector.springbrand.ai/mcp`; native Streamable HTTP transport.
+   - Installation/configuration and authorization: complete when confirmed above.
+   - Trust step: WorkBuddy requires the user to trust a newly installed MCP
+     entry; tell the user to approve the `springbrand` trust prompt when
+     WorkBuddy shows it.
+   - API-key storage: when API-key authentication was selected, disclose that
+     the key is stored in plaintext in `~/.workbuddy-ai/mcp.json`, in
+     `~/.springbrand/config.json`, and in a managed `SPRINGBRAND_API_KEY` block
+     in the user's shell profile; never include the key value.
+   - MCP tool access: report it will be available to check/use in the new session.
+   - Existing configuration and unrelated clients: unchanged, only if verified.
+   - Next action: restart the Host and open a new conversation to begin using
+     SpringBrand. End this installation conversation after the report;
+     no restart confirmation or return here for another check is required.
+
+
+## Other Agent workflow
+
+For other Agents or Hosts that cannot run the local CLI, connect directly to
+`https://connector.springbrand.ai/mcp` using the Host's remote MCP settings.
+Use `springbrand` as the entry name where supported. No CLI or Plugin
+installation is required.
+
+If the user supplied an API key, configure it as a Bearer credential. Otherwise,
+ask them to obtain a key from https://rapp.springbrand.ai/ or choose native
+OAuth. New users must register there first. Complete authentication through
+the Host's supported flow without including credentials in reports.
+
+Send an authenticated `tools/list` request. A successful response containing
+SpringBrand tools confirms completion. If the Host cannot configure or verify
+the connection, report the limitation and the next action.
