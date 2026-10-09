@@ -21,6 +21,9 @@ SPEC.loader.exec_module(VALIDATOR)
 def copy_package(destination: Path) -> None:
     for name in (
         "VERSION",
+        "plugin.json",
+        "mcp.json",
+        "agents",
         ".claude-plugin",
         ".codex-plugin",
         ".agents",
@@ -122,6 +125,29 @@ def main() -> None:
             lambda value: value["mcpServers"][ENTRY].update(url="https://example.com/mcp"),
         ),
         "must register exactly one MCP entry",
+    )
+    expect_failure(
+        lambda root: edit_json(
+            root / "plugin.json",
+            lambda value: value.update(name="wrong-name"),
+        ),
+        "Portable Plugin manifest name must be springbrand",
+    )
+    expect_failure(
+        lambda root: edit_json(
+            root / "mcp.json",
+            lambda value: value["mcpServers"][ENTRY].update(type="http"),
+        ),
+        "Portable MCP manifest must declare one streamable-http server",
+    )
+    expect_failure(
+        lambda root: (root / "agents/openai.yaml").write_text(
+            (root / "agents/openai.yaml").read_text().replace(
+                "https://connector.springbrand.ai/mcp",
+                "https://example.com/mcp",
+            )
+        ),
+        "Portable MCP dependency is missing",
     )
     expect_failure(
         lambda root: edit_json(

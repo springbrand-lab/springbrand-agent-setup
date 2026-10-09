@@ -10,6 +10,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 COPIED = (
     "VERSION",
+    "plugin.json",
+    "mcp.json",
+    "agents",
     ".agents",
     ".claude-plugin",
     ".codebuddy-plugin",
@@ -48,15 +51,19 @@ def main() -> None:
             for mirror in ("plugins/springbrand/skills", "plugins/springbrand-workbuddy/skills"):
                 assert (package / mirror / skill.parent.name / "SKILL.md").read_bytes() == skill.read_bytes()
 
-        for name in (".mcp.json", "plugins/springbrand/mcp.json"):
+        for name in (".mcp.json", "mcp.json", "plugins/springbrand/mcp.json"):
             servers = json.loads((package / name).read_text())["mcpServers"]
-            assert servers == {DEV_ENTRY: {"url": DEV_URL}}, servers
+            expected = {DEV_ENTRY: {"url": DEV_URL}}
+            if name == "mcp.json":
+                expected[DEV_ENTRY]["type"] = "streamable-http"
+            assert servers == expected, servers
 
         for name in (".claude-plugin/plugin.json", "plugins/springbrand-workbuddy/.mcp.json"):
             servers = json.loads((package / name).read_text())["mcpServers"]
             assert servers == {DEV_ENTRY: {"type": "http", "url": DEV_URL}}, servers
 
         for name in (
+            "plugin.json",
             ".codex-plugin/plugin.json",
             ".claude-plugin/plugin.json",
             "plugins/springbrand/.cursor-plugin/plugin.json",
@@ -68,6 +75,16 @@ def main() -> None:
             assert manifest["description"] == (
                 "Discover and use SpringBrand Plugins through the development connector. Internal testing only."
             ), manifest
+
+        portable = json.loads((package / "plugin.json").read_text())
+        assert portable["extensions"]["com.openai"]["interface"]["displayName"] == "SpringBrand Dev", portable
+        assert portable["extensions"]["com.openai"]["interface"]["defaultPrompt"] == [
+            "Find a SpringBrand Plugin using the development environment."
+        ], portable
+
+        dependency = (package / "agents/openai.yaml").read_text()
+        assert 'value: "springbrand-dev"' in dependency, dependency
+        assert f'url: "{DEV_URL}"' in dependency, dependency
 
         cursor_marketplace = json.loads((package / ".cursor-plugin/marketplace.json").read_text())
         assert cursor_marketplace["metadata"]["version"] == DEV_VERSION, cursor_marketplace

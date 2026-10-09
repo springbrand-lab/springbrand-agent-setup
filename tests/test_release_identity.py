@@ -20,6 +20,9 @@ DEV_MARKERS = ("springbrand-dev", "devconnector.springbrand.ai", "SpringBrand De
 
 # Every packaging manifest that ships to users from the production channel.
 PACKAGING_MANIFESTS = (
+    "plugin.json",
+    "mcp.json",
+    "agents/openai.yaml",
     ".mcp.json",
     "plugins/springbrand/mcp.json",
     "plugins/springbrand-workbuddy/.mcp.json",
@@ -37,8 +40,10 @@ PACKAGING_MANIFESTS = (
 )
 
 
-# Manifests that embed the MCP URL inline (others reference ./.mcp.json by path).
+# Manifests that embed the MCP URL inline (others reference a local MCP file by path).
 INLINE_MCP_MANIFESTS = (
+    "mcp.json",
+    "agents/openai.yaml",
     ".mcp.json",
     "plugins/springbrand/mcp.json",
     "plugins/springbrand-workbuddy/.mcp.json",
