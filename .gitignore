@@ -3,3 +3,6 @@ __pycache__/
 
 # Local publishing credentials (never commit)
 /.secrets/
+
+# Wrangler local dev state (Miniflare cache, local R2/KV/D1 simulation)
+/.wrangler/

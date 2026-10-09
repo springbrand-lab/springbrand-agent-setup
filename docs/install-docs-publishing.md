@@ -5,7 +5,8 @@
 Canonical documents remain in this repository. R2 holds byte-identical
 Distribution Mirrors, not separately maintained content. The publisher mirrors
 the unified entries plus one single-client document for Codex, Claude Code,
-Cursor, OpenCode, and WorkBuddy in both production and development variants,
+Claude, Cursor, OpenCode, and WorkBuddy in both production and development
+variants,
 along with generated `manifest.json` (commit SHA and SHA-256 hashes). The
 production and development installation instructions are published as separate
 objects; `INSTALL.md` is the production entry and `INSTALL.dev.md` is the test
