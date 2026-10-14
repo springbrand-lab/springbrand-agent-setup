@@ -4,45 +4,111 @@ CLI channel: `@springbrand/cli@alpha`.
 Development release identity: `v1.2.1-dev.2`; entry `springbrand-dev`, endpoint
 `https://devconnector.springbrand.ai/mcp`.
 
-## Required environment authorization
+## Initial installation response
 
-This installation changes the selected Host's local MCP, Plugin, and Skill
-configuration and requires outbound network access.
+First inspect the current execution mode and whether commands can reach the
+user's local machine. If the session is already in the Host's unrestricted mode
+(for example **Full access**) and is not sandbox-isolated, continue directly
+with the installation workflow below. Do not show the permission explanation
+or ask the user to choose a mode again.
 
-WorkBuddy's default permission mode stops at
-high-risk operations and asks the user to confirm each one; that confirmation
-path is the intended way to run this installation.
+If the session is restricted, sandbox-isolated, or the first installation probe
+is blocked, this is a mandatory user-choice gate. Stop before running any
+installation probe, package command, connect command, or retry. First show the
+user the following two options and the complete installation summary, then wait
+for the user's choice:
 
-The user will see confirmation prompts for expected operations, including:
+SpringBrand CLI installs on the user's local machine. The user can choose one
+of two options:
 
-- installing the CLI globally through the npm registry and using a user-owned
-  npm cache;
-- writing the WorkBuddy MCP configuration at `~/.workbuddy-ai/mcp.json` and the
-  Skill files under `~/.workbuddy-ai/skills`;
-- writing the CLI's own configuration at `~/.springbrand/config.json` and, when
-  API-key authentication is selected, a managed `SPRINGBRAND_API_KEY` block in
-  the user's shell profile;
-- executing `npm`, `sp`, and the WorkBuddy integration or CLI;
-- reaching the SpringBrand MCP endpoint and the applicable RApp for account or
-  OAuth setup.
+1. Run the exact commands in the user's local terminal and report each result.
+2. Switch to **Full access** so the Agent can continue the installation.
 
+The summary of installation will do the following:
+
+- install `@springbrand/cli@alpha` globally through the npm registry and use a
+  user-owned npm cache;
+- write only the selected Host's MCP, Plugin, and Skill configuration (for
+  example under `~/.codex`, `~/.agents/plugins`, or the Host's own config
+  directory);
+- write the CLI's local configuration under `~/.springbrand` and, when API-key
+  authentication is selected, the user's shell profile;
+- execute `npm`, `sp`, and the selected Host integration or CLI;
+- connect to the SpringBrand MCP server at
+  `https://devconnector.springbrand.ai/mcp`;
+- authenticate the MCP connection with an API key or browser-based OAuth.
+
+Do not present installation commands, ask for command output, run a probe, or
+continue to the install workflow until the user chooses one of these options.
+If the user chooses local execution, provide the exact command only after that
+choice and wait for the result. If the user chooses Full access, wait for the
+mode change and then re-check that the session is unrestricted before
+continuing.
+
+MCP connection and account authentication are separate from the local file
+changes, and require the user's development account plus either an API key or
+native OAuth.
+
+In restricted mode, report each requested operation using this summary before
+running it. If the user chooses to stay restricted, provide the exact command
+for the user to run locally and wait for its result before continuing. If the
+user denies a required write, package installation, command execution, or
+network request, report that exact blocked capability and stop; offer Full
+access as the faster recovery path.
 
 ## Installation preconditions
 
 The following are installation preconditions. They are not optional hints, and
-approving the session's confirmation prompts does not prove that every
-precondition is met:
+approval for the Agent session does not prove that every precondition is met:
 
 - the selected Host can read and write its local MCP and Plugin/Skill configuration;
 - the npm cache and global installation location are writable by the current user;
 - the npm registry and `https://devconnector.springbrand.ai/mcp` are reachable;
 - the selected Host integration or CLI can execute;
 
-Account and authentication requirements are handled from step 3 onward; they
-are not prerequisites for installing the CLI in step 2. Connection requires a
-development SpringBrand account and either an accepted development API key or
-completed native OAuth for the `springbrand-dev` MCP entry.
+## Execution boundary rule
 
+This rule applies to every command and interactive action in the installation
+workflow, including `npm install`, `sp --version`, `sp connect`, OAuth login,
+and `doctor`.
+
+If the Agent cannot execute an action because its sandbox or restricted
+execution environment cannot reach the user's machine, npm cache, global
+installation location, Host configuration, network, browser callback, or
+secret, stop retrying in that environment. Report the blocked capability and
+give the user the exact command or action to perform on their own machine. Wait
+for the user to report the result before continuing. Do not replace the action
+with a manual MCP edit, another client, another cache, or another auth command.
+
+For an error confirmed to come from the user's machine, follow the returned
+recovery action. Do not label an ordinary command error as a sandbox block
+without evidence; do not suggest changing cache ownership or using another
+cache unless the error is confirmed to be a real local permission problem.
+
+Account and authentication requirements are handled from step 3 onward; they
+are not prerequisites for installing the CLI in step 2.
+
+Changing the Agent's approval mode only changes what the Agent may attempt.
+It does not move execution onto the user's machine, complete OAuth, log the
+development account in, or make an unauthorized MCP session authorized.
+
+## Recovery paths
+
+Use these paths in order when the preferred CLI workflow cannot complete. Keep
+the selected Host and development environment unchanged, and do not create a
+second `springbrand-dev` entry.
+
+1. **Downgrade to the native Plugin flow.** If the CLI cannot run, cannot reach
+   the user's machine, or reports a client installation failure, use the
+   [Codex Desktop manual Plugin installation guide](https://devsite.springbrand.ai/developers/docs/connect/codex-desktop#manual-plugin-install)
+   for ChatGPT Desktop (Codex). For another supported Host, use its matching
+   native Plugin fallback instructions. Install only the failed client and
+   complete that Host's native OAuth and verification.
+   Do not report success from a manually edited MCP entry.
+2. **Support fallback.** If the native Plugin path or its OAuth/verification
+   still fails, stop making configuration changes and contact
+   [SpringBrand Support](https://devsite.springbrand.ai/contact) or email
+   [`contact@springbrand.ai`](mailto:contact@springbrand.ai).
 
 ## CLI result
 
@@ -85,8 +151,13 @@ action only after the previous action has exited and the user confirms that
 registration or login is complete.
 Do not run `auth login`.
 Do not invent a login command.
-Do not read another installation guide.
+Do not read another installation guide during the preferred CLI workflow.
 Do not run a business operation as an installation check.
+Follow **Recovery paths** when that workflow cannot complete.
+
+0. Apply the mode check in **Initial installation response**: if already
+   unrestricted, continue; otherwise show the summary, then use the Host's
+   per-command approval flow and stop when a required operation is denied.
 
 1. Identify exactly one supported Host integration and select its client ID.
    The selected client is the only client in scope for this run:
@@ -107,8 +178,15 @@ Do not run a business operation as an installation check.
    and continue this numbered CLI workflow. If the target is Work itself, do not
    enter the numbered CLI workflow; use the Other Agent workflow below.
 
-2. Install the alpha CLI, then verify that the installed command runs. Execute
-   these commands separately and check each result before continuing:
+2. Confirm where commands run, then install the alpha CLI. Every command in
+   this workflow must run on the user's own machine — never in a sandbox,
+   remote shell, or CI job. When the Agent's own command execution is on that
+   machine, it runs `npm`, `sp connect`, and `doctor` itself; otherwise it
+   presents each command for the user to run locally and works from the
+   reported output. The OAuth login command in step 3.3 always runs in the
+   user's own local interactive terminal.
+
+   Execute these commands separately and check each result before continuing:
 
    ```sh
    npm install -g @springbrand/cli@alpha
@@ -120,26 +198,44 @@ Do not run a business operation as an installation check.
 
 3. Connect SpringBrand to the selected client.
 
+   `sp connect <client>` is the required installation step. It is the only
+   supported path that installs the selected Host's SpringBrand Plugin/Skill,
+   writes the MCP registration, and completes the selected authentication.
+
+   If the Agent cannot execute `sp connect`, apply the Execution boundary rule
+   above. Do not bypass the connect step or report installation success from a
+   manually created MCP entry.
+
    ### 3.1 Select authentication and run connect
 
-   If the user's prompt includes an API key, run:
+   Choose one authentication path and run `sp connect` exactly once:
 
-   ```sh
-   sp connect <client> --url https://devconnector.springbrand.ai/mcp --api-key <key> --json
-   ```
+   - **API key:** when the user supplied a development API key, pass it to the
+     supported CLI flag:
 
-   Otherwise, ask the user to obtain an API key from the development RApp
-   or continue with OAuth. A development SpringBrand account is required. If the user does not have
-   one, ask them to register at https://devrapp.springbrand.ai/.
-   Once they provide a key, run the command above.
-   If they choose OAuth, run:
+     ```sh
+     sp connect <client> --url https://devconnector.springbrand.ai/mcp --api-key <key> --json
+     ```
 
-   ```sh
-   sp connect <client> --url https://devconnector.springbrand.ai/mcp --json
-   ```
+     Do not print the key or include it in the installation report. If the
+     execution environment cannot safely substitute the key into this command,
+     have the user run the same command in their local terminal.
+   - **OAuth:** when no API key is supplied, run:
 
-   Keep the selected authentication mode as `auth_mode` for the following
-   steps. Never include the API key in reports.
+     ```sh
+     sp connect <client> --url https://devconnector.springbrand.ai/mcp --json
+     ```
+
+     A development SpringBrand account is required; users without one can
+     register at `https://devrapp.springbrand.ai/`.
+
+   With an API key, the CLI verifies it before writing configuration. After a
+   successful verification it persists a managed `SPRINGBRAND_API_KEY` block
+   in the user's shell profile and saves the key in
+   `~/.springbrand/config.json` with owner-only permissions. The
+   CLI also keeps the key in the current process environment. Never include
+   the key in a report. If verification fails, follow the returned recovery
+   action and do not treat the installation as complete.
 
    ### 3.2 Read the connection result
 
@@ -159,23 +255,16 @@ Do not run a business operation as an installation check.
 
    ### 3.3 Run OAuth and wait for authorization
 
-   For an agent-owned native OAuth action, run the returned login command
-   once and retain the connect report's `continuation`.
-
-   Keep the current agent turn active while the native OAuth process runs.
-   When the execution tool returns a running session/job ID, retain it and
-   use that tool's wait/poll operation on the same process until it exits.
-   Use bounded waits and brief progress updates while the user authorizes in
-   the browser. A tool yielding control or printing an authorization URL is
-   not an OAuth timeout and does not require a user reply. Do not send a
-   final answer asking the user to say "done" or "authorization complete"
-   while the process is running.
+   When the result returns a native OAuth action, show the exact returned
+   command to the user; they run it once in their own local interactive
+   terminal, where it opens the browser and receives the OAuth callback on
+   localhost. Wait for the user to finish, then continue with the returned
+   verification command.
 
    Exit code `0` with `Successfully logged in` confirms OAuth authorization.
-   Immediately continue verification in the same turn; no additional user
-   confirmation is needed. Only pause for cancellation, an actual process
-   timeout/failure, or an explicit request for information the agent lacks.
-   Report the observed state and keep the selected Host and environment.
+   If the command cannot discover OAuth metadata, open the browser, or
+   receive its localhost callback, the execution environment is wrong; ask
+   the user to rerun the same command in their local interactive terminal.
 
    ### 3.4 Automatically run doctor after OAuth succeeds
 

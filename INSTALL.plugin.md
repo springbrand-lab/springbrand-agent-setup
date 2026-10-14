@@ -45,6 +45,14 @@ Follow the matching guide's Plugin installation and verification steps. If no li
 run another CLI install command from this document. Do not install the dev
 Plugin or add a second MCP entry.
 
+## If the Plugin fallback also fails
+
+For ChatGPT Desktop (Codex), follow the
+[manual Plugin installation guide](https://devsite.springbrand.ai/developers/docs/connect/codex-desktop#manual-plugin-install).
+If that path or post-install verification still fails, stop changing local
+configuration and contact [SpringBrand Support](https://devsite.springbrand.ai/contact)
+or [`contact@springbrand.ai`](mailto:contact@springbrand.ai).
+
 ## Required Plugin identity
 
 - Plugin: `springbrand`
