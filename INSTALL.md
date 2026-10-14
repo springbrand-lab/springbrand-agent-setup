@@ -4,37 +4,57 @@ CLI channel: `@springbrand/cli@latest`.
 Production identity: entry `springbrand`, endpoint
 `https://connector.springbrand.ai/mcp`.
 
-## Required environment authorization
+## Initial installation response
 
-This installation changes the selected Host's local MCP, Plugin, and Skill
-configuration and requires outbound network access.
+First inspect the current execution mode and whether commands can reach the
+user's local machine. If the session is already in the Host's unrestricted mode
+(for example **Full access**) and is not sandbox-isolated, continue directly
+with the installation workflow below. Do not show the permission explanation
+or ask the user to choose a mode again.
 
-Installation requires full access mode for the entire run. Before any
-installation operation, inspect the current execution mode:
+If the session is restricted, sandbox-isolated, or the first installation probe
+is blocked, this is a mandatory user-choice gate. Stop before running any
+installation probe, package command, connect command, or retry. First show the
+user the following two options and the complete installation summary, then wait
+for the user's choice:
 
-- If the mode is not full access, do not run a probe, package download, Host
-  command, or configuration write. Ask the user to switch the session to full
-  access, then stop and wait for that change.
-- After full access is enabled, re-check the mode and use it for every
-  operation in this installation. Do not use the per-command `ask approval`
-  path for this workflow.
+SpringBrand CLI installs on the user's local machine. The user can choose one
+of two options:
 
-Explain what full access enables before asking the user to switch:
+1. Run the exact commands in the user's local terminal and report each result.
+2. Switch to **Full access** so the Agent can continue the installation.
 
-- writing the selected Host's MCP, Plugin, and Skill configuration, including
-  paths such as `~/.codex`, `~/.agents/plugins`, `~/.springbrand`, and the
-  user's shell profile when API-key authentication is selected;
-- installing the CLI globally through the npm registry and using a user-owned
-  npm cache;
-- executing `npm`, `sp`, and the selected Host integration or CLI;
-- reaching the SpringBrand MCP endpoint and the applicable RApp for account or
-  OAuth setup.
+The summary of installation will do the following:
 
-Full access is an execution precondition, not proof that every write will
-succeed. After it is enabled, check the required local paths, npm cache,
-registry, endpoint, and Host capabilities once before installation begins. If
-any required capability is unavailable, report that installation is blocked and
-stop without running another command.
+- install `@springbrand/cli@latest` globally through the npm registry and use a
+  user-owned npm cache;
+- write only the selected Host's MCP, Plugin, and Skill configuration (for
+  example under `~/.codex`, `~/.agents/plugins`, or the Host's own config
+  directory);
+- write the CLI's local configuration under `~/.springbrand` and, when API-key
+  authentication is selected, the user's shell profile;
+- execute `npm`, `sp`, and the selected Host integration or CLI;
+- connect to the SpringBrand MCP server at
+  `https://connector.springbrand.ai/mcp`;
+- authenticate the MCP connection with an API key or browser-based OAuth.
+
+Do not present installation commands, ask for command output, run a probe, or
+continue to the install workflow until the user chooses one of these options.
+If the user chooses local execution, provide the exact command only after that
+choice and wait for the result. If the user chooses Full access, wait for the
+mode change and then re-check that the session is unrestricted before
+continuing.
+
+MCP connection and account authentication are separate from the local file
+changes, and require the user's production account plus either an API key or
+native OAuth.
+
+In restricted mode, report each requested operation using this summary before
+running it. If the user chooses to stay restricted, provide the exact command
+for the user to run locally and wait for its result before continuing. If the
+user denies a required write, package installation, command execution, or
+network request, report that exact blocked capability and stop; offer Full
+access as the faster recovery path.
 
 ## Installation preconditions
 
@@ -54,6 +74,24 @@ completed native OAuth for the `springbrand` MCP entry.
 Changing the Agent's approval mode only changes whether the Agent may attempt
 an operation. It does not complete OAuth, log the production account in, or
 make an unauthorized MCP session authorized.
+
+## Recovery paths
+
+Use these paths in order when the preferred CLI workflow cannot complete. Keep
+the selected Host and environment unchanged, and do not create a second
+`springbrand` entry.
+
+1. **Downgrade to the native Plugin flow.** If the CLI cannot run, cannot reach
+   the user's machine, or reports a client installation failure, use the
+   [Codex Desktop manual Plugin installation guide](https://devsite.springbrand.ai/developers/docs/connect/codex-desktop#manual-plugin-install)
+   for ChatGPT Desktop (Codex). For another supported Host, continue with the
+   matching guide in [`INSTALL.plugin.md`](./INSTALL.plugin.md). Install only
+   the failed client, then complete that Host's native OAuth and verification.
+   Do not report success from a manually edited MCP entry.
+2. **Support fallback.** If the native Plugin path or its OAuth/verification
+   still fails, stop making configuration changes and contact
+   [SpringBrand Support](https://devsite.springbrand.ai/contact) or email
+   [`contact@springbrand.ai`](mailto:contact@springbrand.ai).
 
 ## CLI result
 
@@ -96,12 +134,13 @@ action only after the previous action has exited and the user confirms that
 registration or login is complete.
 Do not run `auth login`.
 Do not invent a login command.
-Do not read another installation guide.
+Do not read another installation guide during the preferred CLI workflow.
 Do not run a business operation as an installation check.
+Follow **Recovery paths** when that workflow cannot complete.
 
-0. Confirm that full access was verified in **Required environment
-   authorization**. If it was not verified, stop before running any operation
-   and ask the user to switch to full access.
+0. Apply the mode check in **Initial installation response**: if already
+   unrestricted, continue; otherwise show the two options and complete summary,
+   then wait for the user's choice before any operation.
 
 1. Identify exactly one supported Host integration and select its client ID.
    The selected client is the only client in scope for this run:
