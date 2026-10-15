@@ -6,27 +6,23 @@ remain authoritative.
 
 ## Build one search
 
-Call `search_tools` with one concise English query. Translate a non-English
+Call `search_tools` once with one concise English query. Translate a non-English
 request yourself and preserve every explicit constraint that distinguishes the
 operation: required supplier, platform or product, operation, object or
 modality, and output type. Keep topic content, dates, formatting preferences,
 and other execution arguments in task state unless they help identify the
 operation.
 
-Use [action-aliases.md](action-aliases.md) only to canonicalize an unambiguous
-concept. Do not invent a supplier, model version, platform, operation, or
-modality. Do not send synonyms as multiple searches.
+The query can search the currently available operations by intended result,
+service or supplier, platform or product, operation, object or modality, and
+required output. It searches the live bounded catalog; it does not search a
+local alias table or require a pre-known Tool ID. Ask one focused question when
+safe refinement lacks one of these decisions; otherwise search immediately.
 
-Examples of useful queries:
-
-- `Xiaohongshu note search`
-- `TikHub Xiaohongshu note search` only when the user explicitly requires
-  TikHub
-- `text to image`
-- `Seedance 2.0 image to video` when both model and modality were explicit
-
-SpringBrand host names, courtesy language, and generic phrases such as "use
-an API" do not distinguish an Action and should not dominate the query.
+Do not invent a supplier, model version, platform, operation, or modality. Do
+not send synonyms as multiple searches. SpringBrand host names, courtesy
+language, and generic phrases such as "use an API" do not distinguish an
+operation and should not dominate the query.
 
 ## Interpret the bounded result
 
@@ -73,10 +69,12 @@ ID unchanged to `get_tool_schemas` and use the returned current contract to
 check:
 
 - the operation description and access state;
+- any current `recommendedPrompt` guidance returned with the Tool;
 - exact input and output schemas;
 - risk and known costs;
 - revision information;
-- attachment and produced-material requirements.
+- attachment and produced-material requirements;
+- the Tool description's own usage instructions.
 
 Never construct, edit, decode, or classify the Tool ID. A contract error is a
 lookup failure, not proof that the Action does not exist. Do not fall through

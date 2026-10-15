@@ -167,6 +167,68 @@ def validate_canonical_package(root: Path) -> str:
     return version
 
 
+def validate_portable_package(root: Path, version: str, identity: dict) -> None:
+    portable = read_json(root / "plugin.json")
+    require(
+        portable.get("$schema") == "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        "Portable Plugin manifest must declare the Agent Plugins schema",
+    )
+    require(portable.get("name") == identity["entry"], f"Portable Plugin manifest name must be {identity['entry']}")
+    require(portable.get("version") == version, f"Portable Plugin manifest version must match VERSION ({version})")
+    require(portable.get("description") == identity["claude_description"], "Portable Plugin manifest description is invalid")
+    require(portable.get("repository") == "https://github.com/springbrand-lab/springbrand-agent-setup", "Portable Plugin repository URL is invalid")
+    require("skills" not in portable and "mcpServers" not in portable, "Portable Plugin manifest must use fixed root skills/ and mcp.json components")
+
+    compatibility = read_json(root / ".codex-plugin/plugin.json")
+    extension = portable.get("extensions", {}).get("com.openai", {})
+    require(extension.get("hooks") == "./hooks/codex-hooks.json", "Portable OpenAI extension must reference ./hooks/codex-hooks.json")
+    interface = extension.get("interface", {})
+    compatibility_interface = compatibility.get("interface", {})
+    for field in (
+        "displayName",
+        "shortDescription",
+        "longDescription",
+        "developerName",
+        "category",
+        "capabilities",
+        "defaultPrompt",
+        "brandColor",
+        "composerIcon",
+        "logo",
+    ):
+        require(interface.get(field) == compatibility_interface.get(field), f"Portable interface field is out of sync: {field}")
+    for field, expected in (
+        ("websiteURL", "https://springbrand.ai"),
+        ("privacyPolicyURL", "https://springbrand.ai/privacy"),
+        ("termsOfServiceURL", "https://springbrand.ai/terms"),
+        ("supportURL", "https://springbrand.ai/contact"),
+    ):
+        require(interface.get(field) == expected, f"Portable interface {field} is invalid")
+
+    mcp = read_json(root / "mcp.json")
+    expected_mcp = {
+        "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+        "mcpServers": {
+            identity["entry"]: {
+                "type": "streamable-http",
+                "url": identity["url"],
+            }
+        },
+    }
+    require(mcp == expected_mcp, "Portable MCP manifest must declare one streamable-http server without credentials")
+
+    dependency = (root / "agents/openai.yaml").read_text()
+    for phrase in (
+        "dependencies:",
+        "  tools:",
+        '    - type: "mcp"',
+        f'      value: "{identity["entry"]}"',
+        '      transport: "streamable_http"',
+        f'      url: "{identity["url"]}"',
+    ):
+        require(phrase in dependency, f"Portable MCP dependency is missing: {phrase}")
+
+
 def validate_codex_adapter(root: Path, version: str, identity: dict) -> None:
     entry = identity["entry"]
     plugin = read_json(root / ".codex-plugin/plugin.json")
@@ -182,7 +244,14 @@ def validate_codex_adapter(root: Path, version: str, identity: dict) -> None:
 
     interface = plugin.get("interface", {})
     require(interface.get("brandColor") == "#FF8A2C", "Codex brandColor must be #FF8A2C")
-    for field in ("composerIcon", "logo", "logoDark"):
+    for field, expected in (
+        ("websiteURL", "https://springbrand.ai"),
+        ("privacyPolicyURL", "https://springbrand.ai/privacy"),
+        ("termsOfServiceURL", "https://springbrand.ai/terms"),
+        ("supportURL", "https://springbrand.ai/contact"),
+    ):
+        require(interface.get(field) == expected, f"Codex interface {field} is invalid")
+    for field in ("composerIcon", "logo"):
         reference = interface.get(field)
         require(reference == "./assets/springbrand-icon.svg", f"Codex {field} must reference ./assets/springbrand-icon.svg")
         require(component(root, reference, f"Codex {field}").is_file(), f"Codex {field} must be a file")
@@ -302,7 +371,10 @@ def validate_cursor_adapter(root: Path, version: str, identity: dict) -> None:
     require((package / plugin["logo"]).is_file(), "Cursor logo does not exist")
 
     validate_skill_mirrors(root, package, "Cursor")
-    require((package / "assets/springbrand-icon.svg").read_bytes() == (root / "assets/springbrand-icon.svg").read_bytes(), "Cursor logo mirror must be byte-equivalent to the canonical logo")
+    # Hosts can require different icon dimensions. The Cursor package keeps
+    # its own 38x38 asset while the portable/Codex package uses the 48x48
+    # canonical asset, so only require the host-specific mirror to exist.
+    require((package / "assets/springbrand-icon.svg").is_file(), "Cursor logo mirror does not exist")
 
     rule = (package / "rules/springbrand-preflight.mdc")
     require(rule.is_file(), "Cursor Rule mirror does not exist")
@@ -382,6 +454,7 @@ def validate_package(root: Path = ROOT) -> None:
     version = validate_canonical_package(root)
     identity = identity_for(version)
     validate_secrets(root)
+    validate_portable_package(root, version, identity)
     validate_codex_adapter(root, version, identity)
     validate_claude_adapter(root, version, identity)
     validate_cursor_adapter(root, version, identity)
