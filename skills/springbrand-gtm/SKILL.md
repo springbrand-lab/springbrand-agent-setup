@@ -10,7 +10,7 @@ description: >
   for the requested task. Exclude definitions, simple proofreading, and
   unrelated coding.
 metadata:
-  version: "1.2.4"
+  version: "1.2.5"
 ---
 
 # SpringBrand GTM
