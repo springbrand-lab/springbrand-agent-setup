@@ -80,16 +80,17 @@ those effects; the Skill never calls a hard-coded business reference.
 
 ### Match or browse
 
-Translate the user's Plugin goal into one concise English query and call
-`search_tools` once. Preserve explicit artifact type, subject, workflow, and
-output constraints. Do not include SpringBrand host names or generic request
-words that do not distinguish a Plugin.
+Translate the user's Plugin goal into one concise English query and start with
+`search_tools`. Preserve explicit artifact type, subject, workflow, and output
+constraints. Do not include SpringBrand host names or generic request words
+that do not distinguish a Plugin. If the result is incomplete or has no fitting
+candidate, narrow or revise the query, at most three searches for one need.
 
 Discovery returns one bounded list and is not globally ranked. Preserve
 returned order while checking actual fit. An incomplete result cannot
-establish no-match; narrow or revise the query instead of inventing pagination
-or firing synonym variants. A transport, authentication, permission, schema,
-or upstream error is not a no-match.
+establish no-match; narrow or revise the query, at most three searches for one
+need, instead of inventing pagination or firing synonym variants. A transport,
+authentication, permission, schema, or upstream error is not a no-match.
 
 For open-ended Marketplace browsing, ask for a useful theme or category, then
 search that. Do not present a bounded search response as the complete

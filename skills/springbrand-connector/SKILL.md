@@ -69,15 +69,17 @@ service, account, operation, or Capability Domain.
 
 ### Step 1 — Discover the third-party operation
 
-Call `search_tools` once with one concise English query that names the target
+Start with one concise English `search_tools` query that names the target
 service, operation, object, and output constraints the user actually gave.
 Discovery returns one bounded list; it is not globally ranked and is not a
-complete catalogue.
+complete catalogue. If the result is incomplete or has no fitting candidate,
+narrow or revise the query, at most three searches for one need.
 
 - Preserve returned order while rejecting candidates that violate explicit
   service or operation constraints.
 - An incomplete result cannot establish no-match. Narrow or revise the query
-  when an expected operation is absent; do not invent pagination.
+  when an expected operation is absent, at most three searches for one need;
+  do not invent pagination.
 - A transport, authentication, permission, schema, configuration, or upstream
   error is not a no-match. Report the actual failure.
 - Do not advertise a service or operation that current discovery did not
