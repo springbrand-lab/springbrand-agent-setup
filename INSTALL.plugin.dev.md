@@ -53,7 +53,11 @@ the production Plugin or add a second MCP entry.
 
 For ChatGPT Desktop (Codex), follow the
 [manual Plugin installation guide](https://devsite.springbrand.ai/developers/docs/connect/codex-desktop#manual-plugin-install).
-If that path or post-install verification still fails, stop changing local
+For Cursor, follow the
+[Cursor manual MCP installation guide](https://springbrand.ai/developers/docs/connect/cursor-desktop#manual-mcp-install).
+For WorkBuddy, follow the
+[WorkBuddy manual MCP installation guide](https://springbrand.ai/developers/docs/connect/workbuddy-desktop#manual-mcp-install).
+If those paths or post-install verification still fail, stop changing local
 configuration and contact [SpringBrand Support](https://devsite.springbrand.ai/contact)
 or [`contact@springbrand.ai`](mailto:contact@springbrand.ai).
 

@@ -61,7 +61,9 @@ access as the faster recovery path.
 The following are installation preconditions. They are not optional hints, and
 approval for the Agent session does not prove that every precondition is met:
 
-- the selected Host can read and write its local MCP and Plugin/Skill configuration;
+- the selected Host can read and write its local MCP and Plugin/Skill
+  configuration, or, for the Other Agent workflow, exposes remote MCP
+  connector settings the user or Agent can configure;
 - the npm cache and global installation location are writable by the current user;
 - the npm registry and `https://connector.springbrand.ai/mcp` are reachable;
 - the selected Host integration or CLI can execute;
@@ -84,14 +86,22 @@ the selected Host and environment unchanged, and do not create a second
 1. **Downgrade to the native Plugin flow.** If the CLI cannot run, cannot reach
    the user's machine, or reports a client installation failure, use the
    [Codex Desktop manual Plugin installation guide](https://devsite.springbrand.ai/developers/docs/connect/codex-desktop#manual-plugin-install)
-   for ChatGPT Desktop (Codex). For another supported Host, continue with the
-   matching guide in [`INSTALL.plugin.md`](./INSTALL.plugin.md). Install only
-   the failed client, then complete that Host's native OAuth and verification.
+   for ChatGPT Desktop (Codex). For Cursor, use the
+   [Cursor manual MCP installation guide](https://springbrand.ai/developers/docs/connect/cursor-desktop#manual-mcp-install).
+   For WorkBuddy, use the
+   [WorkBuddy manual MCP installation guide](https://springbrand.ai/developers/docs/connect/workbuddy-desktop#manual-mcp-install).
+   For another supported Host, continue with the matching guide in
+   [`INSTALL.plugin.md`](./INSTALL.plugin.md). Install only the failed client,
+   then complete that Host's native OAuth and verification.
    Do not report success from a manually edited MCP entry.
 2. **Support fallback.** If the native Plugin path or its OAuth/verification
    still fails, stop making configuration changes and contact
    [SpringBrand Support](https://devsite.springbrand.ai/contact) or email
    [`contact@springbrand.ai`](mailto:contact@springbrand.ai).
+
+For an Other Agent (generic) target the Plugin flow does not apply: when its
+CLI workflow cannot complete, use the direct-connect recovery at the end of
+the Other Agent workflow.
 
 ## CLI result
 
@@ -154,6 +164,7 @@ Follow **Recovery paths** when that workflow cannot complete.
    - Cursor: `cursor`
    - OpenCode: `opencode`
    - Pi: `pi`
+   - Devin Desktop or Devin CLI: `devin`
    - Any other Agent: use the Other Agent workflow below.
 
    The current Agent surface and the installation target are separate. If the
@@ -259,16 +270,44 @@ Follow **Recovery paths** when that workflow cannot complete.
 
 ## Other Agent workflow
 
-For other Agents or Hosts that cannot run the local CLI, connect directly to
-`https://connector.springbrand.ai/mcp` using the Host's remote MCP settings.
-Use `springbrand` as the entry name where supported. No CLI or Plugin
-installation is required.
+For any other Agent or Host, install the CLI first, then connect with the
+`generic` client. The CLI cannot write this Host's MCP configuration, so the
+connect report ends `pending` with the connector add as `next_action`. Apply
+the mode check in **Initial installation response** before running anything.
 
-If the user supplied an API key, configure it as a Bearer credential. Otherwise,
-ask them to obtain a key from https://rapp.springbrand.ai/ or choose native
-OAuth. New users must register there first. Complete authentication through
-the Host's supported flow without including credentials in reports.
+1. Install the CLI as in step 2:
 
-Send an authenticated `tools/list` request. A successful response containing
-SpringBrand tools confirms completion. If the Host cannot configure or verify
-the connection, report the limitation and the next action.
+   ```sh
+   npm install -g @springbrand/cli@latest
+   sp --version
+   ```
+
+2. Run connect once and read its JSON report; exit code `4` is pending, not
+   failure:
+
+   ```sh
+   sp connect generic --url https://connector.springbrand.ai/mcp --json
+   ```
+
+   With `--api-key <key>` the report shows `auth.status: verified`. Without a
+   key, `next_action` sends the user to https://rapp.springbrand.ai/ for a key
+   (new users register there first) or to the Host's own OAuth.
+
+3. Follow `next_action`: add a remote MCP connector named `springbrand`
+   pointing at the report's `mcp_url` (Streamable HTTP) in the Host's
+   connector settings — with an `Authorization: Bearer <key>` header for
+   API-key authentication (never echo the key), or the Host's own OAuth flow
+   otherwise. Do not open an OAuth URL yourself or automate the browser for it.
+
+4. Verify: run the report's `continuation` (`sp auth status --verify`) on the
+   CLI side. The Host side is the authority: an authenticated `tools/list`
+   request returning SpringBrand tools confirms completion, since the CLI
+   cannot see the Host's internal configuration.
+
+5. Output the installation report using the items in section 3.5.
+
+**Recovery.** When the CLI cannot be installed or run, connect directly:
+configure `https://connector.springbrand.ai/mcp` in the Host's remote MCP
+settings as `springbrand`, authenticate with a Bearer key or the Host's OAuth,
+and verify with an authenticated `tools/list` request. If the Host cannot
+configure or verify the connection, report the limitation and the next action.
