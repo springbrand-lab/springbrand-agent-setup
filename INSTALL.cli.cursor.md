@@ -28,5 +28,8 @@ After the command completes, report the actual status without revealing credenti
 
 If the client requires a restart, reload, or new session, report that requirement and stop. Do not claim installation success until the identity and health checks pass. Do not run capability discovery or a business operation as a substitute for installation verification.
 
-If the CLI cannot install this client, report the failed phase and continue only with the matching host-specific fallback in [INSTALL.md](./INSTALL.md). Keep the single-client scope when using that fallback.
+If the CLI cannot install this client, report the failed phase and continue only
+with the [Cursor manual MCP installation guide](https://springbrand.ai/developers/docs/connect/cursor-desktop#manual-mcp-install)
+or the matching host-specific fallback in [INSTALL.md](./INSTALL.md). Keep the
+single-client scope when using that fallback.
 Close your report with a one-sentence capability note: SpringBrand gives this client one Skill covering social and competitor research, audience insight, SEO and website analysis, creator discovery, and copy, image, video, and voiceover generation, plus connected services such as GitHub. Then ask the user what they would like to build first.
