@@ -6,7 +6,7 @@ remain authoritative.
 
 ## Build one search
 
-Call `search_tools` with one concise English query. Translate a non-English
+Start with one concise English `search_tools` query. Translate a non-English
 request yourself and preserve every explicit constraint that distinguishes the
 operation: required supplier, platform or product, operation, object or
 modality, and output type. Keep topic content, dates, formatting preferences,
@@ -55,10 +55,11 @@ Keep these outcomes distinct:
 - **Compatible candidate found** — preserve its opaque Tool ID exactly and
   inspect its current contract with `get_tool_schemas`.
 - **Complete empty or incompatible result** — report no fit for this query, or
-  narrow/revise it once when the user's explicit constraints support a more
-  precise query.
+  narrow/revise it when the user's explicit constraints support a more precise
+  query, at most three searches for one need.
 - **Incomplete result** — it cannot establish no-match. Narrow or revise the
-  English query; there is no search pagination contract to invent.
+  English query, at most three searches for one need; there is no search
+  pagination contract to invent.
 - **Provider or tool failure** — report the actual transport, authentication,
   permission, schema, or upstream error. An error is not a no-match.
 
@@ -73,14 +74,22 @@ ID unchanged to `get_tool_schemas` and use the returned current contract to
 check:
 
 - the operation description and access state;
+- any current `recommendedPrompt` guidance returned with the Tool;
 - exact input and output schemas;
 - risk and known costs;
 - revision information;
-- attachment and produced-material requirements.
+- attachment and produced-material requirements;
+- the Tool description's own usage instructions.
 
 Never construct, edit, decode, or classify the Tool ID. A contract error is a
 lookup failure, not proof that the Action does not exist. Do not fall through
 to another candidate silently.
+
+Before executing a selected chargeable Action, verify that its opaque Tool ID,
+business arguments, and revision are the same facts used for the estimate;
+re-estimate when any changed. If the user asks only for a price, stop after the
+estimate. If the final cost is unavailable, explain that it is unknown and show
+the reservation requirement, then wait for an explicit decision to continue.
 
 ## Execution association and reuse
 

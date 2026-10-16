@@ -12,7 +12,7 @@ audience, and desired output constraints. Remove SpringBrand host names,
 courtesy language, and generic words that do not distinguish the needed Plugin
 or Platform operation.
 
-Issue one search, not a synonym fan-out. The response is one bounded list. It
+Start with one search, not a synonym fan-out. The response is one bounded list. It
 is not globally ranked, not a complete Marketplace, and has no search
 pagination for the Agent to invent.
 
@@ -38,10 +38,11 @@ Keep these outcomes distinct:
 - **Fitting result** — preserve its opaque Tool ID exactly and inspect the
   current contract with `get_tool_schemas`.
 - **Complete empty or incompatible result** — report no fit for this query, or
-  revise it once when a more precise version follows directly from the user's
-  stated constraints.
+  revise it when a more precise version follows directly from the user's
+  stated constraints, at most three searches for one need.
 - **Incomplete result** — it cannot establish no-match. Narrow or revise the
-  query; do not claim that the Marketplace has no fit.
+  query, at most three searches for one need; do not claim that the Marketplace
+  has no fit.
 - **Provider or tool failure** — report the actual transport, authentication,
   permission, schema, or upstream failure. An error is not a no-match and must
   not trigger a fallback presented as success.

@@ -78,10 +78,11 @@ authorize an operation.
 ### Step 2 — Discover compatible operations
 
 Read [references/action-discovery.md](references/action-discovery.md) before
-constructing a search. Call `search_tools` once with one concise English query
-that preserves every explicit service, operation, object, modality, and output
+constructing a search. Start with one concise English `search_tools` query that
+preserves every explicit service, operation, object, modality, and output
 constraint. The result is one bounded list, not a complete catalogue and not
-globally ranked.
+globally ranked. If the result is incomplete or has no fitting candidate,
+narrow or revise the query, at most three searches for one need.
 
 Inspect returned descriptions and reported requirements in their returned
 order. Compatibility is a filter, not a new ranking: reject candidates that
@@ -89,8 +90,8 @@ violate an explicit supplier, platform, operation, object, or modality
 constraint, then recommend the first compatible Action API operation.
 
 - An incomplete result cannot establish no-match. Narrow or revise the query
-  when an expected Action is absent; do not invent pagination or fan out over
-  synonyms.
+  when an expected Action is absent, at most three searches for one need; do
+  not invent pagination or fan out over synonyms.
 - A transport, authentication, permission, schema, or upstream error is not a
   no-match. Report the actual error.
 - Discovery does not execute, bill, authorize, or prove that an operation's
