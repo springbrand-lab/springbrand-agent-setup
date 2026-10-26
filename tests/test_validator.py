@@ -28,10 +28,8 @@ def copy_package(destination: Path) -> None:
         ".codebuddy-plugin",
         ".mcp.json",
         "assets",
-        "hooks",
         "INSTALL.workbuddy.md",
         "plugins",
-        "rules",
         "skills",
     ):
         source = ROOT / name
@@ -159,32 +157,6 @@ def main() -> None:
         "forbidden credential file",
     )
     expect_failure(
-        lambda root: [
-            (root / path).write_text("#!/bin/sh\ncurl https://example.com\n")
-            for path in ("hooks/user-prompt-submit", "plugins/springbrand-workbuddy/hooks/user-prompt-submit")
-        ],
-        "Canonical Hook must remain a static, network-free routing command",
-    )
-    expect_failure(
-        lambda root: [
-            (root / path).write_text(
-                (root / "hooks/user-prompt-submit").read_text().replace(
-                    "or cause side effects", "or cause side effects. Do not Match again"
-                )
-            )
-            for path in ("hooks/user-prompt-submit", "plugins/springbrand-workbuddy/hooks/user-prompt-submit")
-        ],
-        "Routing Notice must not use retired phrasing: Do not Match again",
-    )
-    expect_failure(
-        lambda root: (root / "hooks/user-prompt-submit").chmod(0o644),
-        "Codex Hook is not executable",
-    )
-    expect_failure(
-        lambda root: shutil.copy2(root / "hooks/codex-hooks.json", root / "hooks/hooks.json"),
-        "Claude Adapter must not auto-discover the Codex Hook config",
-    )
-    expect_failure(
         lambda root: edit_json(
             root / ".claude-plugin/plugin.json",
             lambda value: value["mcpServers"][ENTRY].update(url="https://example.com/mcp"),
@@ -210,20 +182,6 @@ def main() -> None:
         "Cursor Skill mirror for springbrand-platform must be byte-equivalent",
     )
     expect_failure(
-        lambda root: (root / "plugins/springbrand/rules/springbrand-preflight.mdc").write_text(
-            "---\ndescription: broken\nalwaysApply: false\n---\n"
-            "Before planning or production, follow springbrand-plugin-discovery.\n"
-            "Delegate eligibility and Marketplace behavior.\nalwaysApply: true\n"
-        ),
-        "Cursor Rule must always apply",
-    )
-    expect_failure(
-        lambda root: (root / "plugins/springbrand/rules/springbrand-preflight.mdc").write_text(
-            (root / "rules/springbrand-preflight.mdc").read_text().replace("ask-springbrand", "ask-springbrand-drift")
-        ),
-        "Cursor Rule mirror must be byte-equivalent",
-    )
-    expect_failure(
         lambda root: edit_json(
             root / "plugins/springbrand/mcp.json",
             lambda value: value["mcpServers"][ENTRY].update(token="secret"),
@@ -235,6 +193,21 @@ def main() -> None:
         "Cursor Adapter must not ship Hooks",
     )
     expect_failure(
+        lambda root: (root / "hooks").mkdir(),
+        "Routing Hooks must not ship",
+    )
+    expect_failure(
+        lambda root: (root / "rules").mkdir(),
+        "Routing Rules must not ship",
+    )
+    expect_failure(
+        lambda root: edit_json(
+            root / ".codex-plugin/plugin.json",
+            lambda value: value.update(hooks="./hooks/codex-hooks.json"),
+        ),
+        "Codex manifest must not declare Hooks",
+    )
+    expect_failure(
         lambda root: edit_json(
             root / ".codebuddy-plugin/marketplace.json",
             lambda value: value["plugins"][0].update(source="./"),
@@ -244,10 +217,6 @@ def main() -> None:
     expect_failure(
         lambda root: (root / "plugins/springbrand-workbuddy/skills/ask-springbrand/SKILL.md").write_text("drift\n"),
         "WorkBuddy Skill mirror for ask-springbrand must be byte-equivalent",
-    )
-    expect_failure(
-        lambda root: (root / "plugins/springbrand-workbuddy/hooks/user-prompt-submit").write_text("drift\n"),
-        "WorkBuddy Hook mirror must be byte-equivalent",
     )
     expect_failure(
         lambda root: edit_json(

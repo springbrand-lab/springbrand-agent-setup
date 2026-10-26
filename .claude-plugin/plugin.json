@@ -7,7 +7,6 @@
   },
   "repository": "https://github.com/springbrand-lab/springbrand-agent-setup",
   "skills": "./skills/",
-  "hooks": "./hooks/claude-hooks.json",
   "mcpServers": {
     "springbrand": {
       "type": "http",

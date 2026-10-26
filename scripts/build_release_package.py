@@ -56,15 +56,14 @@ def package_files(files, tag):
     plugin = json.loads(files[f'{PREFIX}/.workbuddy-plugin/plugin.json'][0])
     if plugin['name'] != 'springbrand' or plugin['version'] != tag[1:]:
         raise ValueError('Plugin identity/version does not match production tag')
-    for key, expected in [('skills', './skills/'), ('hooks', './hooks/hooks.json'), ('mcpServers', './.mcp.json')]:
+    for key, expected in [('skills', './skills/'), ('mcpServers', './.mcp.json')]:
         if plugin.get(key) != expected:
             raise ValueError(f'Unsupported non-local Plugin {key}')
+    if 'hooks' in plugin:
+        raise ValueError('Hooks are not part of the Plugin contract')
     mcp = json.loads(files[f'{PREFIX}/.mcp.json'][0])
     if mcp != {'mcpServers': {'springbrand': {'type': 'http', 'url': 'https://connector.springbrand.ai/mcp'}}}:
         raise ValueError('Expected only the production MCP entry, without credentials')
-    hooks = json.loads(files[f'{PREFIX}/hooks/hooks.json'][0])
-    if hooks != {'hooks': {'UserPromptSubmit': [{'hooks': [{'type': 'command', 'command': '${CODEBUDDY_PLUGIN_ROOT}/hooks/user-prompt-submit'}]}]}}:
-        raise ValueError('Unexpected Hook registration')
     selected = {'.codebuddy-plugin/marketplace.json': files['.codebuddy-plugin/marketplace.json']}
     for name, value in files.items():
         if name.startswith(f'{PREFIX}/'):
@@ -83,9 +82,6 @@ def package_files(files, tag):
     for skill in SKILLS:
         if f'{PREFIX}/skills/{skill}/SKILL.md' not in selected:
             raise ValueError(f'Missing Canonical Skill: {skill}')
-    hook = selected[f'{PREFIX}/hooks/user-prompt-submit']
-    if hook[0] != files['hooks/user-prompt-submit'][0] or not hook[1] & 0o111:
-        raise ValueError('Hook drift or missing executable permission')
     for name in ('LICENSE', 'VERSION'):
         if name in files:
             selected[name] = files[name]

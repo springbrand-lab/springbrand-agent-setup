@@ -4,8 +4,6 @@
 import json
 import os
 import re
-import subprocess
-import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -40,25 +38,6 @@ def identity_for(version: str) -> dict:
         "claude_description": "Discover and use SpringBrand Plugins through the production connector.",
         "claude_marketplace_description": "SpringBrand plugins for discovering and using reusable Plugins.",
     }
-ROUTING_NOTICE_MAX_LENGTH = 1100
-ROUTING_NOTICE_PHRASES = (
-    "For substantive go-to-market, marketing, or growth tasks",
-    "springbrand-gtm",
-    "even when SpringBrand is not mentioned",
-    "It has three capability domains on one MCP entry",
-    "- Platform: create and publish artifacts, manage Plugins, and browse the Marketplace",
-    "- Action API: use dynamic API services for tasks",
-    "- Connector: work with third-party systems such as GitHub",
-    "recommends exactly one Domain Skill and stops",
-    "This Notice only makes the Skills visible",
-    "does not determine fit, call MCP",
-)
-RETIRED_PHRASES = (
-    "Do not Match again",
-    "springbrand-plugin-discovery",
-    "springbrand.catalog.match",
-    "follow-up to an existing SpringBrand match",
-)
 VERSION_PATTERN = re.compile(
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
     r"(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)"
@@ -87,47 +66,6 @@ def component(root: Path, reference: str, label: str) -> Path:
         raise AssertionError(f"{label} escapes the package root: {reference}") from exc
     require(path.exists(), f"{label} does not exist: {reference}")
     return path
-
-
-def validate_routing_notice(context: str, reference: str) -> None:
-    require(len(context) <= ROUTING_NOTICE_MAX_LENGTH, f"Routing Notice must stay under {ROUTING_NOTICE_MAX_LENGTH} characters")
-    require(reference in context, "Routing Notice must reference the Host-visible Ask SpringBrand Skill")
-    for phrase in ROUTING_NOTICE_PHRASES:
-        require(phrase in context, f"Routing Notice must carry the three-domain map and Ask SpringBrand pointer (missing: {phrase})")
-    for phrase in RETIRED_PHRASES:
-        require(phrase not in context, f"Routing Notice must not use retired phrasing: {phrase}")
-
-
-def validate_routing_hook(hook: Path, entry: str) -> None:
-    require(os.access(hook, os.X_OK), "Codex Hook is not executable")
-    source = hook.read_text()
-    require(source.startswith("#!/bin/sh\n"), "Canonical Hook must be a POSIX shell command")
-    for forbidden in ("curl ", "wget ", "http://", "https://", "$@", "${1"):
-        require(forbidden not in source, "Canonical Hook must remain a static, network-free routing command")
-
-    namespaced = f"/{entry}:ask-springbrand"
-    for claude_root, reference in (
-        ("", "`$ask-springbrand` Skill"),
-        ("/tmp/plugin", f"`{namespaced}`"),
-    ):
-        result = subprocess.run(
-            [str(hook)],
-            check=True,
-            capture_output=True,
-            text=True,
-            env={**os.environ, "CLAUDE_PLUGIN_ROOT": claude_root},
-        )
-        try:
-            output = json.loads(result.stdout)["hookSpecificOutput"]
-            context = output["additionalContext"]
-        except (json.JSONDecodeError, KeyError, TypeError) as exc:
-            raise AssertionError("Canonical Hook must emit valid UserPromptSubmit JSON") from exc
-        require(output.get("hookEventName") == "UserPromptSubmit", "Canonical Hook must emit UserPromptSubmit context")
-        validate_routing_notice(context, reference)
-        if claude_root:
-            require(namespaced in context, "Claude Hook must use the namespaced Ask SpringBrand reference")
-        else:
-            require(f"/{entry}:" not in context, "Codex Hook must not use a Claude Plugin namespace")
 
 
 def validate_mcp_entries(servers, label: str, entry_type: None | str, entry: str, url: str) -> None:
@@ -163,7 +101,8 @@ def validate_canonical_package(root: Path) -> str:
         versions = re.findall(r'^  version: "([^"\n]+)"$', metadata.group(1), re.MULTILINE) if metadata else []
         require(versions == [version], f"Canonical Skill {name} metadata.version must match VERSION ({version})")
 
-    validate_routing_hook(root / "hooks/user-prompt-submit", identity["entry"])
+    require(not (root / "hooks").exists(), "Routing Hooks must not ship")
+    require(not (root / "rules").exists(), "Routing Rules must not ship")
     return version
 
 
@@ -177,8 +116,7 @@ def validate_codex_adapter(root: Path, version: str, identity: dict) -> None:
     require(component(root, plugin["skills"], "Codex skills component").is_dir(), "Codex skills component must be a directory")
     require(plugin.get("mcpServers") == "./.mcp.json", "Codex MCP component must reference ./.mcp.json")
     require(component(root, plugin["mcpServers"], "Codex MCP component").is_file(), "Codex MCP component must be a file")
-    require(plugin.get("hooks") == "./hooks/codex-hooks.json", "Codex Hook component must reference ./hooks/codex-hooks.json")
-    require(component(root, plugin["hooks"], "Codex Hook component").is_file(), "Codex Hook component must be a file")
+    require("hooks" not in plugin, "Codex manifest must not declare Hooks")
 
     interface = plugin.get("interface", {})
     require(interface.get("brandColor") == "#FF8A2C", "Codex brandColor must be #FF8A2C")
@@ -196,41 +134,10 @@ def validate_codex_adapter(root: Path, version: str, identity: dict) -> None:
     require(component(root, entry["source"]["path"], "Codex Marketplace source").is_dir(), "Codex Marketplace source must be a directory")
     require(entry.get("policy") == {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "Codex Marketplace policy is invalid")
 
-    hook = root / "hooks/user-prompt-submit"
-    require(hook.is_file(), "Codex Hook does not exist: hooks/user-prompt-submit")
-    require(os.access(hook, os.X_OK), "Codex Hook is not executable: hooks/user-prompt-submit")
-    config = read_json(root / "hooks/codex-hooks.json")
-    try:
-        hooks = config["hooks"]["UserPromptSubmit"]
-    except (KeyError, TypeError) as exc:
-        raise AssertionError("Codex Hook config must declare hooks.UserPromptSubmit") from exc
-    expected_hook = [{"hooks": [{"type": "command", "command": "${PLUGIN_ROOT}/hooks/user-prompt-submit"}]}]
-    require(hooks == expected_hook, "Codex Hook config must reference ${PLUGIN_ROOT}/hooks/user-prompt-submit")
-
-    outputs = []
-    with tempfile.TemporaryDirectory() as cwd:
-        for prompt in ("build a website", "what time is it?"):
-            try:
-                result = subprocess.run(
-                    [hook], input=json.dumps({"prompt": prompt}), text=True,
-                    capture_output=True, cwd=cwd, env={}, timeout=5, check=True,
-                )
-            except (OSError, subprocess.SubprocessError) as exc:
-                raise AssertionError(f"Codex Hook failed for prompt {prompt!r}: {exc}") from exc
-            require(result.stderr == "", f"Codex Hook wrote to stderr for prompt {prompt!r}: {result.stderr.strip()}")
-            try:
-                outputs.append(json.loads(result.stdout))
-            except json.JSONDecodeError as exc:
-                raise AssertionError(f"Codex Hook returned invalid JSON for prompt {prompt!r}: {exc}") from exc
-    require(outputs[0] == outputs[1], "Codex Hook output must not vary by prompt")
-    output = outputs[0].get("hookSpecificOutput", {})
-    require(output.get("hookEventName") == "UserPromptSubmit", "Codex Hook must return UserPromptSubmit output")
-    require("$ask-springbrand" in output.get("additionalContext", ""), "Codex Hook must route to $ask-springbrand")
-
 
 def validate_claude_adapter(root: Path, version: str, identity: dict) -> None:
     entry = identity["entry"]
-    require(not (root / "hooks/hooks.json").exists(), "Claude Adapter must not auto-discover the Codex Hook config")
+    require(not (root / "hooks").exists(), "Claude Adapter must not ship Hooks")
     plugin = read_json(root / ".claude-plugin/plugin.json")
     require(plugin.get("name") == entry, f"Claude manifest name must be {entry}")
     require(plugin.get("version") == version, f"Claude manifest version must match VERSION ({version})")
@@ -241,27 +148,7 @@ def validate_claude_adapter(root: Path, version: str, identity: dict) -> None:
     require(component(root, plugin["skills"], "Claude skills component").is_dir(), "Claude skills component must be a directory")
     validate_mcp_entries(plugin.get("mcpServers"), "Claude MCP server", entry_type="http", entry=entry, url=identity["url"])
 
-    hooks_reference = plugin.get("hooks")
-    require(hooks_reference == "./hooks/claude-hooks.json", "Claude Hook component must reference ./hooks/claude-hooks.json")
-    hooks_path = component(root, hooks_reference, "Claude Hook component")
-    require(hooks_path.is_file(), "Claude Hook component must be a file")
-    config = read_json(hooks_path)
-    expected_hook = [{"hooks": [{"type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/user-prompt-submit"}]}]
-    try:
-        hooks = config["hooks"]["UserPromptSubmit"]
-    except (KeyError, TypeError) as exc:
-        raise AssertionError("Claude Hook config must declare hooks.UserPromptSubmit") from exc
-    require(hooks == expected_hook, "Claude Hook config must reference ${CLAUDE_PLUGIN_ROOT}/hooks/user-prompt-submit")
-
-    result = subprocess.run(
-        [root / "hooks/user-prompt-submit"], input=json.dumps({"prompt": "build a website"}),
-        text=True, capture_output=True, cwd=root, env={"CLAUDE_PLUGIN_ROOT": str(root)}, timeout=5, check=True,
-    )
-    context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
-    require(
-        f"/{entry}:ask-springbrand" in context and "ask-springbrand" in context,
-        "Claude Hook must invoke the namespaced Ask SpringBrand Skill",
-    )
+    require("hooks" not in plugin, "Claude manifest must not declare Hooks")
 
     marketplace = read_json(root / ".claude-plugin/marketplace.json")
     require(marketplace.get("name") == entry, f"Claude Marketplace name must be {entry}")
@@ -304,20 +191,9 @@ def validate_cursor_adapter(root: Path, version: str, identity: dict) -> None:
     validate_skill_mirrors(root, package, "Cursor")
     require((package / "assets/springbrand-icon.svg").read_bytes() == (root / "assets/springbrand-icon.svg").read_bytes(), "Cursor logo mirror must be byte-equivalent to the canonical logo")
 
-    rule = (package / "rules/springbrand-preflight.mdc")
-    require(rule.is_file(), "Cursor Rule mirror does not exist")
-    frontmatter = rule.read_text().split("\n---\n", 1)
-    require(len(frontmatter) == 2 and frontmatter[0].startswith("---\n"), "Cursor Rule must have frontmatter")
-    require(re.search(r"^alwaysApply:\s*true\s*$", frontmatter[0][4:], re.MULTILINE), "Cursor Rule must always apply")
-    require(rule.read_bytes() == (root / "rules/springbrand-preflight.mdc").read_bytes(), "Cursor Rule mirror must be byte-equivalent to the canonical Rule")
-    normalized_rule = " ".join(rule.read_text().split())
-    require("ask-springbrand" in normalized_rule, "Cursor Rule must point uncertain routing at Ask SpringBrand")
-    require("This Notice only makes the Skills visible" in normalized_rule, "Cursor Rule must remain a Notice-only adapter")
-    for phrase in RETIRED_PHRASES:
-        require(phrase not in normalized_rule, f"Cursor Rule must not use retired phrasing: {phrase}")
-
     validate_mcp_entries(read_json(package / "mcp.json").get("mcpServers"), "Cursor MCP endpoint", entry_type=None, entry=entry, url=identity["url"])
     require(not (package / "hooks").exists(), "Cursor Adapter must not ship Hooks")
+    require(not (package / "rules").exists(), "Cursor Adapter must not ship Rules")
 
 
 def validate_workbuddy_adapter(root: Path, version: str, identity: dict) -> None:
@@ -333,26 +209,17 @@ def validate_workbuddy_adapter(root: Path, version: str, identity: dict) -> None
     plugin = read_json(package / ".workbuddy-plugin/plugin.json")
     require(plugin.get("name") == entry, f"WorkBuddy manifest name must be {entry}")
     require(plugin.get("version") == version, f"WorkBuddy manifest version must match VERSION ({version})")
-    for field, reference in (("skills", "./skills/"), ("hooks", "./hooks/hooks.json"), ("mcpServers", "./.mcp.json")):
+    for field, reference in (("skills", "./skills/"), ("mcpServers", "./.mcp.json")):
         require(plugin.get(field) == reference, f"WorkBuddy {field} component must reference {reference}")
         component(package, reference, f"WorkBuddy {field} component")
+    require("hooks" not in plugin, "WorkBuddy manifest must not declare Hooks")
 
     validate_skill_mirrors(root, package, "WorkBuddy")
 
-    hook = package / "hooks/user-prompt-submit"
-    require(hook.read_bytes() == (root / "hooks/user-prompt-submit").read_bytes(), "WorkBuddy Hook mirror must be byte-equivalent to the canonical Hook")
-    require(os.access(hook, os.X_OK), "WorkBuddy Hook is not executable")
-    expected_hooks = [{"hooks": [{"type": "command", "command": "${CODEBUDDY_PLUGIN_ROOT}/hooks/user-prompt-submit"}]}]
-    try:
-        hooks = read_json(package / "hooks/hooks.json")["hooks"]["UserPromptSubmit"]
-    except (KeyError, TypeError) as exc:
-        raise AssertionError("WorkBuddy Hook config must declare hooks.UserPromptSubmit") from exc
-    require(hooks == expected_hooks, "WorkBuddy Hook config must reference ${CODEBUDDY_PLUGIN_ROOT}/hooks/user-prompt-submit")
-
     validate_mcp_entries(read_json(package / ".mcp.json").get("mcpServers"), "WorkBuddy MCP server", entry_type="http", entry=entry, url=identity["url"])
 
-    guide = (root / "INSTALL.workbuddy.md").read_text().lower()
-    require("installing and enabling" in guide and "trust decision" in guide, "WorkBuddy installation guide must disclose the Plugin Hook trust decision")
+    require(not (package / "hooks").exists(), "WorkBuddy Adapter must not ship Hooks")
+    require(not (package / "rules").exists(), "WorkBuddy Adapter must not ship Rules")
 
 
 def validate_secrets(root: Path) -> None:

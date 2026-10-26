@@ -22,7 +22,7 @@ claude plugin validate --strict .claude-plugin/plugin.json
 python3 tests/validate_plugin.py
 ```
 
-The first command validates Marketplace metadata, the second validates the Plugin manifest, and the package-contract check rejects credential files and static authentication material. The package contains five Canonical Skills under `skills/` (`ask-springbrand`, `springbrand-platform`, `springbrand-action-api`, `springbrand-connector`, `springbrand-gtm`), one static `UserPromptSubmit` routing Hook, and one remote HTTP MCP declaration. The MCP declaration is exactly:
+The first command validates Marketplace metadata, the second validates the Plugin manifest, and the package-contract check rejects credential files and static authentication material. The package contains five Canonical Skills under `skills/` (`ask-springbrand`, `springbrand-platform`, `springbrand-action-api`, `springbrand-connector`, `springbrand-gtm`) and one remote HTTP MCP declaration. The MCP declaration is exactly:
 
 ```json
 {"type":"http","url":"https://connector.springbrand.ai/mcp"}
@@ -56,7 +56,7 @@ claude plugin details springbrand@springbrand
 claude mcp list
 ```
 
-Start a fresh session and verify that a covered request invokes `/springbrand:ask-springbrand` (the `ask-springbrand` Canonical Skill) before planning or production work. The Hook is local, static, deterministic, prompt-stateless, and network-free; it only injects the routing instruction. Discovery itself happens through the Domain Skills and their MCP entries.
+Start a fresh session and verify that a covered request invokes `/springbrand:ask-springbrand` (the `ask-springbrand` Canonical Skill) before planning or production work. Discovery itself happens through the Domain Skills and their MCP entries.
 
 ## Reload, update, and uninstall
 
@@ -66,7 +66,7 @@ For a running CLI session, run:
 /reload-plugins
 ```
 
-Restart Claude when a Hook or MCP path change is not picked up by reload. Update and remove through the native lifecycle:
+Restart Claude when an MCP path change is not picked up by reload. Update and remove through the native lifecycle:
 
 ```sh
 claude plugin update springbrand@springbrand --scope user

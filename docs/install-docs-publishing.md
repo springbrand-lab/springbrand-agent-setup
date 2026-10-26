@@ -4,13 +4,15 @@
 
 Canonical documents remain in this repository. R2 holds byte-identical
 Distribution Mirrors, not separately maintained content. The publisher mirrors
-the unified entries plus one single-client document for Codex, Claude Code,
-Claude, Cursor, OpenCode, and WorkBuddy in both production and development
-variants,
-along with generated `manifest.json` (commit SHA and SHA-256 hashes). The
-production and development installation instructions are published as separate
-objects; `INSTALL.md` is the production entry and `INSTALL.dev.md` is the test
-entry. Native Plugin installation and updates still require GitHub.
+only the production entries: the unified entry plus one single-client document
+for Codex, Claude Code, Claude, Cursor, OpenCode, and WorkBuddy, along with
+generated `manifest.json` (commit SHA and SHA-256 hashes). `INSTALL.md` is the
+production entry.
+
+Development guides (`INSTALL.dev.md` and the `INSTALL.cli.dev.*` /
+`INSTALL.*.dev.md` files) stay in the repository for internal testing and are
+deliberately not published to the public origin. Native Plugin installation and
+updates still require GitHub.
 
 - Public origin: `https://plugin.springbrand.ai`
 - Bucket: `springbrand-plugin-distribution` (Standard)

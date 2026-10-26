@@ -48,12 +48,8 @@ _Avoid_: Capability reference, Action ID, routable prefix
 An explicit handoff from one Domain Skill to another — handed back through Ask SpringBrand — that preserves relevant task state and ends the prior domain workflow.
 _Avoid_: Automatic forwarding, cross-domain execution, multi-Skill activation
 
-**Routing Notice**:
-The short, static, network-free domain map delivered through a Host's Hook or Rule so an Agent can invoke Ask SpringBrand when the domain is uncertain.
-_Avoid_: Prompt classifier, workflow instructions, execution Hook
-
 **Host Adapter**:
-The smallest host-native package that connects the SpringBrand Skill Set, the Unified MCP Endpoint, Routing Notice, and lifecycle metadata to one plugin engine and configuration contract.
+The smallest host-native package that connects the SpringBrand Skill Set, the Unified MCP Endpoint, and lifecycle metadata to one plugin engine and configuration contract.
 _Avoid_: Host implementation, generic plugin wrapper
 
 **Surface**:
