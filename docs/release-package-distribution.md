@@ -38,6 +38,11 @@ dispatches checks for the synchronized commit. Review and merge that PR before
 creating the immutable production tag. Fork PRs cannot receive bot commits and
 must run `scripts/sync_skill_versions.py` locally. Existing tags remain untouched.
 
+Whenever `VERSION` changes, or a host package is verified and its install pin moves,
+update `release-matrix.json` in the same PR and run
+`python3 scripts/release_matrix.py --write`. `python3 scripts/release_matrix.py --check`
+validates the pins and the generated `docs/release-channels.md` in CI.
+
 After merge, dispatch **Publish WorkBuddy release package** on main with an
 existing prod `tag` and `promote=false`. Credentials reuse the dedicated
 bucket-scoped Actions Secrets described in `install-docs-publishing.md`.

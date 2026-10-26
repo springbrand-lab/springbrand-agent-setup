@@ -85,6 +85,8 @@ jobs:
           python3 tests/test_production_skill_sync.py
           python3 tests/test_production_channel.py
           python3 tests/test_release_identity.py
+          python3 tests/test_release_matrix.py
+          python3 scripts/release_matrix.py --check
           python3 tests/test_action_discovery.py
           python3 tests/validate_plugin.py
           python3 tests/test_validator.py
