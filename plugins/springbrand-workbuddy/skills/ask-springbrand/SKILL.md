@@ -59,8 +59,7 @@ When the user needs the map, present it in plain language, close to this:
 >    remove them, rate them, browse what is available.
 > 2. **Action API** — pick from the API services that are available and have
 >    one do a task for you.
-> 3. **Connector** — work directly with another service you name, such as
->    GitHub.
+> 3. **Connector** — work directly with another service you name.
 
 Keep this wording plain. The domain names (Platform, Action API, Connector)
 are the only technical terms the user needs to see; everything else is
@@ -143,13 +142,13 @@ to exactly one Domain Skill:
 | Create and publish an artifact, upload material, or manage Plugins (find, add, remove, rate, browse the Marketplace) | Platform | `springbrand-platform` |
 | Use an available API service to do a task ("use an API to do X") | Action API | `springbrand-action-api` |
 | Continue an earlier Action execution | Action API | `springbrand-action-api` |
-| Read or change something in a named third-party system (GitHub, ...) | Connector | `springbrand-connector` |
+| Read or change something in a named third-party system | Connector | `springbrand-connector` |
 | Ordinary writing, coding, analysis, or planning with nothing to execute | (none — continue without SpringBrand) | — |
 
 Two special cases:
 
 - **A task that crosses domains** (for example: create and publish something,
-  then update it on GitHub) starts in the earliest domain it needs — here,
+  then update it in that service) starts in the earliest domain it needs — here,
   Platform — and moves on from there. Recommend that first domain only.
 - **The user is mid-Action and quotes an execution or action ID** — that is
   Action API, continuing existing work.
