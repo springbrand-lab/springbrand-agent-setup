@@ -241,8 +241,8 @@ Do not run a business operation as an installation check.
 ## Recovery paths
 
 If this CLI workflow cannot execute or the client installation fails, use the
-[Codex Desktop manual Plugin installation guide](https://devsite.springbrand.ai/developers/docs/connect/codex-desktop#manual-plugin-install).
-If that path still fails, contact [SpringBrand Support](https://devsite.springbrand.ai/contact)
+[Codex Desktop manual Plugin installation guide](https://springbrand.ai/developers/docs/connect/codex-desktop#manual-plugin-install).
+If that path still fails, contact [SpringBrand Support](https://springbrand.ai/contact)
 or [`contact@springbrand.ai`](mailto:contact@springbrand.ai).
 
 

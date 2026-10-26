@@ -85,7 +85,7 @@ the selected Host and environment unchanged, and do not create a second
 
 1. **Downgrade to the native Plugin flow.** If the CLI cannot run, cannot reach
    the user's machine, or reports a client installation failure, use the
-   [Codex Desktop manual Plugin installation guide](https://devsite.springbrand.ai/developers/docs/connect/codex-desktop#manual-plugin-install)
+   [Codex Desktop manual Plugin installation guide](https://springbrand.ai/developers/docs/connect/codex-desktop#manual-plugin-install)
    for ChatGPT Desktop (Codex). For Cursor, use the
    [Cursor manual MCP installation guide](https://springbrand.ai/developers/docs/connect/cursor-desktop#manual-mcp-install).
    For WorkBuddy, use the
@@ -96,7 +96,7 @@ the selected Host and environment unchanged, and do not create a second
    Do not report success from a manually edited MCP entry.
 2. **Support fallback.** If the native Plugin path or its OAuth/verification
    still fails, stop making configuration changes and contact
-   [SpringBrand Support](https://devsite.springbrand.ai/contact) or email
+   [SpringBrand Support](https://springbrand.ai/contact) or email
    [`contact@springbrand.ai`](mailto:contact@springbrand.ai).
 
 For an Other Agent (generic) target the Plugin flow does not apply: when its
