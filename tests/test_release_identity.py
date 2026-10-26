@@ -31,8 +31,6 @@ PACKAGING_MANIFESTS = (
     ".codebuddy-plugin/marketplace.json",
     ".agents/plugins/marketplace.json",
     "plugins/springbrand-workbuddy/.workbuddy-plugin/plugin.json",
-    "hooks/user-prompt-submit",
-    "plugins/springbrand-workbuddy/hooks/user-prompt-submit",
     ".github/workflows/validate-plugin.yml",
 )
 

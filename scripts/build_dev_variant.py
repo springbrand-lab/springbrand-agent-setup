@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Build the dev Plugin variant from production manifests.
 
-Rewrites Plugin identity, the single MCP entry, the Claude hook
-namespace, and every version field from production (springbrand /
-connector.springbrand.ai) to development (springbrand-dev /
-devconnector.springbrand.ai). Run on a dev release branch only. The rewrite
-is deterministic and idempotent; it fails loudly when an expected production
-pattern is missing.
+Rewrites Plugin identity, the single MCP entry, and every version field from
+production (springbrand / connector.springbrand.ai) to development
+(springbrand-dev / devconnector.springbrand.ai). Run on a dev release branch
+only. The rewrite is deterministic and idempotent; it fails loudly when an
+expected production pattern is missing.
 """
 
 import argparse
@@ -178,18 +177,6 @@ def rewrite_cursor_marketplace(path, version):
     write_json(path, data)
 
 
-def rewrite_hook(path):
-    text = path.read_text()
-    if "`/springbrand:" in text:
-        count = text.count("`/springbrand:")
-        if count != 2:
-            fail(f"{path}: expected Ask and GTM Claude namespace references, found {count}")
-        text = text.replace("`/springbrand:", "`/springbrand-dev:")
-    elif "`/springbrand-dev:" not in text:
-        fail(f"{path}: no Claude namespace reference found")
-    path.write_text(text)
-
-
 def rewrite_workflow(path):
     text = path.read_text()
     text = text.replace('"springbrand"', '"springbrand-dev"')
@@ -220,8 +207,6 @@ def main() -> None:
     rewrite_claude_marketplace(ROOT / ".claude-plugin/marketplace.json")
     rewrite_codebuddy_marketplace(ROOT / ".codebuddy-plugin/marketplace.json")
     rewrite_cursor_marketplace(ROOT / ".cursor-plugin/marketplace.json", args.version)
-    for name in ("hooks/user-prompt-submit", "plugins/springbrand-workbuddy/hooks/user-prompt-submit"):
-        rewrite_hook(ROOT / name)
     rewrite_workflow(ROOT / ".github/workflows/validate-plugin.yml")
     (ROOT / "VERSION").write_text(args.version + "\n")
     sync_skill_versions(ROOT)

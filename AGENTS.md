@@ -29,8 +29,7 @@ build happens to run on:
 `main` is the rolling production channel, so the manifests on `main`
 (`.mcp.json`, `plugins/springbrand/mcp.json`, `plugins/springbrand-workbuddy/.mcp.json`,
 `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `.codebuddy-plugin/`,
-`.agents/plugins/`, `hooks/user-prompt-submit`, and the WorkBuddy equivalents)
-MUST always carry the production identity.
+`.agents/plugins/`) MUST always carry the production identity.
 
 To build a dev variant, run `scripts/build_dev_variant.py` on a release branch
 only — it rewrites the manifests to the development identity in place. NEVER

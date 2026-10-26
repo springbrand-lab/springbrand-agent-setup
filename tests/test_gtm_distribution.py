@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 """Verify GTM reaches each native adapter and the manual dev installation path."""
-import json
-import os
 from pathlib import Path
 import shutil
-import subprocess
 import tempfile
 
 from validate_plugin import CANONICAL_SKILLS, validate_package, validate_skill_mirrors
@@ -22,16 +19,6 @@ def main():
     assert "user-invocable: false" not in frontmatter
     assert 'allow_implicit_invocation: false' not in frontmatter
     assert len(frontmatter.split("description:", 1)[1].split("metadata:", 1)[0].strip()) > 0
-
-    for namespace, extra in (("$springbrand-gtm", {}), ("/springbrand-dev:springbrand-gtm" if "-dev." in (ROOT / "VERSION").read_text() else "/springbrand:springbrand-gtm", {"CLAUDE_PLUGIN_ROOT": "/tmp/plugin"})):
-        env = {**os.environ, "CLAUDE_PLUGIN_ROOT": "", **extra}
-        notices = []
-        for prompt in ("帮我的产品做竞品分析", "GTM 是什么意思？", "fix a parser"):
-            result = subprocess.run([ROOT / "hooks/user-prompt-submit"], input=json.dumps({"prompt": prompt}), env=env, capture_output=True, text=True, check=True, timeout=1)
-            context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
-            assert namespace in context
-            notices.append(context)
-        assert len(set(notices)) == 1, "The hook must not classify prompt content"
 
     guide = (ROOT / "INSTALL.dev.md").read_text()
     plugin_guide = (ROOT / "INSTALL.plugin.dev.md").read_text()
@@ -55,7 +42,7 @@ def main():
             assert "springbrand-gtm" in str(error)
         else:
             raise AssertionError("Missing GTM adapter mirror passed validation")
-    print("GTM distribution: five Skills, implicit entry, static host notices and missing-mirror rejection passed")
+    print("GTM distribution: five Skills, implicit entry and missing-mirror rejection passed")
 
 
 if __name__ == "__main__":

@@ -154,9 +154,9 @@ Do not add `idempotency_key` to this list operation. Report actual error codes;
 do not assume every `invalid_arguments` means OAuth expired. Never perform a
 write operation merely to test installation.
 
-The package retains its static, local, network-free `UserPromptSubmit` Hook;
-installing and enabling the Plugin is the native trust decision for that Hook. Hook execution is not an
-installation acceptance gate. Do not claim execution without runtime evidence.
+The package ships no Hooks. Installing and enabling the Plugin is the native
+trust decision for its MCP entry. Do not claim a connection without runtime
+evidence.
 
 Never add tokens, authorization headers, client secrets, API keys, local MCP
 bridges or a second global MCP to work around installation/authentication.

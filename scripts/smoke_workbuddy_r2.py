@@ -134,7 +134,6 @@ def main():
             if name.startswith(prefix):
                 path = installed / name.removeprefix(prefix)
                 assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, name
-        assert os.access(installed/'hooks/user-prompt-submit', os.X_OK), 'Hook not executable'
         if args.remove:
             run([cli, 'plugin', 'disable', 'springbrand@springbrand', '--scope', 'user'])
             run([cli, 'plugin', 'uninstall', 'springbrand@springbrand', '--scope', 'user'])

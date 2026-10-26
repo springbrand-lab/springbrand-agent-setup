@@ -93,8 +93,6 @@ jobs:
           python3 tests/test_repair_cursor_plugin.py
           python3 tests/test_repair_workbuddy_plugin.py
           python3 tests/test_build_dev_variant.py
-          python3 tests/test_hook.py
-          python3 tests/test_routing_policy.py
           python3 tests/test_gtm_distribution.py
           python3 tests/test_upload_recipe.py
           python3 tests/test_release_package.py

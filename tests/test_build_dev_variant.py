@@ -17,7 +17,6 @@ COPIED = (
     ".cursor-plugin",
     ".github",
     ".mcp.json",
-    "hooks",
     "plugins",
     "scripts",
     "skills",
@@ -91,16 +90,15 @@ def main() -> None:
             assert marketplace["name"] == "springbrand-dev", marketplace
             assert all(plugin["name"] == "springbrand-dev" for plugin in marketplace["plugins"]), marketplace
 
-        for name in ("hooks/user-prompt-submit", "plugins/springbrand-workbuddy/hooks/user-prompt-submit"):
-            hook_path = package / name
-            hook = hook_path.read_text()
-            assert "`/springbrand-dev:ask-springbrand`" in hook, name
-            assert "`/springbrand:" not in hook, name
-            assert "`$ask-springbrand` Skill" in hook, name
-            assert hook_path.stat().st_mode & 0o111, name
-        assert (package / "hooks/user-prompt-submit").read_bytes() == (
-            package / "plugins/springbrand-workbuddy/hooks/user-prompt-submit"
-        ).read_bytes()
+        assert not (package / "hooks").exists()
+        assert not (package / "rules").exists()
+        for name in (
+            ".codex-plugin/plugin.json",
+            ".claude-plugin/plugin.json",
+            "plugins/springbrand/.cursor-plugin/plugin.json",
+            "plugins/springbrand-workbuddy/.workbuddy-plugin/plugin.json",
+        ):
+            assert "hooks" not in json.loads((package / name).read_text()), name
 
         workflow = (package / ".github/workflows/validate-plugin.yml").read_text()
         assert "codex plugin add springbrand-dev --marketplace springbrand-dev" in workflow

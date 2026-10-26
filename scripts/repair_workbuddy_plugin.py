@@ -7,9 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = sorted((ROOT / "skills").glob("*/SKILL.md"))
 REFERENCES = sorted((ROOT / "skills").glob("*/references/*.md"))
-COPIES = {
-    ROOT / "hooks/user-prompt-submit": ROOT / "plugins/springbrand-workbuddy/hooks/user-prompt-submit",
-}
+COPIES = {}
 COPIES.update(
     {
         skill: ROOT / "plugins/springbrand-workbuddy/skills" / skill.parent.name / "SKILL.md"

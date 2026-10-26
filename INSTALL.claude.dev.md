@@ -35,7 +35,7 @@ using SpringBrand.
 
 ## Reload, update, and uninstall
 
-For a running CLI session, run `/reload-plugins`. Restart Claude when a Hook or
+For a running CLI session, run `/reload-plugins`. Restart Claude when an MCP
 MCP path change is not picked up by reload.
 
 ```sh

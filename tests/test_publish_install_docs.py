@@ -21,6 +21,15 @@ class PublishingTests(unittest.TestCase):
             for name in publisher.FILES:
                 self.assertEqual((ROOT / name).read_bytes(), (output / name).read_bytes())
 
+    def test_development_guides_are_not_published(self):
+        self.assertEqual(set(publisher.FILES), set(publisher.PRODUCTION_FILES))
+        self.assertTrue(set(publisher.DEV_FILES).isdisjoint(publisher.FILES))
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / 'out'
+            publisher.build(ROOT, output, 'a' * 40)
+            published = {path.name for path in output.iterdir()}
+            self.assertTrue(set(publisher.DEV_FILES).isdisjoint(published))
+
     def test_reject_invalid_sources(self):
         for invalid in ('[missing](./NOT-PUBLISHED.md)', 'https://devconnector.springbrand.ai/mcp', 'v1.2.0-dev.1'):
             with self.subTest(invalid=invalid), tempfile.TemporaryDirectory() as tmp:

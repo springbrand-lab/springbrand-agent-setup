@@ -1,3 +1,7 @@
+> Historical note (2026-10-26): the `UserPromptSubmit` Hook described below was
+> removed from the shipped package. The rest of this plan records the earlier
+> distribution design.
+
 # SpringBrand Agent Plugin distribution plan
 
 **Status:** to-spec

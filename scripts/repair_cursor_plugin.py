@@ -9,7 +9,6 @@ SKILLS = sorted((ROOT / "skills").glob("*/SKILL.md"))
 REFERENCES = sorted((ROOT / "skills").glob("*/references/*.md"))
 COPIES = {
     ROOT / "assets/springbrand-icon.svg": ROOT / "plugins/springbrand/assets/springbrand-icon.svg",
-    ROOT / "rules/springbrand-preflight.mdc": ROOT / "plugins/springbrand/rules/springbrand-preflight.mdc",
 }
 COPIES.update({
     skill: ROOT / "plugins/springbrand/skills" / skill.parent.name / "SKILL.md"

@@ -24,8 +24,7 @@ Source is read by `git archive refs/tags/<tag>`, never the working tree. Package
 have reproducible ZIP timestamps/permissions and include the complete nested
 WorkBuddy Host Adapter and relative Marketplace entry. Build checks reject dev
 identity, tag/version disagreement, non-local plugin sources, extra MCP/auth
-configuration, missing Skills/references, drift from Canonical Skills/Hook,
-and a Hook missing its executable bit. Per-file and package SHA-256 hashes are
+configuration, missing Skills/references, and drift from Canonical Skills. Per-file and package SHA-256 hashes are
 recorded with the tag's resolved commit. SHA-256 detects corruption; it is not a
 separate signature/trust root. Native ZIP downloads use HTTPS/native host trust.
 
@@ -90,8 +89,7 @@ that proxy because the downloader ignores HTTPS_PROXY. TLS remains end-to-end
 with certificate verification enabled. This fixture is not part of user packages. Negative controls verify
 GitHub/raw/API/codeload and direct public-IP connections fail. The native CLI
 then adds/updates the ZIP Marketplace, installs/enables the Plugin, and checks
-its registry entry and every installed asset hash, including Hook executable
-permission. Add `--remove` to test disable/uninstall/marketplace removal.
+its registry entry and every installed asset hash. Add `--remove` to test disable/uninstall/marketplace removal.
 `r2-smoke-evidence.json` records commands/results and allowed/denied proxy hosts.
 No prompts, credentials, OAuth state, or model requests are part of this probe.
 
@@ -107,9 +105,9 @@ simulate upgrades. A same-version refresh is not upgrade evidence.
 
 - User's real WorkBuddy loads exactly one enabled SpringBrand Plugin.
 - Four Skills load after restart/new task.
-- Per user decision on 2026-09-07, Hook installation/runtime success is not a
-  release acceptance gate. Preserve existing packaged Hooks and integrity checks;
-  unverified runtime behavior must not be reported as passed.
+- Per user decision on 2026-09-07 and the 2026-10-26 Hook removal, Hook
+  installation/runtime success is not a release acceptance gate. Unverified
+  runtime behavior must not be reported as passed.
 - User completes native browser OAuth; actual domain-prefixed MCP call succeeds.
 - Covered task invokes appropriate discovery; ordinary local task does not.
 - Existing GitHub-origin installation migrates through the native lifecycle,

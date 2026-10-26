@@ -23,7 +23,7 @@ class ReleaseTests(unittest.TestCase):
         if '-dev.' in cls.tag:
             raise unittest.SkipTest('Production fixture unavailable in a dev-rewritten checkout')
         cls.files = {p.relative_to(builder.ROOT).as_posix(): (p.read_bytes(), p.stat().st_mode)
-                     for base in ['skills', 'hooks', 'plugins/springbrand-workbuddy', '.codebuddy-plugin']
+                     for base in ['skills', 'plugins/springbrand-workbuddy', '.codebuddy-plugin']
                      for p in (builder.ROOT / base).rglob('*') if p.is_file()}
         cls.files['VERSION'] = ((builder.ROOT / 'VERSION').read_bytes(), 0o644)
 
@@ -66,7 +66,6 @@ class ReleaseTests(unittest.TestCase):
             self.assertEqual((a/'springbrand-workbuddy.zip').read_bytes(), (b/'springbrand-workbuddy.zip').read_bytes())
             with zipfile.ZipFile(a/'springbrand-workbuddy.zip') as archive:
                 self.assertEqual(len(archive.namelist()), len(manifest['files']))
-                self.assertTrue(archive.getinfo('springbrand/plugins/springbrand-workbuddy/hooks/user-prompt-submit').external_attr >> 16 & 0o111)
                 for name, (data, _) in builder.package_files(self.files, self.tag).items():
                     self.assertEqual(archive.read('springbrand/'+name), data)
 
@@ -96,11 +95,6 @@ class ReleaseTests(unittest.TestCase):
         files = self.changed(name, lambda d: d+b'\nDrift')
         with self.assertRaises(ValueError): builder.package_files(files, self.tag)
         files = copy.deepcopy(self.files); del files[name]
-        with self.assertRaises(ValueError): builder.package_files(files, self.tag)
-
-    def test_hook_must_be_executable(self):
-        files = copy.deepcopy(self.files); name = 'plugins/springbrand-workbuddy/hooks/user-prompt-submit'
-        files[name] = (files[name][0], 0o644)
         with self.assertRaises(ValueError): builder.package_files(files, self.tag)
 
     def test_immutable_collision_and_idempotency(self):
