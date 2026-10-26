@@ -15,7 +15,7 @@ Follow [INSTALL.md](./INSTALL.md) steps 0 and 3 with `cursor` as the only client
    sp --version
    ```
 
-   Continue only after npm succeeds and `sp --version` runs successfully.
+   Continue only after npm succeeds and the output of `sp --version` contains `@springbrand/cli`. If it does not, another `sp` may be earlier on PATH; stop and report the observed output.
 
 2. Connect SpringBrand to Cursor. If the user's prompt includes an API key, run:
 

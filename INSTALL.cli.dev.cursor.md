@@ -15,7 +15,9 @@ Follow [INSTALL.dev.md](./INSTALL.dev.md) steps 0 and 3 with `cursor` as the onl
    sp --version
    ```
 
-   Continue only after npm succeeds and `sp --version` reports an alpha version.
+   Continue only after npm succeeds and the output of `sp --version` contains
+   `@springbrand/cli` and an alpha version. If it does not, another `sp` may be
+   earlier on PATH; stop and report the observed output.
 
 2. Connect SpringBrand Dev to Cursor. If the user's prompt includes a development API key, run:
 
