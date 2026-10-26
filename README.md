@@ -89,4 +89,4 @@ all-client entry:
 
 The SpringBrand installer: five Canonical Skills and one MCP entry per environment, packaged as native Plugins for Codex, Claude Code, Cursor, and WorkBuddy. Other AI Agents connect through the documented Skill-plus-MCP fallback.
 
-`INSTALL.md` and `INSTALL.dev.md` are written to be read and executed by an Agent. For maintainers: `VERSION` is the source of truth for releases; synchronize Skill versions with `python3 scripts/sync_skill_versions.py [--check]` and validate packages with `python3 tests/validate_plugin.py`.
+`INSTALL.md` and `INSTALL.dev.md` are written to be read and executed by an Agent. For maintainers: `VERSION` is the source of truth for releases; `release-matrix.json` records each channel's pinned Plugin and CLI versions, and `python3 scripts/release_matrix.py --check` keeps the channel page in sync. Synchronize Skill versions with `python3 scripts/sync_skill_versions.py [--check]` and validate packages with `python3 tests/validate_plugin.py`.
