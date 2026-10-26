@@ -61,7 +61,7 @@ npx add-mcp 'https://connector.springbrand.ai/mcp'
 ### Development (testing only)
 
 > Follow the official SpringBrand development installation guide to complete setup:
-> https://plugin.springbrand.ai/INSTALL.dev.md
+> [INSTALL.dev.md](./INSTALL.dev.md)
 > Identify the target environment and Host first. Run the pinned CLI command once with the development key if the prompt contains one; otherwise let the Host-native OAuth flow run. Read `nextAction`, complete that exact action, run the one `doctor` continuation, preserve unrelated configuration, and report success only when the result is `ready`.
 
 | | Production | Development |
@@ -84,6 +84,32 @@ all-client entry:
 | Cursor | [`INSTALL.cli.cursor.md`](./INSTALL.cli.cursor.md) | [`INSTALL.cli.dev.cursor.md`](./INSTALL.cli.dev.cursor.md) |
 | OpenCode | [`INSTALL.cli.opencode.md`](./INSTALL.cli.opencode.md) | [`INSTALL.cli.dev.opencode.md`](./INSTALL.cli.dev.opencode.md) |
 | WorkBuddy | [`INSTALL.cli.workbuddy.md`](./INSTALL.cli.workbuddy.md) | [`INSTALL.cli.dev.workbuddy.md`](./INSTALL.cli.dev.workbuddy.md) |
+
+## Client support
+
+Use the dedicated guide when one exists. Otherwise use the CLI client id with
+`sp connect <id>`, or the Other Agent workflow in `INSTALL.md` when the host
+has no CLI client.
+
+| Host or surface | CLI client | Dedicated guide | Notes |
+| --- | --- | --- | --- |
+| Codex CLI, ChatGPT Desktop (Codex view) | `codex` | `INSTALL.cli.codex.md` | Plugin fallback uses the Codex manual guide |
+| Claude Code, Claude Desktop Code tab | `claude-code` | `INSTALL.cli.claude-code.md` | Plugin fallback: `INSTALL.claude.md` |
+| Cursor | `cursor` | `INSTALL.cli.cursor.md` | — |
+| OpenCode | `opencode` | `INSTALL.cli.opencode.md` | — |
+| WorkBuddy | `workbuddy-ai` | `INSTALL.cli.workbuddy.md` | Native R2 package |
+| Pi | `pi` | — | CLI client only |
+| Devin Desktop or CLI | `devin` | — | CLI client only |
+| Grok | `grok` | — | CLI client only |
+| Hermes | `hermes` | — | CLI client only |
+| omp | `omp` | — | CLI client only |
+| OpenClaw | `openclaw` | — | CLI client only; Skills install through ClawHub |
+| command-code | `command-code` | — | CLI client only |
+| ChatGPT Desktop (Work view), Gemini CLI, DSH, any other host | `generic` | `INSTALL.md` Other Agent workflow | Configure the remote MCP entry manually |
+
+Development variants of the dedicated guides are kept in this repository; they
+are not published to the R2 documentation origin. If a host is not listed,
+report it as unsupported instead of guessing a configuration path.
 
 ## What this repository contains
 

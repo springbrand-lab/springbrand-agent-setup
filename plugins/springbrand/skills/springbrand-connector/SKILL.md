@@ -25,7 +25,7 @@ fetch remote releases just to check versions, and do not infer the MCP server
 version or automatically reinstall from this metadata.
 
 SpringBrand Connector is the Domain Skill for reading or changing data in a
-third-party system the user names, such as GitHub. It discovers only currently
+third-party system the user names. It discovers only currently
 available operations, verifies the current contract and connection state,
 executes with the user's explicit confirmation for this specific run, and
 reports the result honestly.
