@@ -1,4 +1,4 @@
-# SpringBrand Dev Cursor single-client installation
+# SpringBrand Dev Cursor single-client CLI installation
 
 Before any command, read and follow [the initial installation response](./INSTALL.dev.md#initial-installation-response). Determine whether this is a first installation or an update, and keep that classification for the whole conversation.
 
@@ -6,21 +6,48 @@ This document targets immutable development release `v1.2.1-dev.2`. It configure
 
 ## Preferred CLI installation
 
-After any required API-key preparation, run exactly one connect command. Do not run `--help`, `doctor`, an all-client command, or a second connect command first.
+Follow [INSTALL.dev.md](./INSTALL.dev.md) steps 0 and 3 with `cursor` as the only client. The Cursor-specific commands are below; the mode check, report handling, OAuth wait and completion report are the same as `INSTALL.dev.md`.
 
-```sh
-npx -y @springbrand/cli@alpha connect cursor --url https://devconnector.springbrand.ai/mcp --api-key {{INSTALL_KEY}}
-```
+1. Install the development CLI, then verify that the installed command runs:
 
-The Agent must never print, log, repeat, or include the key in a report. Choose exactly one branch:
+   ```sh
+   npm install -g @springbrand/cli@alpha
+   sp --version
+   ```
 
-- **Key supplied:** run the command above with `--api-key {{INSTALL_KEY}}`.
-- **No key supplied:** do not run the CLI yet. Show or open `https://devrapp.springbrand.ai/account-settings?section=mcp-api-keys`. Ask the user to register or sign in, create or copy the key, and provide it through the secure input channel. Wait for the key. After the user provides it, run the command above with `--api-key {INSTALL_KEY}`. Do not print, log, repeat, or include the key in the report.
-- **OAuth fallback:** only after the user cannot use an API key or explicitly chooses OAuth after a failed key attempt, run the native OAuth flow with `npx -y @springbrand/cli@alpha connect cursor --url https://devconnector.springbrand.ai/mcp` without `--api-key`. Do not run `auth login` in this branch.
+   Continue only after npm succeeds and the output of `sp --version` contains
+   `@springbrand/cli` and an alpha version. If it does not, another `sp` may be
+   earlier on PATH; stop and report the observed output.
+
+2. Connect SpringBrand Dev to Cursor. If the user's prompt includes a development API key, run:
+
+   ```sh
+   sp connect cursor --url https://devconnector.springbrand.ai/mcp --api-key <key> --json
+   ```
+
+   Otherwise, ask the user to obtain a development key from the dev RApp or continue with OAuth. If they provide a key, run the command above. If they choose OAuth, run:
+
+   ```sh
+   sp connect cursor --url https://devconnector.springbrand.ai/mcp --json
+   ```
+
+   Keep the selected authentication mode as `auth_mode` for the following steps. Never include the API key in reports. Substitute the key only when executing the command; never print, log or repeat it.
+
+3. Read the connection result and handle `status` exactly as in [INSTALL.dev.md section 3.2](./INSTALL.dev.md#32-read-the-connection-result). Exit code `4` means pending, not failure; read the JSON even when the command exits nonzero. Do not repeat connect merely because it is pending.
+
+4. For OAuth, run the returned login command once and wait for authorization as in [INSTALL.dev.md section 3.3](./INSTALL.dev.md#33-run-oauth-and-wait-for-authorization).
+
+5. On OAuth success, immediately run the returned `continuation` once. If an older CLI omits it, use:
+
+   ```sh
+   sp doctor --harness cursor --json --url https://devconnector.springbrand.ai/mcp
+   ```
+
+6. Confirm configuration and authorization, then output the installation report from [INSTALL.dev.md section 3.5](./INSTALL.dev.md#35-confirm-configuration-and-authorization) with Entry `springbrand-dev`, URL `https://devconnector.springbrand.ai/mcp`, native Streamable HTTP transport, and the next action to restart Cursor and open a new conversation.
 
 Do not silently switch to another client or another environment.
 
-If the command reports an invalid, expired, revoked, wrong-environment, or insufficient-scope key, stop and report only that stable failure category. Do not rerun the command with the same key. If the command reports an authentication or MCP authorization failure after accepting the key, stop and report the stable failure category. Retry without `--api-key` only after the user explicitly chooses the OAuth fallback. Never blind-retry.
+If the command reports an invalid, expired, revoked, wrong-environment, or insufficient-scope key, stop and report only that stable failure category. Do not rerun the command with the same key. If the command reports an authentication or MCP authorization failure after accepting the key, stop and report the stable failure category. Never blind-retry.
 
 ## Required verification
 

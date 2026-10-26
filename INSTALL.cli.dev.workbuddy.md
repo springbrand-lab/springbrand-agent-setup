@@ -10,7 +10,8 @@ First inspect the current execution mode and whether commands can reach the
 user's local machine. If the session is already in the Host's unrestricted mode
 (for example **Full access**) and is not sandbox-isolated, continue directly
 with the installation workflow below. Do not show the permission explanation
-or ask the user to choose a mode again.
+or ask the user to choose a mode again. Always show the key-storage disclosure
+below before a keyed install; Full access does not skip it.
 
 If the session is restricted, sandbox-isolated, or the first installation probe
 is blocked, this is a mandatory user-choice gate. Stop before running any
@@ -31,12 +32,17 @@ The summary of installation will do the following:
 - write only the selected Host's MCP, Plugin, and Skill configuration (for
   example under `~/.codex`, `~/.agents/plugins`, or the Host's own config
   directory);
-- write the CLI's local configuration under `~/.springbrand` and, when API-key
-  authentication is selected, the user's shell profile;
+- when API-key authentication is selected, store the key in plaintext in
+  `~/.springbrand/config.json`, the selected client's MCP configuration, and a
+  managed `SPRINGBRAND_DEV_API_KEY` block in the user's shell profile; the user
+  can remove it with `sp auth logout --env dev`;
 - execute `npm`, `sp`, and the selected Host integration or CLI;
 - connect to the SpringBrand MCP server at
   `https://devconnector.springbrand.ai/mcp`;
 - authenticate the MCP connection with an API key or browser-based OAuth.
+
+The CLI prints these storage locations after `connect`. Relay them to the user
+without the key value.
 
 Do not present installation commands, ask for command output, run a probe, or
 continue to the install workflow until the user chooses one of these options.
@@ -195,8 +201,9 @@ Follow **Recovery paths** when that workflow cannot complete.
    sp --version
    ```
 
-   Continue only after npm succeeds and `sp --version` reports an alpha
-   version.
+   Continue only after npm succeeds and the output of `sp --version` contains
+   `@springbrand/cli` and an alpha version. If it does not, another `sp` may be
+   earlier on PATH; stop and report the observed output.
 
 3. Connect SpringBrand to the selected client.
 
@@ -232,7 +239,7 @@ Follow **Recovery paths** when that workflow cannot complete.
      register at `https://devrapp.springbrand.ai/`.
 
    With an API key, the CLI verifies it before writing configuration. After a
-   successful verification it persists a managed `SPRINGBRAND_API_KEY` block
+   successful verification it persists a managed `SPRINGBRAND_DEV_API_KEY` block
    in the user's shell profile and saves the key in
    `~/.springbrand/config.json` with owner-only permissions. The
    CLI also keeps the key in the current process environment. Never include
@@ -293,8 +300,9 @@ Follow **Recovery paths** when that workflow cannot complete.
      WorkBuddy shows it.
    - API-key storage: when API-key authentication was selected, disclose that
      the key is stored in plaintext in `~/.workbuddy-ai/mcp.json`, in
-     `~/.springbrand/config.json`, and in a managed `SPRINGBRAND_API_KEY` block
-     in the user's shell profile; never include the key value.
+     `~/.springbrand/config.json`, and in a managed `SPRINGBRAND_DEV_API_KEY`
+     block in the user's shell profile; never include the key value. Remove it
+     with `sp auth logout --env dev`.
    - MCP tool access: report it will be available to check/use in the new session.
    - Existing configuration and unrelated clients: unchanged, only if verified.
    - Next action: restart the Host and open a new conversation to begin using
